@@ -1,0 +1,122 @@
+:root{
+    --pm-background-color: lightgrey;
+    --pm-blue: #5998ff;
+    --pm-green: #4CAF50;
+    --pm-dark-blue: #2e79f4;
+    --pm-dark-green: #4c9450;
+    --pm-button-hover-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    --pm-button-active-shadow: none;
+    --pm-font: "Roboto", sans-serif;
+}
+
+*{
+    font-family: var(--pm-font);
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    padding: 5px;
+    background: white;
+}
+
+body {
+    background: lightgrey;
+}
+
+/* BUTTONS */
+.green-btn {
+    text-transform: uppercase;
+    outline: 0;
+    background: var(--pm-green);
+    width: 100%;
+    border: 0;
+    padding: 15px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+.green-btn:hover{
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+.green-btn:active{
+    box-shadow:none;
+    background: var(--pm-dark-green);
+}
+
+.blue-btn {
+    text-transform: uppercase;
+    outline: 0;
+    background: var(--pm-blue);
+    width: 100%;
+    border: 0;
+    padding: 15px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.blue-btn:hover{
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+.blue-btn:active{
+    box-shadow:none;
+    background: var(--pm-dark-blue);
+}
+
+.expand input {
+    background: #eee;
+    padding: 10px;
+    border: none;
+}
+
+.expand:after {
+    display: block;
+    content: "";
+    border-bottom: 3px solid var(--pm-dark-blue);
+    transform: scaleX(0);
+    transition: transform 0.5s;
+    transform-origin:  0% 50%;
+}
+
+.expand:hover:after {
+    transform: scaleX(1);
+}
+
+/* TEXT INPUT */
+.blue-txt {
+    background: white;
+    width: 100%;
+    border:0;
+    border-bottom: solid var(--pm-blue);
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.green-txt {
+    background: white;
+    width: 100%;
+    border:0;
+    border-bottom: solid var(--pm-green);
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.blue-txt:focus{
+    border-bottom: solid var(--pm-dark-blue);
+}
+.green-txt:focus{
+    border-bottom: solid var(--pm-dark-green);
+}
+.blue-txt, .green-txt{
+    outline: none;
+}
+.blue-txt, .green-txt{
+    outline: none;
+}
+
+form label{
+    margin-top: 5%;
+}
+
