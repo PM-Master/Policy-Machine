@@ -1,6 +1,9 @@
 package gov.nist.policyserver.dao;
 
-import gov.nist.policyserver.exceptions.*;
+import gov.nist.policyserver.exceptions.DatabaseException;
+import gov.nist.policyserver.exceptions.InvalidNodeTypeException;
+import gov.nist.policyserver.exceptions.InvalidProhibitionSubjectTypeException;
+import gov.nist.policyserver.exceptions.InvalidPropertyException;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
@@ -11,10 +14,12 @@ import gov.nist.policyserver.model.prohibitions.Prohibition;
 import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
-import jdk.internal.org.objectweb.asm.Type;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import static gov.nist.policyserver.common.Utility.arrayToString;
 import static gov.nist.policyserver.common.Utility.setToString;
@@ -151,7 +156,8 @@ public class SqlDAO extends DAO {
         }
     }
 
-    private List<Assignment> getAssignments() throws DatabaseException {
+    @Override
+    public List<Assignment> getAssignments() throws DatabaseException {
         try{
             List<Assignment> relationships = new ArrayList<>();
             Statement stmt = conn.createStatement();
@@ -293,7 +299,7 @@ public class SqlDAO extends DAO {
             CallableStatement stmt = conn.prepareCall("{call create_assignment(?,?,?)}");
             stmt.setInt(1, (int) parentId);
             stmt.setInt(2, (int) childId);
-            stmt.registerOutParameter(3, Type.CHAR);
+            stmt.registerOutParameter(3, Types.VARCHAR);
             result = stmt.execute();
             String errorMsg = stmt.getString(3);
             if (errorMsg!= null && errorMsg.length() > 0) {
@@ -313,7 +319,7 @@ public class SqlDAO extends DAO {
 
             stmt.setLong(1, parentId);
             stmt.setLong(2, childId);
-            stmt.registerOutParameter(3, Type.CHAR);
+            stmt.registerOutParameter(3, Types.VARCHAR);
             result = stmt.execute();
             String errorMsg = stmt.getString(3);
             if (errorMsg!= null && errorMsg.length() > 0) {
@@ -339,7 +345,7 @@ public class SqlDAO extends DAO {
             stmt.setLong(1, uaId);
             stmt.setLong(2, targetId);
             stmt.setString(3, ops);
-            stmt.registerOutParameter(4, Type.CHAR);
+            stmt.registerOutParameter(4, Types.VARCHAR);
             stmt.execute();
             String errorMsg = stmt.getString(4);
             if (errorMsg!= null && errorMsg.length() > 0) {
@@ -378,7 +384,7 @@ public class SqlDAO extends DAO {
             CallableStatement stmt = conn.prepareCall("{call delete_association(?,?,?)}");
             stmt.setLong(1, uaId);
             stmt.setLong(2, targetId);
-            stmt.registerOutParameter(3, Type.CHAR);
+            stmt.registerOutParameter(3, Types.VARCHAR);
             result = stmt.execute();
             String errorMsg = stmt.getString(3);
             if (errorMsg!= null && errorMsg.length() > 0) {
@@ -420,7 +426,7 @@ public class SqlDAO extends DAO {
                 stmt.setString(6, null);
                 stmt.setString(7, String.valueOf(subject.getSubjectId()));
             }
-            stmt.registerOutParameter(8, Type.CHAR);
+            stmt.registerOutParameter(8, Types.VARCHAR);
             result = stmt.execute();
             String errorMsg = stmt.getString(8);
             if (errorMsg!= null && errorMsg.length() > 0) {
@@ -512,5 +518,15 @@ public class SqlDAO extends DAO {
         catch (SQLException e) {
             throw new DatabaseException(e.getErrorCode(), e.getMessage());
         }
+    }
+
+    @Override
+    public void createSession(long id, long id1) throws DatabaseException {
+
+    }
+
+    @Override
+    public Node getSessionUser(String sessionId) throws DatabaseException {
+        return null;
     }
 }

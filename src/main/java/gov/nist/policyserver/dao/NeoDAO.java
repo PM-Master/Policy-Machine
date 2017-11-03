@@ -158,10 +158,11 @@ public class NeoDAO extends DAO {
         }
     }
 
-    private List<Assignment> getAssignments() throws DatabaseException {
+    @Override
+    public List<Assignment> getAssignments() throws DatabaseException {
         List<Assignment> assignments = new ArrayList<>();
 
-        String cypher = "match(n:node)-[r:assigned_to]->(m:node) return n, r, m";
+        String cypher = "match(n)-[r:assigned_to]->(m) return n, r, m";
         ResultSet rs = execute(cypher);
         try {
             while (rs.next()) {
@@ -309,13 +310,19 @@ public class NeoDAO extends DAO {
     }
 
     @Override
-    public void createProhibition(String prohibitionName, HashSet<String> opertions, boolean intersection, ProhibitionRes[] resources, ProhibitionSubject subject) throws DatabaseException {
+    public void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionRes[] resources, ProhibitionSubject subject) throws DatabaseException {
         String cypher = "create (:D:denies{" +
                 "name: '" + prohibitionName + "', " +
-                "operations: " + setToCypherArray(opertions) +
+                "operations: " + setToCypherArray(operations) +
                 ", inetersection: " + intersection +
                 "})";
         execute(cypher);
+
+        for(ProhibitionRes pr : resources){
+            addResourceToProhibition(prohibitionName, pr.getResourceId(), pr.isCompliment());
+        }
+
+        setProhibitionSubject(prohibitionName, subject.getSubjectId(), subject.getSubjectType());
     }
 
     @Override
@@ -354,5 +361,25 @@ public class NeoDAO extends DAO {
         execute(cypher);
     }
 
+    @Override
+    public void createSession(long sessionNodeId, long userNodeId) throws DatabaseException {
+        String cypher = "match(s:S{id:" + sessionNodeId + "}), (u:U{id:" + userNodeId + "}) create (s)-[:session]->(u)";
+        execute(cypher);
+    }
 
+    @Override
+    public Node getSessionUser(String sessionId) throws DatabaseException {
+        String cypher = "match(s:S{name:'" + sessionId + "'})-[:session]->(u:U) return u";
+        ResultSet rs = execute(cypher);
+        try {
+            rs.next();
+            if(rs.next()){
+                return JsonHelper.getNodeFromJson(rs.getString(1));
+            }else{
+                throw new SessionDoesNotExistException(sessionId);
+            }
+        }catch (Exception e) {
+            throw new DatabaseException(ERR_NEO, e.getMessage());
+        }
+    }
 }
