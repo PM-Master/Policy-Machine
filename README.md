@@ -9,5 +9,5 @@ Prerequisites –
 1.	Install database of your choice. 
 2.	In case of MySQL database, run MySQLSetup.bat file and follow the instructions. This will create the schema and necessary metadata for the web services. 
 
-A setup utility comes up upon successful server startup, which lets you pick your database and will connect to it for you. Alternatively, you can go to http://localhost:8080/doc.jsp.
+A setup utility comes up upon successful server startup, which lets you pick your database and will connect to it for you. Alternatively, you can go to http://localhost:8080/config.jsp.
 
