@@ -13,7 +13,7 @@ import gov.nist.policyserver.model.graph.relationships.Assignment;
 import java.sql.*;
 import java.util.*;
 
-import static gov.nist.policyserver.common.Constants.*;
+import gov.nist.policyserver.common.Constants;
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class ConfigurationService {
@@ -82,7 +82,7 @@ public class ConfigurationService {
                 //create table node
                 properties = new Property[] {
                         new Property(Constants.SCHEMA_NAME_PROPERTY, schema),
-                        new Property(NAMESPACE_PROPERTY, tableName),
+                        new Property(Constants.NAMESPACE_PROPERTY, tableName),
                         new Property(Constants.SCHEMA_COMP_PROPERTY, Constants.SCHEMA_COMP_TABLE_PROPERTY)
                 };
                 Node tableNode = createNode(tableName, NodeType.OA.toString(), tableName, properties);
@@ -105,7 +105,7 @@ public class ConfigurationService {
                     System.out.println("creating column " + columnName);
 
                     properties = new Property[]{
-                            new Property(NAMESPACE_PROPERTY, tableName)
+                            new Property(Constants.NAMESPACE_PROPERTY, tableName)
                     };
                     Node columnNode = createNode(columnName, NodeType.OA.toString(), columnName, properties);
 
@@ -223,15 +223,15 @@ public class ConfigurationService {
             Node columnsNode = null;
             Node rowsNode = null;
             for(Node node : children){
-                if(node.getName().equals(COLUMN_CONTAINER_NAME)){
+                if(node.getName().equals(Constants.COLUMN_CONTAINER_NAME)){
                     columnsNode = node;
-                }else if(node.getName().equals(ROW_CONTAINER_NAME)){
+                }else if(node.getName().equals(Constants.ROW_CONTAINER_NAME)){
                     rowsNode = node;
                 }
             }
 
             if(columnsNode == null || rowsNode == null){
-                throw new NodeNotFoundException(columnsNode == null ? COLUMN_CONTAINER_NAME : ROW_CONTAINER_NAME);
+                throw new NodeNotFoundException(columnsNode == null ? Constants.COLUMN_CONTAINER_NAME : Constants.ROW_CONTAINER_NAME);
             }
 
             //get column Nodes

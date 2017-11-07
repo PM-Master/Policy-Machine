@@ -46,7 +46,7 @@ public class ConfigurationResource {
 
     @Path("data")
     @POST
-    public Response importData(ConnectRequest request) throws DatabaseException, NullNameException, ConfigurationException, NullTypeException, NodeNameExistsException, NodeNameExistsInNamespaceException, InvalidNodeTypeException, InvalidPropertyException, AssignmentExistsException, PropertyNotFoundException, NodeNotFoundException {
+    public Response importData(ConnectRequest request) throws DatabaseException, NullNameException, ConfigurationException, NullTypeException, NodeNameExistsException, NodeNameExistsInNamespaceException, InvalidNodeTypeException, InvalidPropertyException, AssignmentExistsException, PropertyNotFoundException, NodeNotFoundException, NameInNamespaceNotFoundException {
         String host = request.getHost();
         int port = request.getPort();
         String schema = request.getSchema();

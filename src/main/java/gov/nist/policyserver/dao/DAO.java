@@ -7,6 +7,7 @@ import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
+import gov.nist.policyserver.model.graph.relationships.Assignment;
 import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
@@ -109,7 +110,7 @@ public abstract class DAO {
         }
     }
 
-    public static void setInterval(int newInterval) throws ConfigurationException {
+    public static synchronized void setInterval(int newInterval) throws ConfigurationException {
         if(newInterval > 0){
             interval = newInterval;
         }else{
@@ -240,6 +241,8 @@ public abstract class DAO {
         }
     }
 
+    public abstract List<Assignment> getAssignments() throws DatabaseException;
+
     public abstract Node createNode(String name, NodeType type, String descr) throws DatabaseException;
 
     public abstract void updateNode(long nodeId, String name, String descr) throws DatabaseException;
@@ -274,4 +277,8 @@ public abstract class DAO {
     public abstract void setProhibitionSubject(String prohibitionName, long subjectId, ProhibitionSubjectType subjectType) throws DatabaseException;
 
     public abstract void setProhibitionOperations(String prohibitionName, HashSet<String> ops) throws DatabaseException;
+
+    public abstract void createSession(long id, long id1) throws DatabaseException;
+
+    public abstract Node getSessionUser(String sessionId) throws DatabaseException;
 }

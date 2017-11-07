@@ -56,4 +56,14 @@ public class Constants {
     public static final String ORDER_BY_PROPERTY        = "order_by";
     public static final String ROW_INDEX_PROPERTY       = "row_index";
     public static final String SESSION_USER_ID_PROPERTY = "user_id";
+    public static final String SCHEMA_COMP_PROPERTY        = "schema_comp";
+    public static final String SCHEMA_COMP_SCHEMA_PROPERTY = "schema";
+    public static final String SCHEMA_COMP_TABLE_PROPERTY  = "table";
+    public static final String SCHEMA_COMP_ROW_PROPERTY    = "row";
+    public static final String SCHEMA_COMP_COLUMN_PROPERTY = "col";
+    public static final String SCHEMA_COMP_CELL_PROPERTY   = "cell";
+    public static final String SCHEMA_NAME_PROPERTY        = "schema";
+    public static final String COLUMN_CONTAINER_NAME       = "Columns";
+    public static final String ROW_CONTAINER_NAME          = "Rows";
+    public static final boolean INHERIT_DEFAULT                = true;
 }
