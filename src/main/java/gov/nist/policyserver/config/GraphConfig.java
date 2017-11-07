@@ -9,7 +9,6 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.UUID;
-import jdk.internal.org.objectweb.asm.Type;
 
 import static gov.nist.policyserver.dao.DAO.dao;
 
@@ -214,7 +213,7 @@ public class GraphConfig {
             CallableStatement stmt = conn.prepareCall("{call create_assignment(?,?,?)}");
             stmt.setInt(1, (int) start);
             stmt.setInt(2, (int) end);
-            stmt.registerOutParameter(3, Type.CHAR);
+            stmt.registerOutParameter(3, Types.VARCHAR);
             stmt.execute();
         }catch(SQLException e) {
             e.printStackTrace();
@@ -228,7 +227,7 @@ public class GraphConfig {
             stmt.setLong(1, ua);
             stmt.setLong(2, oa);
             stmt.setString(3, ops);
-            stmt.registerOutParameter(4, Type.CHAR);
+            stmt.registerOutParameter(4, Types.VARCHAR);
             stmt.execute();
         }catch(SQLException e) {
             e.printStackTrace();
