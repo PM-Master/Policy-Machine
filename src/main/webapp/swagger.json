@@ -5,7 +5,7 @@
     "title": "Policy Machine API"
   },
   "host": "localhost:8080",
-  "basePath": "/pmapi/",
+  "basePath": "/api/",
   "tags": [
     {
       "name": "nodes",
