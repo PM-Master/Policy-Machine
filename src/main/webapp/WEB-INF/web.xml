@@ -40,4 +40,20 @@
 		<servlet-name>SetInterval</servlet-name>
 		<url-pattern>/SetInterval</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>LoadConfigurationScript</servlet-name>
+		<servlet-class>gov.nist.policyserver.servlets.LoadConfigurationScriptServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LoadConfigurationScript</servlet-name>
+		<url-pattern>/load</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>SaveConfigurationScript</servlet-name>
+		<servlet-class>gov.nist.policyserver.servlets.SaveConfigurationScriptServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SaveConfigurationScript</servlet-name>
+		<url-pattern>/save</url-pattern>
+	</servlet-mapping>
 </web-app>

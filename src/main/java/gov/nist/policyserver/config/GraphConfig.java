@@ -366,23 +366,7 @@ public class GraphConfig {
     }
 
     public static void main(String[] args){
-        //doMedrec();
-
         GraphConfig c = new GraphConfig(2, 1, 1, 1);
-        try {
-            c.runSql();
-        } catch (DatabaseException e) {
-            e.printStackTrace();
-        }
-
         c.runCsv();
-//        c.processCsv();
-
-        /*try {
-            c.runSandboxScript();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 }

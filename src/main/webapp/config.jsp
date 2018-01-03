@@ -108,6 +108,29 @@
             </div>
         </form>
     </div>
+    <div>
+        <h2>Get Current Configuration Script</h2>
+        <form action="save" method="post" style="text-align: left">
+            <label for="configName" style="font-weight: bold">Configuration Name</label>
+            <input class="blue-txt" type="text" name="configName" id="configName" value="">
+
+            <div style="text-align: center">
+                <input class="blue-btn" type="submit" value="Save Configuration" style="width: 45%;">
+            </div>
+
+        </form>
+    </div>
+    <div>
+        <h2>Load Configuration Script</h2>
+        <form  enctype="multipart/form-data" action="load" method="post" style="text-align: left">
+            <input type="file" name="configFile" accept=".pm">
+
+            <div style="text-align: center">
+                <input class="blue-btn" class="blue-btn" type="submit" value="Load Configuration" style="width: 45%;">
+            </div>
+
+        </form>
+    </div>
 </div>
 </body>
 </html>

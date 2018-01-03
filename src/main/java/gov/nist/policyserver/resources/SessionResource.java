@@ -5,13 +5,13 @@ import gov.nist.policyserver.requests.CreateSessionRequest;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.SessionService;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/sessions")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class SessionResource {
     private SessionService sessionService = new SessionService();
 

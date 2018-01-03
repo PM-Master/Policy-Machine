@@ -8,6 +8,7 @@ import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
+import scala.reflect.internal.pickling.Translations;
 
 import java.util.HashSet;
 import java.util.List;

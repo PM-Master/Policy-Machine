@@ -26,6 +26,7 @@ public class Constants {
     public static final int ERR_NODE_NAME_EXISTS_IN_NAMESPACE       = 6021;
     public static final int ERR_PROHIBITION_DOES_NOT_EXIST          = 6022;
     public static final int ERR_SESSION_DOES_NOT_EXIST              = 6023;
+    public static final int ERR_ACCESS_DENIED                       = 6024;
     public static final int ERR_NEO                                 = 7000;
     public static final int ERR_MYSQL                               = 8000;
     public static final int SUCCESS                                 = 9000;
@@ -66,4 +67,5 @@ public class Constants {
     public static final String COLUMN_CONTAINER_NAME       = "Columns";
     public static final String ROW_CONTAINER_NAME          = "Rows";
     public static final boolean INHERIT_DEFAULT                = true;
+
 }

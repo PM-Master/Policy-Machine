@@ -29,6 +29,17 @@ public class NodeService {
         this.access = access;
     }
 
+    /**
+     * Search for nodes
+     * @param namespace
+     * @param name
+     * @param type
+     * @param key
+     * @param value
+     * @return A HashSet of nodes, if none are found it will be empty
+     * @throws InvalidNodeTypeException
+     * @throws InvalidPropertyException
+     */
     public HashSet<Node> getNodes(String namespace, String name, String type, String key, String value)
             throws InvalidNodeTypeException, InvalidPropertyException {
         NodeType nodeType = (type != null) ? NodeType.toNodeType(type) : null;
@@ -103,7 +114,7 @@ public class NodeService {
 
         if(checkDefault){
             //check if name exists in the default namespace
-            HashSet<Node> nodes = getNodes(null, name, null, null, null);
+            HashSet<Node> nodes = getNodes(null, name, type, null, null);
             if (!nodes.isEmpty()) {
                 throw new NodeNameExistsException(name);
             }

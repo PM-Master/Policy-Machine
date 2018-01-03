@@ -222,6 +222,21 @@ public abstract class DAO {
         }
     }
 
+    public void serialize(String configName){
+        try {
+            FileOutputStream fos = new FileOutputStream("graph.conf");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(graph);
+
+            fos = new FileOutputStream("access.conf");
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(access);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean deserialize(){
         try {
             FileInputStream fis = new FileInputStream("graph.conf");

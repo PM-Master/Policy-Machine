@@ -20,6 +20,11 @@ public class ConfigurationResource {
     public ConfigurationResource() throws ConfigurationException {
     }
 
+    @GET
+    public Response getConfiguration() {
+        return new ApiResponse(configService.save()).toResponse();
+    }
+
     @Path("connection")
     @POST
     public Response connect(ConnectRequest request) throws DatabaseException, ConfigurationException {
@@ -56,5 +61,24 @@ public class ConfigurationResource {
         configService.importData(host, port, schema, username, password);
 
         return new ApiResponse(SUCCESS).toResponse();
+    }
+
+    @Path("data/tables")
+    @POST
+    public Response getData(DataRequest request) throws PmException {
+        String host = request.getHost();
+        int port = request.getPort();
+        String username = request.getUsername();
+        String password = request.getPassword();
+        String schema = request.getSchema();
+        String tableName = request.getTable();
+
+        return new ApiResponse(configService.getData(host, port, username, password, schema, tableName)).toResponse();
+    }
+
+    @Path("graph")
+    @GET
+    public Response getGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
+        return new ApiResponse(configService.getGraph()).toResponse();
     }
 }

@@ -7,6 +7,7 @@ import gov.nist.policyserver.model.graph.relationships.Assignment;
 import gov.nist.policyserver.model.graph.relationships.Association;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DirectedMultigraph;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class PmGraph implements Serializable{
     DirectedGraph<Node, Assignment> graph;
     public PmGraph(){
-        graph = new DefaultDirectedGraph<>(Assignment.class);
+        graph = new DirectedMultigraph<Node, Assignment>(Assignment.class);
     }
 
     public synchronized void addNode(Node n){
@@ -179,6 +180,18 @@ public class PmGraph implements Serializable{
         graph.removeEdge(child, parent);
     }
 
+    public HashSet<Assignment> getAssignments() {
+        HashSet<Assignment> assignments = new HashSet<>();
+        Set<Assignment> edges = graph.edgeSet();
+        for(Assignment a : edges){
+            if(!(a instanceof Association)){
+                assignments.add(a);
+            }
+        }
+
+        return assignments;
+    }
+
     public synchronized void deleteAssignment(Node child, Node parent){
         graph.removeEdge(child, parent);
     }
@@ -227,6 +240,18 @@ public class PmGraph implements Serializable{
         return assocs;
     }
 
+    public List<Association> getTargetAssociations(long targetId){
+        List<Association> assocs = new ArrayList<>();
+        Set<Assignment> assignments = graph.incomingEdgesOf(getNode(targetId));
+        for(Assignment edge : assignments){
+            if(edge instanceof Association){
+                Association assocEdge = (Association)edge;
+                assocs.add(new Association(assocEdge.getStart(), assocEdge.getEnd(), assocEdge.getOps(), assocEdge.isInherit()));
+            }
+        }
+        return assocs;
+    }
+
     public synchronized boolean isAssigned(long childId, long parentId){
         Assignment edge = graph.getEdge(getNode(childId), getNode(parentId));
         return !(edge == null || edge instanceof Association);
@@ -235,5 +260,18 @@ public class PmGraph implements Serializable{
     public synchronized boolean isAssigned(Node child, Node parent){
         Assignment edge = graph.getEdge(child, parent);
         return !(edge == null || edge instanceof Association);
+    }
+
+    public List<Association> getAssociations() {
+        List<Association> assocs = new ArrayList<>();
+        Set<Assignment> edges = graph.edgeSet();
+        for(Assignment assignment : edges){
+            if(assignment.getStart().getId() == 709)System.out.println(assignment.getStart().getId() + "->" + assignment.getEnd().getId());
+            if(assignment instanceof Association){
+                Association assocEdge = (Association)assignment;
+                assocs.add(new Association(assocEdge.getStart(), assocEdge.getEnd(), assocEdge.getOps(), assocEdge.isInherit()));
+            }
+        }
+        return assocs;
     }
 }

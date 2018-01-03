@@ -14,6 +14,8 @@ import java.sql.*;
 import java.util.*;
 
 import gov.nist.policyserver.common.Constants;
+import gov.nist.policyserver.model.graph.relationships.Association;
+
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class ConfigurationService {
@@ -22,6 +24,7 @@ public class ConfigurationService {
 
     private NodeService nodeService;
     private AssignmentService assignmentService;
+    private AccessService accessService;
 
     public ConfigurationService() throws ConfigurationException {
         graph = getDao().getGraph();
@@ -29,6 +32,7 @@ public class ConfigurationService {
 
         nodeService = new NodeService();
         assignmentService = new AssignmentService();
+        accessService = new AccessService();
     }
 
     public void connect(String database, String host, int port, String schema, String username, String password) throws DatabaseException, ConfigurationException {
@@ -54,7 +58,13 @@ public class ConfigurationService {
         Property[] properties = new Property[] {
                 new Property(Constants.SCHEMA_COMP_PROPERTY, Constants.SCHEMA_COMP_SCHEMA_PROPERTY),
                 };
-        Node schemaNode = createNode(schema, NodeType.PC.toString(), "Policy Class for " + schema, properties);
+        Node pcNode = createNode(schema, NodeType.PC.toString(), "Policy Class for " + schema, properties);
+
+        // create the schema object attribute node
+        Node schemaNode = createNode(schema, NodeType.OA.toString(), "Base Object Attribute for " + schema, properties);
+
+        //assign oa node to pc node
+        assignmentService.createAssignment(schemaNode.getId(), pcNode.getId());
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -62,8 +72,9 @@ public class ConfigurationService {
             Statement stmt = conn.createStatement();
             stmt.execute("use " + schema);
             ResultSet rs = stmt.executeQuery("show full tables where Table_Type = 'BASE TABLE'");
-            List<String> keys = new ArrayList<>();
             while(rs.next()){
+                List<String> keys = new ArrayList<>();
+
                 String tableName = rs.getString(1);
 
                 //get primary keys to make name
@@ -73,7 +84,7 @@ public class ConfigurationService {
                         "USING(constraint_name,table_schema,table_name)\n" +
                         "WHERE t.constraint_type='PRIMARY KEY'\n" +
                         "    AND t.table_schema=DATABASE()\n" +
-                        "    AND t.table_name='" + tableName + "';");
+                        "    AND t.table_name='" + tableName + "' order by ordinal_position;");
                 ResultSet rs3 = ps2.executeQuery();
                 while(rs3.next()){
                     keys.add(rs3.getString(1));
@@ -91,8 +102,11 @@ public class ConfigurationService {
                 assignmentService.createAssignment(tableNode.getId(), schemaNode.getId());
 
                 //create columns container
+                properties = new Property[] {
+                        new Property(Constants.NAMESPACE_PROPERTY, tableName)
+                };
                 Node columnsNode = createNode(Constants.COLUMN_CONTAINER_NAME, NodeType.OA.toString(),
-                        "Column container for " + tableName, null);
+                        "Column container for " + tableName, properties);
                 assignmentService.createAssignment(columnsNode.getId(), tableNode.getId());
 
                 //create columns
@@ -119,8 +133,11 @@ public class ConfigurationService {
                 //create rows
                 if(!columnSql.isEmpty()){
                     //create rows containers
+                    properties = new Property[] {
+                            new Property(Constants.NAMESPACE_PROPERTY, tableName)
+                    };
                     Node rowsNode = createNode(Constants.ROW_CONTAINER_NAME, NodeType.OA.toString(),
-                            "Row container for " + tableName, null);
+                            "Row container for " + tableName, properties);
                     assignmentService.createAssignment(rowsNode.getId(), tableNode.getId());
 
                     //get data from table
@@ -135,7 +152,7 @@ public class ConfigurationService {
                         for(int i = 1; i <= numCols; i++){
                             String columnName = rs2MetaData.getColumnName(i);
                             if(keys.contains(columnName)){
-                                String value = String.valueOf(rs2.getObject(1));
+                                String value = String.valueOf(rs2.getObject(i));
                                 if(rowName.isEmpty()){
                                     rowName += value;
                                 }else{
@@ -282,6 +299,7 @@ public class ConfigurationService {
                 List<Object> rowValues = new ArrayList<>();
                 for(int i = 1; i <= numCols; i++){
                     //add row value
+                    String value = String.valueOf(rs.getObject(i));
                     rowValues.add(rs.getObject(i));
 
                     //get column name
@@ -289,7 +307,6 @@ public class ConfigurationService {
 
                     //construct rowName
                     if(keys.contains(columnName)){
-                        String value = String.valueOf(rs.getObject(1));
                         if(rowName.isEmpty()){
                             rowName += value;
                         }else{
@@ -361,6 +378,96 @@ public class ConfigurationService {
         /*HashSet<Node> nodes = graph.getNodes();
         HashSet<Assignment> assignments = graph.getAssignments();
         return new graph(nodes, assignments);*/
+    }
+
+    public String save() {
+        HashSet<Node> nodes = graph.getNodes();
+        HashSet<Assignment> assignments = graph.getAssignments();
+        List<Association> associations = graph.getAssociations();
+
+        //print everything to string
+        String config = "";
+        for(Node node : nodes) {
+            config += "node(name=" + node.getName() + ",type=" + node.getType() + ",description=" + node.getDescription();
+            List<Property> properties = node.getProperties();
+            for(Property prop : properties) {
+                config += "," + prop.getKey() + "=" + prop.getValue();
+            }
+            config += ");\n";
+        }
+
+        for(Assignment assignment : assignments) {
+            config += "assignment(parent=" + assignment.getStart().getId() + ",child=" + assignment.getEnd().getId() + ");\n";
+        }
+
+        for(Association association : associations) {
+            config += "association(ua=" + association.getStart().getId() + ",oa=" + association.getEnd().getId() + ",ops=" + association.getOps() + ",inherit=true);\n";
+        }
+
+        return config;
+    }
+
+    public void load(String config) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, DatabaseException, NullTypeException, InvalidPropertyException, ConfigurationException, InvalidNodeTypeException, NodeNotFoundException, AssignmentExistsException {
+        String[] commands = config.split(";\n");
+        for(String cmd : commands) {
+            String paramStr = cmd.substring(cmd.indexOf("(")+1, cmd.lastIndexOf(")"));
+            String[] params = paramStr.split(",");
+
+            HashMap<String, String> paramMap = new HashMap<>();
+            for(String param : params) {
+                String[] pieces = param.split("=");
+                if(pieces.length == 2) {
+                    paramMap.put(pieces[0], pieces[1]);
+                }
+            }
+
+            if(cmd.startsWith("node")) {
+                node(paramMap);
+            } else if (cmd.startsWith("assignment")) {
+                assignment(paramMap);
+            } else if (cmd.startsWith("association")) {
+                association(paramMap);
+            }
+        }
+    }
+
+    private void association(HashMap<String, String> paramMap) throws DatabaseException, NodeNotFoundException, ConfigurationException {
+        String ua = paramMap.get("ua");
+        String oa = paramMap.get("oa");
+        String opsStr = paramMap.get("ops");
+        String inherit = paramMap.get("inherit");
+        System.out.println("creating association: ua=" + ua + ", oa=" + oa + ", ops=" + opsStr + ", inherit=" + inherit);
+
+        HashSet<String> ops = new HashSet<>();
+        String[] pieces = opsStr.split(",|\\[|\\]");
+        ops.addAll(Arrays.asList(pieces));
+
+        accessService.grantAccess(Long.valueOf(ua), Long.valueOf(oa), ops, Boolean.parseBoolean(inherit));
+    }
+
+    private void assignment(HashMap<String, String> paramMap) throws NodeNotFoundException, AssignmentExistsException, ConfigurationException, DatabaseException {
+        String parent = paramMap.get("parent");
+        String child = paramMap.get("child");
+        System.out.println("assigning " + child + " to " + parent);
+        assignmentService.createAssignment(Long.valueOf(parent), Long.valueOf(child));
+    }
+
+    private void node(HashMap<String, String> paramMap) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, InvalidPropertyException, DatabaseException, InvalidNodeTypeException {
+        System.out.println("creating node " + paramMap.get("name"));
+
+        List<Property> properties = new ArrayList<>();
+        for(String key : paramMap.keySet()) {
+            if(key.equals("name") || key.equals("type") || key.equals("description")) {
+                continue;
+            }
+
+            properties.add(new Property(key, paramMap.get(key)));
+        }
+
+        Property[] propArr = new Property[properties.size()];
+        propArr = properties.toArray(propArr);
+
+        nodeService.createNode(paramMap.get("name"), paramMap.get("type"), paramMap.get("description"), propArr);
     }
 
     class graph {

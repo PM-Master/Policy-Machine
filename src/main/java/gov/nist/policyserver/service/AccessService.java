@@ -1,6 +1,7 @@
 package gov.nist.policyserver.service;
 
 import gov.nist.policyserver.access.PmAccess;
+import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.access.PmAccessEntry;
@@ -214,4 +215,50 @@ public class AccessService {
 
         return association;
     }
+
+    public List<Association> getTargetAssociations(long targetId) throws NodeNotFoundException {
+        Node target = graph.getNode(targetId);
+        if(target == null){
+            throw new NodeNotFoundException(targetId);
+        }
+        return graph.getTargetAssociations(targetId);
+    }
+
+    public List<Association> getUattrAssociations(long uaId) throws NodeNotFoundException {
+        Node target = graph.getNode(uaId);
+        if(target == null){
+            throw new NodeNotFoundException(uaId);
+        }
+        return graph.getUattrAssociations(uaId);
+    }
+
+    public List<Association> getAssociations() {
+        return graph.getAssociations();
+    }
+
+    public void updateAssociation(long targetId, long uaId, HashSet<String> ops) throws NodeNotFoundException, AssociationDoesNotExistException, ConfigurationException, DatabaseException {
+        //check that the target and user attribute nodes exist
+        Node target = graph.getNode(targetId);
+        if(target == null){
+            throw new NodeNotFoundException(targetId);
+        }
+        Node ua = graph.getNode(uaId);
+        if(ua == null){
+            throw new NodeNotFoundException(uaId);
+        }
+
+        //check ua -> oa exists
+        Association assoc = getAssociation(uaId, targetId);
+        if (assoc == null) {
+            throw new AssociationDoesNotExistException(uaId, targetId);
+        }
+
+        //update association in database
+        getDao().updateAssociation(uaId, targetId, Constants.INHERIT_DEFAULT, ops);
+
+        //update association in nodes
+        graph.updateAssociation(uaId, targetId, ops, Constants.INHERIT_DEFAULT);
+    }
+
+
 }

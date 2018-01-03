@@ -80,5 +80,30 @@ public class AccessResource {
             throws NodeNotFoundException, NoUserParameterException {
         return new ApiResponse(accessService.getAccessibleNodes(userId)).toResponse();
     }
+
+    @Path("/associations")
+    @GET
+    public Response getAssociations(){
+        return new ApiResponse(accessService.getAssociations()).toResponse();
+    }
+
+    @Path("/associations/targets/{targetId}")
+    @GET
+    public Response getTargetAssociations(@PathParam("targetId") long targetId) throws NodeNotFoundException {
+        return new ApiResponse(accessService.getTargetAssociations(targetId)).toResponse();
+    }
+
+    @Path("/associations/targets/{targetId}")
+    @PUT
+    public Response updateAssociation(@PathParam("targetId") long targetId, AssociationRequest request) throws NodeNotFoundException, DatabaseException, AssociationDoesNotExistException, ConfigurationException {
+        accessService.updateAssociation(targetId, request.getUaId(), request.getOps());
+        return new ApiResponse(ApiResponse.UPDATE_ACCESS_SUCESS).toResponse();
+    }
+
+    @Path("/associations/userAttributes/{uaId}")
+    @GET
+    public Response getUattrAssociations(@PathParam("uaId") long uaId) throws NodeNotFoundException {
+        return new ApiResponse(accessService.getUattrAssociations(uaId)).toResponse();
+    }
 }
 
