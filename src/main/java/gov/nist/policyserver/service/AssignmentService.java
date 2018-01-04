@@ -45,7 +45,7 @@ public class AssignmentService {
         }
         Node parent = graph.getNode(parentId);
         if(parent == null){
-            throw new NodeNotFoundException(childId);
+            throw new NodeNotFoundException(parentId);
         }
         if (isAssigned(childId, parentId) ) {
             throw new AssignmentExistsException("Assignment exists between node " + childId + " and " + parentId);
