@@ -283,7 +283,7 @@ public class NeoDAO extends DAO {
 
     @Override
     public void deleteAssignment(long childId, long parentId) throws DatabaseException {
-        String cypher = "match (a{id:" + childId + "})<-[r:assigned_to]-(b{id:" + parentId + "}) delete r";
+        String cypher = "match (a{id:" + childId + "})-[r:assigned_to]->(b{id:" + parentId + "}) delete r";
         execute(cypher);
     }
 
