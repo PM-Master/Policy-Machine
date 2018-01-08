@@ -65,11 +65,11 @@ public class AccessService {
         }
         Node user = graph.getNode(userId);
         if(user == null){
-            throw new NodeNotFoundException(targetId);
+            throw new NodeNotFoundException(userId);
         }
 
         //get permitted ops for the subject on the target
-        PmAccessEntry userAccess = access.getUserAccessOn(target, user);
+        PmAccessEntry userAccess = access.getUserAccessOn(user, target);
 
         //get prohibited ops for the subject on the target
         HashSet<String> prohibitedOps = null;
