@@ -1202,7 +1202,6 @@ CREATE TABLE IF NOT EXISTS `node` (
   `name` varchar(200) DEFAULT NULL,
   `description` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`node_id`),
-  UNIQUE KEY `uq_name` (`name`),
   KEY `node_type_id_idx` (`node_type_id`),
   CONSTRAINT `fk_node_type_id` FOREIGN KEY (`node_type_id`) REFERENCES `node_type` (`node_type_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table contains all the nodes in the graph';
