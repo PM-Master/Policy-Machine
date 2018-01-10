@@ -397,7 +397,7 @@ public class ConfigurationService {
         }
 
         for(Assignment assignment : assignments) {
-            config += "assignment(parent=" + assignment.getStart().getId() + ",child=" + assignment.getEnd().getId() + ");\n";
+            config += "assignment(parent=" + assignment.getEnd().getId() + ",child=" + assignment.getStart().getId() + ");\n";
         }
 
         for(Association association : associations) {
@@ -408,8 +408,9 @@ public class ConfigurationService {
     }
 
     public void load(String config) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, DatabaseException, NullTypeException, InvalidPropertyException, ConfigurationException, InvalidNodeTypeException, NodeNotFoundException, AssignmentExistsException {
-        String[] commands = config.split(";\n");
+        String[] commands = config.split(";");
         for(String cmd : commands) {
+            cmd = cmd.trim();
             String paramStr = cmd.substring(cmd.indexOf("(")+1, cmd.lastIndexOf(")"));
             String[] params = paramStr.split(",");
 
@@ -440,7 +441,11 @@ public class ConfigurationService {
 
         HashSet<String> ops = new HashSet<>();
         String[] pieces = opsStr.split(",|\\[|\\]");
-        ops.addAll(Arrays.asList(pieces));
+        for(String piece : pieces) {
+            if(!piece.isEmpty()) {
+                ops.add(piece.trim());
+            }
+        }
 
         accessService.grantAccess(Long.valueOf(ua), Long.valueOf(oa), ops, Boolean.parseBoolean(inherit));
     }
@@ -449,7 +454,7 @@ public class ConfigurationService {
         String parent = paramMap.get("parent");
         String child = paramMap.get("child");
         System.out.println("assigning " + child + " to " + parent);
-        assignmentService.createAssignment(Long.valueOf(parent), Long.valueOf(child));
+        assignmentService.createAssignment(Long.valueOf(child), Long.valueOf(parent));
     }
 
     private void node(HashMap<String, String> paramMap) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, InvalidPropertyException, DatabaseException, InvalidNodeTypeException {

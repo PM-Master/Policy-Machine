@@ -11,15 +11,12 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.*;
 
-import javax.swing.*;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
 
 public abstract class Algorithm {
     protected PmManager pmManager;
@@ -42,10 +39,7 @@ public abstract class Algorithm {
                 "    AND t.table_name='" + tableName + "' order by ordinal_position;");
         ResultSet rs2 = ps2.executeQuery();
         List<String> keys = new ArrayList<>();
-        if (rs2 == null) {
-            JOptionPane.showMessageDialog(null, "Error", "Table does not have a Primary Key.\nThis tool requires the table to have a Primary Key.", JOptionPane.ERROR_MESSAGE);
-            return null;
-        } else {
+        if (rs2 != null) {
             while (rs2.next()) {
                 keys.add(tableName + "." + rs2.getString(1));
             }
