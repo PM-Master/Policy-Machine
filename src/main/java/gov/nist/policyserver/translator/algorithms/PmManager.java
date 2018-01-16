@@ -67,8 +67,8 @@ public class PmManager {
         return nodeService.getNodeInNamespace(namespace, name).getId();
     }
 
-    public List<Node> getAccessibleChildren(long rowPmId, String perm) throws NodeNotFoundException, NoUserParameterException {
-        List<PmAccessEntry> accessibleChildren = accessService.getAccessibleChildren(rowPmId, pmUser.getId());
+    public List<Node> getAccessibleChildren(long id, String perm) throws NodeNotFoundException, NoUserParameterException {
+        List<PmAccessEntry> accessibleChildren = accessService.getAccessibleChildren(id, pmUser.getId());
         List<Node> nodes = new ArrayList<>();
         for(PmAccessEntry entry : accessibleChildren) {
             if(entry.getOperations().contains(perm)) {

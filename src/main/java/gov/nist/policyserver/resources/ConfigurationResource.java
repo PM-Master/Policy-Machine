@@ -81,4 +81,17 @@ public class ConfigurationResource {
     public Response getGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
         return new ApiResponse(configService.getGraph()).toResponse();
     }
+
+    @Path("graph/users")
+    @GET
+    public Response getUserGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
+        System.out.println("in user");
+        return new ApiResponse(configService.getUserGraph()).toResponse();
+    }
+
+    @Path("graph/objects")
+    @GET
+    public Response getObjGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
+        return new ApiResponse(configService.getObjGraph()).toResponse();
+    }
 }

@@ -1,26 +1,13 @@
 package gov.nist.policyserver.service;
 
-import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.exceptions.*;
-import gov.nist.policyserver.exceptions.NodeNotFoundException;
-import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class AssignmentService {
-
-    private PmGraph  graph;
-    private PmAccess access;
-
+public class AssignmentService extends Service{
     public AssignmentService() throws ConfigurationException {
-        graph = getDao().getGraph();
-        access = getDao().getAccess();
-    }
-
-    public AssignmentService(PmGraph graph, PmAccess access) {
-        this.graph = graph;
-        this.access = access;
+        super();
     }
 
     public boolean isAssigned(long childId, long parentId) throws NodeNotFoundException {

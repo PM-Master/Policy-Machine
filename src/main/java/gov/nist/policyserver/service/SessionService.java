@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class SessionService {
+public class SessionService extends Service{
     private NodeService nodeService;
     private AccessService accessService;
 

@@ -1,9 +1,7 @@
 package gov.nist.policyserver.service;
 
-import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.exceptions.*;
-import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.relationships.Association;
@@ -14,14 +12,9 @@ import java.util.List;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class AccessService {
-
-    private PmGraph  graph;
-    private PmAccess access;
-
+public class AccessService extends Service{
     public AccessService() throws ConfigurationException {
-        graph = getDao().getGraph();
-        access = getDao().getAccess();
+        super();
     }
 
     public void grantAccess(long uaId, long targetId, HashSet<String> ops, boolean inherit)

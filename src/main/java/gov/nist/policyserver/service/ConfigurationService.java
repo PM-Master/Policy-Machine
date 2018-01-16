@@ -18,17 +18,13 @@ import gov.nist.policyserver.model.graph.relationships.Association;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class ConfigurationService {
-    private PmGraph  graph;
-    private PmAccess access;
-
+public class ConfigurationService extends Service{
     private NodeService nodeService;
     private AssignmentService assignmentService;
     private AccessService accessService;
 
     public ConfigurationService() throws ConfigurationException {
-        graph = getDao().getGraph();
-        access = getDao().getAccess();
+        super();
 
         nodeService = new NodeService();
         assignmentService = new AssignmentService();
@@ -360,26 +356,6 @@ public class ConfigurationService {
             return null;
         }
     }
-
-    public JsonNode getGraph() throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException {
-        HashSet<Node> pcNodes = nodeService.getNodes(null, null, "PC", null, null);
-        HashSet<JsonNode> children = new HashSet<>();
-        for(Node node : pcNodes) {
-            children.add(new JsonNode(
-                    node.getId(),
-                    node.getName(),
-                    node.getType().toString(),
-                    node.getDescription(),
-                    node.getProperties(),
-                    getJsonNodes(node.getId())));
-        }
-        JsonNode root = new JsonNode(999999999, "PM", "C", "Connector Node", null, children);
-        return root;
-        /*HashSet<Node> nodes = graph.getNodes();
-        HashSet<Assignment> assignments = graph.getAssignments();
-        return new graph(nodes, assignments);*/
-    }
-
     public String save() {
         HashSet<Node> nodes = graph.getNodes();
         HashSet<Assignment> assignments = graph.getAssignments();
@@ -475,6 +451,71 @@ public class ConfigurationService {
         nodeService.createNode(paramMap.get("name"), paramMap.get("type"), paramMap.get("description"), propArr);
     }
 
+    public JsonNode getGraph() throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException {
+        HashSet<Node> cNodes = nodeService.getNodes(null, null, "C", null, null);
+        Node cNode = cNodes.iterator().next();
+        JsonNode root = new JsonNode((int)cNode.getId(), cNode.getName(), "C", "Connector Node", cNode.getProperties(), getJsonNodes(cNode.getId()));
+        return root;
+    }
+    public JsonNode getUserGraph() throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException {
+        System.out.println("in get user graph");
+        HashSet<Node> cNodes = nodeService.getNodes(null, null, "C", null, null);
+        Node cNode = cNodes.iterator().next();
+        JsonNode root = new JsonNode((int)cNode.getId(), cNode.getName(), "C", "Connector Node", cNode.getProperties(), getJsonUserNodes(cNode.getId()));
+        return root;
+    }
+    public JsonNode getObjGraph() throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException {
+        HashSet<Node> cNodes = nodeService.getNodes(null, null, "C", null, null);
+        Node cNode = cNodes.iterator().next();
+        JsonNode root = new JsonNode((int)cNode.getId(), cNode.getName(), "C", "Connector Node", cNode.getProperties(), getJsonObjNodes(cNode.getId()));
+        return root;
+    }
+
+    List<JsonNode> getJsonUserNodes(long id) throws NodeNotFoundException, InvalidNodeTypeException {
+        System.out.println("in get user nodes");
+        List<JsonNode> jsonNodes = new ArrayList<>();
+        HashSet<Node> children = nodeService.getChildrenOfType(id, "PC");
+        children.addAll(nodeService.getChildrenOfType(id, "U"));
+        children.addAll(nodeService.getChildrenOfType(id, "UA"));
+        for(Node node : children) {
+            jsonNodes.add(new JsonNode(
+                    node.getId(),
+                    node.getName(),
+                    node.getType().toString(),
+                    node.getDescription(),
+                    node.getProperties(),
+                    getJsonNodes(node.getId())));
+        }
+
+        if(jsonNodes.isEmpty()){
+            return null;
+        }else {
+            return jsonNodes;
+        }
+    }
+
+    List<JsonNode> getJsonObjNodes(long id) throws NodeNotFoundException, InvalidNodeTypeException {
+        List<JsonNode> jsonNodes = new ArrayList<>();
+        HashSet<Node> children = nodeService.getChildrenOfType(id, "PC");
+        children.addAll(nodeService.getChildrenOfType(id, "O"));
+        children.addAll(nodeService.getChildrenOfType(id, "OA"));
+        for(Node node : children) {
+            jsonNodes.add(new JsonNode(
+                    node.getId(),
+                    node.getName(),
+                    node.getType().toString(),
+                    node.getDescription(),
+                    node.getProperties(),
+                    getJsonNodes(node.getId())));
+        }
+
+        if(jsonNodes.isEmpty()){
+            return null;
+        }else {
+            return jsonNodes;
+        }
+    }
+
     class graph {
         HashSet<Node> nodes;
         HashSet<Assignment> links;
@@ -501,8 +542,8 @@ public class ConfigurationService {
         }
     }
 
-    HashSet<JsonNode> getJsonNodes(long id) throws NodeNotFoundException, InvalidNodeTypeException {
-        HashSet<JsonNode> jsonNodes = new HashSet<>();
+    List<JsonNode> getJsonNodes(long id) throws NodeNotFoundException, InvalidNodeTypeException {
+        List<JsonNode> jsonNodes = new ArrayList<>();
         HashSet<Node> children = nodeService.getChildrenOfType(id, null);
         for(Node node : children) {
             jsonNodes.add(new JsonNode(
@@ -528,10 +569,11 @@ public class ConfigurationService {
         String     type;
         String     description;
         List<Property> properties;
-        HashSet<JsonNode> children;
+        List<JsonNode> children;
 
-        public JsonNode(long id, String name, String type, String description, List<Property> properties, HashSet<JsonNode> children) {
-            this.id = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
+        public JsonNode(long id, String name, String type, String description, List<Property> properties, List<JsonNode> children) {
+            //this.id = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
+            this.id = new Integer((int)id).toString();
             this.nodeId = id;
             this.name = name;
             this.type = type;
@@ -580,11 +622,11 @@ public class ConfigurationService {
             this.properties = properties;
         }
 
-        public HashSet<JsonNode> getChildren() {
+        public List<JsonNode> getChildren() {
             return children;
         }
 
-        public void setChildren(HashSet<JsonNode> children) {
+        public void setChildren(List<JsonNode> children) {
             this.children = children;
         }
     }

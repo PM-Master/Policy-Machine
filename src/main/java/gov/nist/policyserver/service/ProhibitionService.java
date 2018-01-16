@@ -1,9 +1,7 @@
 package gov.nist.policyserver.service;
 
-import gov.nist.policyserver.access.PmAccess;
-import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.dao.DAO;
-import gov.nist.policyserver.graph.PmGraph;
+import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.prohibitions.Prohibition;
 import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
@@ -16,14 +14,9 @@ import java.util.List;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class ProhibitionService {
-
-    private PmGraph  graph;
-    private PmAccess access;
-
+public class ProhibitionService extends Service{
     public ProhibitionService() throws ConfigurationException {
-        graph = getDao().getGraph();
-        access = getDao().getAccess();
+        super();
     }
 
     public Prohibition createProhibition(String name, String[] operations, boolean intersection,

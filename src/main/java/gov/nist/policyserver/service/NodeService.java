@@ -1,8 +1,6 @@
 package gov.nist.policyserver.service;
 
-import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.exceptions.*;
-import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
@@ -12,22 +10,14 @@ import java.util.List;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class NodeService {
+public class NodeService extends Service{
 
     private static final String NAMESPACE_PROPERTY = "namespace";
 
-    private PmGraph  graph;
-    private PmAccess access;
-
     public NodeService() throws ConfigurationException {
-        graph = getDao().getGraph();
-        access = getDao().getAccess();
+        super();
     }
 
-    public NodeService(PmGraph graph, PmAccess access){
-        this.graph = graph;
-        this.access = access;
-    }
 
     /**
      * Search for nodes

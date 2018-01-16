@@ -16,14 +16,14 @@ public class Node implements Serializable{
     private String         description;
     private List<Property> properties;
 
-	public Node(){}
+    public Node(){}
 
     public Node (String name, NodeType type){
-	    if(name == null){
-	        throw new IllegalArgumentException("The name of a node cannot be null");
+        if(name == null){
+            throw new IllegalArgumentException("The name of a node cannot be null");
         }
         if(type == null){
-	        throw new IllegalArgumentException("The type of a node annot be null");
+            throw new IllegalArgumentException("The type of a node annot be null");
         }
 
         this.name = name;
@@ -67,7 +67,7 @@ public class Node implements Serializable{
             throw new IllegalArgumentException("The name of a node cannot be null");
         }
         if(type == null){
-            throw new IllegalArgumentException("The type of a node annot be null");
+            throw new IllegalArgumentException("The type of a node cannot be null");
         }
 
         this.name = name;
@@ -81,7 +81,7 @@ public class Node implements Serializable{
             throw new IllegalArgumentException("The name of a node cannot be null");
         }
         if(type == null){
-            throw new IllegalArgumentException("The type of a node annot be null");
+            throw new IllegalArgumentException("The type of a node cannot be null");
         }
 
         this.id = id;
@@ -124,15 +124,15 @@ public class Node implements Serializable{
     }
 
     public List<Property> getProperties() {
-		return properties;
-	}
+        return properties;
+    }
 
-	public void setProperties(List<Property> properties) {
-		this.properties = properties;
-	}
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
 
     public boolean hasProperty(Property property){
-	    return properties.contains(property);
+        return properties.contains(property);
     }
 
     public boolean hasProperty(String key){
@@ -150,12 +150,11 @@ public class Node implements Serializable{
                 return prop;
             }
         }
-
         throw new PropertyNotFoundException(this.id, key);
     }
 
     public void addProperty(String key, String value) throws InvalidPropertyException {
-	    this.properties.add(new Property(key,value));
+        this.properties.add(new Property(key,value));
     }
 
     public void addProperty(Property prop){
