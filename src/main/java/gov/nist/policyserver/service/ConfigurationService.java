@@ -387,6 +387,10 @@ public class ConfigurationService extends Service{
         String[] commands = config.split(";");
         for(String cmd : commands) {
             cmd = cmd.trim();
+            if(cmd.isEmpty()) {
+                continue;
+            }
+
             String paramStr = cmd.substring(cmd.indexOf("(")+1, cmd.lastIndexOf(")"));
             String[] params = paramStr.split(",");
 

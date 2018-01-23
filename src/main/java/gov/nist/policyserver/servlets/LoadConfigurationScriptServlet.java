@@ -1,5 +1,6 @@
 package gov.nist.policyserver.servlets;
 
+import gov.nist.policyserver.dao.DAO;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.service.ConfigurationService;
 import org.apache.commons.fileupload.FileItem;
@@ -43,6 +44,9 @@ public class LoadConfigurationScriptServlet extends HttpServlet {
                     service.load(config);
                 }
             }
+
+            DAO.getDao().buildGraph();
+
             request.setAttribute("successMessage", "Configuration loaded successfully");
             request.getRequestDispatcher("/config.jsp").forward(request, response);
         }
