@@ -1,4 +1,4 @@
-package gov.nist.policyserver.evr.model.exceptions;
+package gov.nist.policyserver.evr.exceptions;
 
 public class InvalidEvrException extends Exception {
     public InvalidEvrException(String message) {

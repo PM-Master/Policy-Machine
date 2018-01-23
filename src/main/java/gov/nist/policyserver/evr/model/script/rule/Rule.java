@@ -12,6 +12,8 @@ public class Rule {
         this.response = response;
     }
 
+    public Rule() {}
+
     public Event getEvent() {
         return event;
     }

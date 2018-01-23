@@ -16,7 +16,8 @@
     </ul>
 </div>
 <div class="card content" style="padding: 15px; text-align: center; margin-right: 25%; margin-left: 25%">
-    <h1>Coming soon...</h1>
-</div>
+
+
+    </div>
 </body>
 </html>
