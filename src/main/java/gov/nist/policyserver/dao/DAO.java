@@ -50,10 +50,11 @@ public abstract class DAO {
      */
     public static void init() throws DatabaseException, ConfigurationException {
         try {
-            //deserialize
-            FileInputStream fis = new FileInputStream("pm.conf");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            Properties props = (Properties) ois.readObject();
+            Properties props = new Properties();
+            InputStream input = new FileInputStream("..\\webapps\\pm\\WEB-INF\\classes\\pm.config");
+
+            // load a properties file
+            props.load(input);
 
             //get properties
             database = props.getProperty("database");
