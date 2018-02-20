@@ -50,11 +50,14 @@ public abstract class DAO {
      */
     public static void init() throws DatabaseException, ConfigurationException {
         try {
-            Properties props = new Properties();
-            InputStream input = new FileInputStream("..\\webapps\\pm\\WEB-INF\\classes\\pm.config");
+            //deserialize
+            FileInputStream fis = new FileInputStream("pm.conf");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Properties props = (Properties) ois.readObject();
 
-            // load a properties file
-            props.load(input);
+            if(props == null || props.isEmpty()) {
+                throw new ConfigurationException("Could not find existing PM configuration.  Navigate to the PM Configuration page.");
+            }
 
             //get properties
             database = props.getProperty("database");
@@ -68,7 +71,6 @@ public abstract class DAO {
                 interval = Integer.parseInt(inter);
             }
 
-            //want deserialization
             if(database.equalsIgnoreCase(Constants.NEO4J)){
                 dao = new NeoDAO();
             }else{
