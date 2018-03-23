@@ -25,7 +25,7 @@ public class SessionService extends Service{
         accessService = new AccessService();
     }
 
-    public String createSession(String username, String password) throws InvalidNodeTypeException, InvalidPropertyException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, DatabaseException, NodeNotFoundException {
+    public String createSession(String username, String password) throws InvalidNodeTypeException, InvalidPropertyException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, DatabaseException, NodeNotFoundException, NodeIdExistsException {
         //authenticate
         HashSet<Node> nodes = nodeService.getNodes(null, username, NodeType.U.toString(), null, null);
         if(nodes.isEmpty()){
@@ -41,7 +41,7 @@ public class SessionService extends Service{
         Property[] properties = new Property[]{
                 new Property(Constants.SESSION_USER_ID_PROPERTY, String.valueOf(userNode.getId()))
         };
-        nodeService.createNode(sessionId, NodeType.S.toString(), "Session for " + username, properties);
+        nodeService.createNode(0, sessionId, NodeType.S.toString(), "Session for " + username, properties);
 
 
         return sessionId;

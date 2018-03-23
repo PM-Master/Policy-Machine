@@ -158,7 +158,7 @@ public class AccessService extends Service{
         if(user == null){
             throw new NodeNotFoundException(userId);
         }
-
+        System.out.println("target: " + target.getName() + ", user: " + user.getName());
         return access.getAccessibleChildrenOf(target, user);
     }
 

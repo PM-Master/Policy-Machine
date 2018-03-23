@@ -67,9 +67,54 @@ public class NodeService extends Service{
         return nodes;
     }
 
-    public Node createNode(String name, String type, String description, Property[] properties)
+    public HashSet<Node> getNodes(String namespace, String name, String type, List<Property> properties)
+            throws InvalidNodeTypeException, InvalidPropertyException {
+        NodeType nodeType = (type != null) ? NodeType.toNodeType(type) : null;
+
+        HashSet<Node> nodes = graph.getNodes();
+
+        //check namespace match
+        if(namespace != null){
+            nodes.removeIf(node -> {
+                try {
+                    return !node.hasProperty(NAMESPACE_PROPERTY) || !node.getProperty(NAMESPACE_PROPERTY).getValue().equalsIgnoreCase(namespace);
+                }
+                catch (PropertyNotFoundException e) {
+                    return true;
+                }
+            });
+        }
+
+        //check name match
+        if(name != null){
+            nodes.removeIf(node -> !node.getName().equals(name));
+        }
+
+        //check type match
+        if(nodeType != null){
+            nodes.removeIf(node -> !node.getType().equals(nodeType));
+        }
+
+        HashSet<Node> nodesCopy = new HashSet<>();
+        nodesCopy.addAll(nodes);
+
+        //check property match
+        if(properties != null) {
+            for(Node node : nodes) {
+                for (Property prop : properties) {
+                    if(!node.hasProperty(prop)) {
+                        nodesCopy.remove(node);
+                    }
+                }
+            }
+        }
+
+        return nodes;
+    }
+
+    public Node createNode(long id, String name, String type, String description, Property[] properties)
             throws NullNameException, NullTypeException, InvalidNodeTypeException, InvalidPropertyException, NodeNameExistsInNamespaceException,
-            DatabaseException, ConfigurationException, NodeNameExistsException {
+            DatabaseException, ConfigurationException, NodeNameExistsException, NodeIdExistsException {
         //check name and type are not null
         if(name == null){
             throw new NullNameException();
@@ -78,19 +123,25 @@ public class NodeService extends Service{
             throw new NullTypeException();
         }
 
+        if(id > 0) {
+            //check if ID exists
+            try {
+                Node node = getNode(id);
+                throw new NodeIdExistsException(id, node);
+            }
+            catch (NodeNotFoundException e) {/*expected exception*/}
+        }
+
         boolean checkDefault = true;
         //check this name will be the only one in the namespace
         if(properties != null) {
             for (Property property : properties) {
-
                 //check if namespace property exists
                 if (property.getKey().equals(NAMESPACE_PROPERTY)) {
                     Node nodeInNamespace = null;
                     try {
                         nodeInNamespace = getNodeInNamespace(property.getValue(), name);                    }
-                    catch (NameInNamespaceNotFoundException e) {
-                        System.err.println(e.getMessage());
-                    }
+                    catch (NameInNamespaceNotFoundException e) {}
 
                     if (nodeInNamespace != null) {
                         throw new NodeNameExistsInNamespaceException(property.getValue(), name);
@@ -112,7 +163,7 @@ public class NodeService extends Service{
 
         //create node in database
         NodeType nt = NodeType.toNodeType(type);
-        Node newNode = getDao().createNode(name, nt, description);
+        Node newNode = getDao().createNode(id, name, nt, description);
 
         //add the node to the nodes
         graph.addNode(newNode);

@@ -3,6 +3,8 @@ package gov.nist.policyserver.service;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 
+import java.util.HashSet;
+
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class AssignmentService extends Service{
@@ -18,7 +20,7 @@ public class AssignmentService extends Service{
         }
         Node parent = graph.getNode(parentId);
         if(parent == null){
-            throw new NodeNotFoundException(childId);
+            throw new NodeNotFoundException(parentId);
         }
 
         return graph.isAssigned(child, parent);
@@ -65,6 +67,15 @@ public class AssignmentService extends Service{
 
         //delete assignment in nodes
         graph.deleteAssignment(child, parent);
+    }
+
+    public HashSet<Node> getAscendants(long nodeId) throws NodeNotFoundException {
+        Node node = graph.getNode(nodeId);
+        if(node == null) {
+            throw new NodeNotFoundException(nodeId);
+        }
+
+        return graph.getAscesndants(nodeId);
     }
 
 }

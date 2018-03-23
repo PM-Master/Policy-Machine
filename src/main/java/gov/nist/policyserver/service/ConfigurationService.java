@@ -1,10 +1,10 @@
 package gov.nist.policyserver.service;
 
-import gov.nist.policyserver.access.PmAccess;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.dao.DAO;
-import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
@@ -13,7 +13,6 @@ import gov.nist.policyserver.model.graph.relationships.Assignment;
 import java.sql.*;
 import java.util.*;
 
-import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.model.graph.relationships.Association;
 
 import static gov.nist.policyserver.dao.DAO.getDao;
@@ -200,7 +199,7 @@ public class ConfigurationService extends Service{
     private Node createNode(String name, String type, String description, Property[] properties) throws DatabaseException, InvalidPropertyException, ConfigurationException, InvalidNodeTypeException {
         //create node in database
         NodeType nt = NodeType.toNodeType(type);
-        Node newNode = getDao().createNode(name, nt, description);
+        Node newNode = getDao().createNode(0, name, nt, description);
 
         //add the node to the nodes
         graph.addNode(newNode);
@@ -356,103 +355,133 @@ public class ConfigurationService extends Service{
             return null;
         }
     }
-    public String save() {
-        HashSet<Node> nodes = graph.getNodes();
-        HashSet<Assignment> assignments = graph.getAssignments();
-        List<Association> associations = graph.getAssociations();
 
-        //print everything to string
-        String config = "";
+    class JsonGraph {
+        HashSet<Node> nodes;
+        HashSet<JsonAssignment> assignments;
+        HashSet<JsonAssociation> associations;
+
+        public JsonGraph(HashSet<Node> nodes, HashSet<JsonAssignment> assignments, HashSet<JsonAssociation> associations) {
+            this.nodes = nodes;
+            this.assignments = assignments;
+            this.associations = associations;
+        }
+
+        public HashSet<Node> getNodes() {
+            return nodes;
+        }
+
+        public HashSet<JsonAssignment> getAssignments() {
+            return assignments;
+        }
+
+        public HashSet<JsonAssociation> getAssociations() {
+            return associations;
+        }
+    }
+
+    class JsonAssignment {
+        long child;
+        long parent;
+
+        public JsonAssignment(long child, long parent) {
+            this.child = child;
+            this.parent = parent;
+        }
+
+        public long getChild() {
+            return child;
+        }
+
+        public long getParent() {
+            return parent;
+        }
+    }
+
+    class JsonAssociation {
+        long ua;
+        long target;
+        HashSet<String> ops;
+        boolean isInherit;
+
+        public JsonAssociation(long ua, long target, HashSet<String> ops, boolean isInherit) {
+            this.ua = ua;
+            this.target = target;
+            this.ops = ops;
+            this.isInherit = isInherit;
+        }
+
+        public long getUa() {
+            return ua;
+        }
+
+        public long getTarget() {
+            return target;
+        }
+
+        public HashSet<String> getOps() {
+            return ops;
+        }
+
+        public boolean isInherit() {
+            return isInherit;
+        }
+    }
+
+    public String save() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        HashSet<Node> nodes = graph.getNodes();
         for(Node node : nodes) {
-            config += "node(name=" + node.getName() + ",type=" + node.getType() + ",description=" + node.getDescription();
             List<Property> properties = node.getProperties();
             for(Property prop : properties) {
-                config += "," + prop.getKey() + "=" + prop.getValue();
-            }
-            config += ");\n";
-        }
-
-        for(Assignment assignment : assignments) {
-            config += "assignment(parent=" + assignment.getEnd().getId() + ",child=" + assignment.getStart().getId() + ");\n";
-        }
-
-        for(Association association : associations) {
-            config += "association(ua=" + association.getStart().getId() + ",oa=" + association.getEnd().getId() + ",ops=" + association.getOps() + ",inherit=true);\n";
-        }
-
-        return config;
-    }
-
-    public void load(String config) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, DatabaseException, NullTypeException, InvalidPropertyException, ConfigurationException, InvalidNodeTypeException, NodeNotFoundException, AssignmentExistsException {
-        String[] commands = config.split(";");
-        for(String cmd : commands) {
-            cmd = cmd.trim();
-            if(cmd.isEmpty()) {
-                continue;
-            }
-
-            String paramStr = cmd.substring(cmd.indexOf("(")+1, cmd.lastIndexOf(")"));
-            String[] params = paramStr.split(",");
-
-            HashMap<String, String> paramMap = new HashMap<>();
-            for(String param : params) {
-                String[] pieces = param.split("=");
-                if(pieces.length == 2) {
-                    paramMap.put(pieces[0], pieces[1]);
+                if(prop.getKey().equals("description")) {
+                    properties.remove(prop);
+                    break;
                 }
             }
-
-            if(cmd.startsWith("node")) {
-                node(paramMap);
-            } else if (cmd.startsWith("assignment")) {
-                assignment(paramMap);
-            } else if (cmd.startsWith("association")) {
-                association(paramMap);
-            }
         }
-    }
-
-    private void association(HashMap<String, String> paramMap) throws DatabaseException, NodeNotFoundException, ConfigurationException {
-        String ua = paramMap.get("ua");
-        String oa = paramMap.get("oa");
-        String opsStr = paramMap.get("ops");
-        String inherit = paramMap.get("inherit");
-        System.out.println("creating association: ua=" + ua + ", oa=" + oa + ", ops=" + opsStr + ", inherit=" + inherit);
-
-        HashSet<String> ops = new HashSet<>();
-        String[] pieces = opsStr.split(",|\\[|\\]");
-        for(String piece : pieces) {
-            if(!piece.isEmpty()) {
-                ops.add(piece.trim());
-            }
+        HashSet<Assignment> assignments = graph.getAssignments();
+        HashSet<JsonAssignment> jsonAssignments = new HashSet<>();
+        for(Assignment assignment : assignments) {
+            jsonAssignments.add(new JsonAssignment(assignment.getChild().getId(), assignment.getParent().getId()));
         }
 
-        accessService.grantAccess(Long.valueOf(ua), Long.valueOf(oa), ops, Boolean.parseBoolean(inherit));
-    }
-
-    private void assignment(HashMap<String, String> paramMap) throws NodeNotFoundException, AssignmentExistsException, ConfigurationException, DatabaseException {
-        String parent = paramMap.get("parent");
-        String child = paramMap.get("child");
-        System.out.println("assigning " + child + " to " + parent);
-        assignmentService.createAssignment(Long.valueOf(child), Long.valueOf(parent));
-    }
-
-    private void node(HashMap<String, String> paramMap) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, InvalidPropertyException, DatabaseException, InvalidNodeTypeException {
-        System.out.println("creating node " + paramMap.get("name"));
-
-        List<Property> properties = new ArrayList<>();
-        for(String key : paramMap.keySet()) {
-            if(key.equals("name") || key.equals("type") || key.equals("description")) {
-                continue;
-            }
-
-            properties.add(new Property(key, paramMap.get(key)));
+        List<Association> associations = graph.getAssociations();
+        HashSet<JsonAssociation> jsonAssociations = new HashSet<>();
+        for(Association association : associations) {
+            jsonAssociations.add(new JsonAssociation(association.getChild().getId(), association.getParent().getId(), association.getOps(), association.isInherit()));
         }
 
-        Property[] propArr = new Property[properties.size()];
-        propArr = properties.toArray(propArr);
+        return gson.toJson(new JsonGraph(nodes, jsonAssignments, jsonAssociations));
+    }
 
-        nodeService.createNode(paramMap.get("name"), paramMap.get("type"), paramMap.get("description"), propArr);
+    public void load(String config) throws NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, DatabaseException, NullTypeException, InvalidPropertyException, ConfigurationException, InvalidNodeTypeException, NodeNotFoundException, AssignmentExistsException, NodeIdExistsException {
+        JsonGraph graph = new Gson().fromJson(config, JsonGraph.class);
+
+        HashSet<Node> nodes = graph.getNodes();
+        for(Node node : nodes) {
+            List<Property> properties = node.getProperties();
+            Property[] propArr = null;
+            if(properties != null) {
+                propArr = new Property[properties.size()];
+                propArr = properties.toArray(propArr);
+            }
+            nodeService.createNode(node.getId(), node.getName(), node.getType().toString(), node.getDescription(), propArr);
+        }
+
+        HashSet<JsonAssignment> assignments = graph.getAssignments();
+        for(JsonAssignment assignment : assignments) {
+            // child - assigned to -> parent
+            if(assignment != null) {
+                assignmentService.createAssignment(assignment.getChild(), assignment.getParent());
+            }
+        }
+
+        HashSet<JsonAssociation> associations = graph.getAssociations();
+        for(JsonAssociation association : associations) {
+            accessService.grantAccess(association.getUa(), association.getTarget(), association.getOps(), association.isInherit());
+        }
     }
 
     public JsonNode getGraph() throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException {
