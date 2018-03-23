@@ -23,6 +23,7 @@ import static gov.nist.policyserver.common.Constants.ERR_NEO;
  */
 public class NeoDAO extends DAO {
     public NeoDAO() throws DatabaseException {
+
     }
 
     /**
@@ -50,7 +51,7 @@ public class NeoDAO extends DAO {
             conn = DriverManager.getConnection("jdbc:neo4j:http://" + host + ":" + port + "", username, password);
 
             //load nodes into cache
-            warmUp();
+            //warmUp();
 
             System.out.println("Connected to Neo4j");
         }
@@ -72,13 +73,13 @@ public class NeoDAO extends DAO {
         System.out.println("\tGetting assignments...");
         List<Assignment> assignments = getAssignments();
         for(Assignment assignment : assignments){
-            graph.createAssignment(graph.getNode(assignment.getStart().getId()), graph.getNode(assignment.getEnd().getId()));
+            graph.createAssignment(graph.getNode(assignment.getChild().getId()), graph.getNode(assignment.getParent().getId()));
         }
 
         System.out.println("\tGetting associations...");
         List<Association> associations = getAssociations();
         for(Association assoc : associations){
-            graph.createAssociation(assoc.getStart(), assoc.getEnd(), assoc.getOps(), assoc.isInherit());
+            graph.createAssociation(assoc.getChild(), assoc.getParent(), assoc.getOps(), assoc.isInherit());
         }
     }
 
@@ -182,8 +183,10 @@ public class NeoDAO extends DAO {
     }
 
     @Override
-    public Node createNode(String name, NodeType type, String descr) throws DatabaseException {
-        long id = getMaxId() + 1;
+    public Node createNode(long id, String name, NodeType type, String descr) throws DatabaseException {
+        if(id <= 0) {
+            id = getMaxId() + 1;
+        }
         String cypher = "CREATE " +
                 "(n:" + type +
                 "{" +
@@ -298,8 +301,8 @@ public class NeoDAO extends DAO {
     @Override
     public void updateAssociation(long uaId, long targetId, boolean inherit, HashSet<String> ops) throws DatabaseException {
         String strOps = setToCypherArray(ops);
-        String cypher = "MATCH (ua:UA {id:" + uaId + "})-[r]-(oa:OA{id:" + targetId + "}) " +
-                "SET r.inherit= " + inherit + " and r.operations=" + strOps;
+        String cypher = "MATCH (ua:UA {id:" + uaId + "})-[r:association]->(oa:OA{id:" + targetId + "}) " +
+                "SET r.operations=" + strOps;
         execute(cypher);
     }
 

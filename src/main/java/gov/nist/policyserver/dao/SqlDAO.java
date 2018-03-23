@@ -1,9 +1,6 @@
 package gov.nist.policyserver.dao;
 
-import gov.nist.policyserver.exceptions.DatabaseException;
-import gov.nist.policyserver.exceptions.InvalidNodeTypeException;
-import gov.nist.policyserver.exceptions.InvalidProhibitionSubjectTypeException;
-import gov.nist.policyserver.exceptions.InvalidPropertyException;
+import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
@@ -52,17 +49,17 @@ public class SqlDAO extends DAO {
 
         List<Assignment> assignments = getAssignments();
         for (Assignment assignment : assignments) {
-            Node start = assignment.getStart();
-            Node end = assignment.getEnd();
+            Node start = assignment.getChild();
+            Node end = assignment.getParent();
             if(graph.getNode(start.getId()) == null || graph.getNode(end.getId()) == null){
                 continue;
             }
-            graph.createAssignment(assignment.getStart(), assignment.getEnd());
+            graph.createAssignment(assignment.getChild(), assignment.getParent());
         }
 
         List<Association> associations = getAssociations();
         for (Association assoc : associations) {
-            graph.createAssociation(assoc.getStart(), assoc.getEnd(), assoc.getOps(), assoc.isInherit());
+            graph.createAssociation(assoc.getChild(), assoc.getParent(), assoc.getOps(), assoc.isInherit());
         }
     }
 
@@ -214,16 +211,16 @@ public class SqlDAO extends DAO {
     }
 
     @Override
-    public synchronized Node createNode(String name, NodeType type, String descr) throws DatabaseException {
+    public Node createNode(long id, String name, NodeType type, String descr) throws DatabaseException {
         try{
             CallableStatement cs = conn.prepareCall("{? = call create_node_fun(?,?,?,?)}");
             cs.registerOutParameter(1, Types.INTEGER);
-            cs.setString(2, name);
-            cs.setString(3, type.toString());
-            cs.setString(4, descr);
-            cs.setString(5, null);
+            cs.setLong(2, id);
+            cs.setString(3, name);
+            cs.setString(4, type.toString());
+            cs.setString(5, descr);
             cs.execute();
-            long id = cs.getInt(1);
+            id = cs.getInt(1);
 
             return new Node(id, name, type, descr);
         }catch(SQLException e){

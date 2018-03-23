@@ -55,10 +55,6 @@ public abstract class DAO {
             ObjectInputStream ois = new ObjectInputStream(fis);
             Properties props = (Properties) ois.readObject();
 
-            if(props == null || props.isEmpty()) {
-                throw new ConfigurationException("Could not find existing PM configuration.  Navigate to the PM Configuration page.");
-            }
-
             //get properties
             database = props.getProperty("database");
             host = props.getProperty("host");
@@ -71,6 +67,7 @@ public abstract class DAO {
                 interval = Integer.parseInt(inter);
             }
 
+            //want deserialization
             if(database.equalsIgnoreCase(Constants.NEO4J)){
                 dao = new NeoDAO();
             }else{
@@ -147,30 +144,28 @@ public abstract class DAO {
         }
     }
 
-    public PmGraph    graph;
-    public PmAccess   access;
+    public  PmGraph    graph;
+    public  PmAccess   access;
+
     public Connection conn;
     public DAO() throws DatabaseException {
         //connect to database
         connect();
 
-        if(reinitializing || !deserialize()) {
-            System.out.println("Building nodes...");
-            //build the nodes in memory
-            buildGraph();
+        //if(reinitializing || !deserialize()) {
+        System.out.println("Building nodes...");
+        //build the nodes in memory
+        buildGraph();
 
-            //initialize the access1 object
-            access = new PmAccess(graph);
+        //initialize the access object
+        access = new PmAccess(graph);
 
-            //build the prohibitions list
-            buildProhibitions();
+        //build the prohibitions list
+        buildProhibitions();
 
-            //build the obligations
-            //buildScripts();
-
-            reinitializing = false;
-            System.out.println("Finished!");
-        }
+        reinitializing = false;
+        System.out.println("Finished!");
+        //}
 
         Runnable r = () -> {
             while(true) {
@@ -261,7 +256,7 @@ public abstract class DAO {
 
     public abstract List<Assignment> getAssignments() throws DatabaseException;
 
-    public abstract Node createNode(String name, NodeType type, String descr) throws DatabaseException;
+    public abstract Node createNode(long id, String name, NodeType nt, String description) throws DatabaseException;
 
     public abstract void updateNode(long nodeId, String name, String descr) throws DatabaseException;
 
@@ -299,4 +294,5 @@ public abstract class DAO {
     public abstract void createSession(long id, long id1) throws DatabaseException;
 
     public abstract Node getSessionUser(String sessionId) throws DatabaseException;
+
 }
