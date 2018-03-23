@@ -49,8 +49,6 @@ public class LoadConfigurationScriptServlet extends HttpServlet {
             }
 
             DAO.getDao().buildGraph();
-            DAO.getDao().buildScripts();
-
 
             request.getRequestDispatcher("/config.jsp?display=block&result=success&message=Configuration+loaded+successfully").forward(request, response);
 
