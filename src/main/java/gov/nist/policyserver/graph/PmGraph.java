@@ -6,7 +6,6 @@ import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.model.graph.relationships.Assignment;
 import gov.nist.policyserver.model.graph.relationships.Association;
 import org.jgrapht.DirectedGraph;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DirectedMultigraph;
 
 import java.io.Serializable;
@@ -18,7 +17,7 @@ import java.util.Set;
 public class PmGraph implements Serializable{
     DirectedGraph<Node, Assignment> graph;
     public PmGraph(){
-        graph = new DirectedMultigraph<Node, Assignment>(Assignment.class);
+        graph = new DirectedMultigraph<>(Assignment.class);
     }
 
     public synchronized void addNode(Node n){
@@ -64,7 +63,7 @@ public class PmGraph implements Serializable{
         HashSet<Node> children = new HashSet<>();
         Set<Assignment> assignments = graph.incomingEdgesOf(n);
         for(Assignment edge : assignments){
-            children.add(edge.getStart());
+            children.add(edge.getChild());
         }
         return children;
     }
@@ -75,7 +74,7 @@ public class PmGraph implements Serializable{
         HashSet<Node> parents = new HashSet<>();
         Set<Assignment> assignments = graph.outgoingEdgesOf(n);
         for(Assignment edge : assignments){
-            parents.add(edge.getEnd());
+            parents.add(edge.getParent());
         }
         return parents;
     }
@@ -84,7 +83,7 @@ public class PmGraph implements Serializable{
         HashSet<Node> children = new HashSet<>();
         Set<Assignment> assignments = graph.incomingEdgesOf(n);
         for(Assignment edge : assignments){
-            children.add(edge.getStart());
+            children.add(edge.getChild());
         }
         return children;
     }
@@ -93,7 +92,7 @@ public class PmGraph implements Serializable{
         HashSet<Node> parents = new HashSet<>();
         Set<Assignment> assignments = graph.outgoingEdgesOf(n);
         for(Assignment edge : assignments){
-            parents.add(edge.getEnd());
+            parents.add(edge.getParent());
         }
         return parents;
     }
@@ -123,9 +122,9 @@ public class PmGraph implements Serializable{
         if(children.isEmpty()){
             return ascendants;
         }
-        for(Node child : children){
-            ascendants.add(child);
-        }
+
+        ascendants.addAll(children);
+
         for(Node child : children){
             ascendants.addAll(getAscesndants(child));
         }
@@ -140,9 +139,9 @@ public class PmGraph implements Serializable{
         if(children.isEmpty()){
             return ascendants;
         }
-        for(Node child : children){
-            ascendants.add(child);
-        }
+
+        ascendants.addAll(children);
+
         for(Node child : children){
             ascendants.addAll(getAscesndants(child));
         }
@@ -151,7 +150,9 @@ public class PmGraph implements Serializable{
     }
 
     public synchronized HashSet<Node> getNodes(){
-        return new HashSet<>(graph.vertexSet());
+        HashSet<Node> nodes = new HashSet<>(graph.vertexSet());
+        nodes.removeIf(node -> node.getType() == null);
+        return nodes;
     }
 
     public synchronized void deleteNodeProperty(long nodeId, String key){
@@ -234,7 +235,7 @@ public class PmGraph implements Serializable{
         for(Assignment edge : assignments){
             if(edge instanceof Association){
                 Association assocEdge = (Association)edge;
-                assocs.add(new Association(assocEdge.getStart(), assocEdge.getEnd(), assocEdge.getOps(), assocEdge.isInherit()));
+                assocs.add(new Association(assocEdge.getChild(), assocEdge.getParent(), assocEdge.getOps(), assocEdge.isInherit()));
             }
         }
         return assocs;
@@ -246,7 +247,7 @@ public class PmGraph implements Serializable{
         for(Assignment edge : assignments){
             if(edge instanceof Association){
                 Association assocEdge = (Association)edge;
-                assocs.add(new Association(assocEdge.getStart(), assocEdge.getEnd(), assocEdge.getOps(), assocEdge.isInherit()));
+                assocs.add(new Association(assocEdge.getChild(), assocEdge.getParent(), assocEdge.getOps(), assocEdge.isInherit()));
             }
         }
         return assocs;
@@ -266,10 +267,9 @@ public class PmGraph implements Serializable{
         List<Association> assocs = new ArrayList<>();
         Set<Assignment> edges = graph.edgeSet();
         for(Assignment assignment : edges){
-            if(assignment.getStart().getId() == 709)System.out.println(assignment.getStart().getId() + "->" + assignment.getEnd().getId());
             if(assignment instanceof Association){
                 Association assocEdge = (Association)assignment;
-                assocs.add(new Association(assocEdge.getStart(), assocEdge.getEnd(), assocEdge.getOps(), assocEdge.isInherit()));
+                assocs.add(new Association(assocEdge.getChild(), assocEdge.getParent(), assocEdge.getOps(), assocEdge.isInherit()));
             }
         }
         return assocs;

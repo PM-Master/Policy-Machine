@@ -6,26 +6,26 @@ import org.jgrapht.graph.DefaultEdge;
 import java.io.Serializable;
 
 public class Assignment<V> extends DefaultEdge  implements Serializable {
-    Node start;
-    Node end;
+    Node child;
+    Node parent;
 
-    public Assignment(Node start, Node end){
-        this.start = start;
-        this.end = end;
+    public Assignment(Node child, Node parent){
+        this.child = child;
+        this.parent = parent;
     }
 
-    public Node getStart() {
-        return start;
+    public Node getChild() {
+        return child;
     }
 
-    public Node getEnd() {
-        return end;
+    public Node getParent() {
+        return parent;
     }
 
     public boolean equals(Object o){
         if(o instanceof Assignment){
             Assignment e = (Assignment)o;
-            return start == e.getStart() && end == e.getEnd();
+            return child == e.getChild() && parent == e.getParent();
         }
         return false;
     }

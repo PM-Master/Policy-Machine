@@ -44,7 +44,7 @@ public class Association<V> extends Assignment  implements Serializable {
     }
 
     public void setAttributes(Node startNode, Node endNode) {
-        this.start = startNode;
-        this.end = endNode;
+        this.child = startNode;
+        this.parent = endNode;
     }
 }

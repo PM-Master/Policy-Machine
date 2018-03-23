@@ -260,19 +260,20 @@ public class PmAccess implements Serializable{
         while(!uaEdges.isEmpty()){
             Assignment edge = uaEdges.iterator().next();
             if(edge instanceof Association){
-                HashSet ops = d.get(edge.getEnd());
+                Association assoc = (Association) edge;
+                HashSet ops = d.get(edge.getParent());
                 if(ops == null) {
-                    ops = ((Association) edge).getOps();
+                    ops = assoc.getOps();
                 }
 
                 if(ops != null) {
-                    d.put(edge.getEnd(), ops);
+                    d.put(edge.getParent(), ops);
                 }
             }
 
             Set<Assignment> newEdges;
             synchronized (this) {
-                newEdges = graph.outgoingEdgesOf(edge.getEnd());
+                newEdges = graph.outgoingEdgesOf(edge.getParent());
             }
             uaEdges.addAll(newEdges);
             uaEdges.remove(edge);
@@ -296,7 +297,7 @@ public class PmAccess implements Serializable{
                 continue;
             }
 
-            Node node = edge.getEnd();
+            Node node = edge.getParent();
             if(!D.containsKey(node)){
                 dfs(node, D, dc);
             }
