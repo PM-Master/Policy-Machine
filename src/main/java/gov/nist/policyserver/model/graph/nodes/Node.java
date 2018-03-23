@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Node implements Serializable{
-    private String         namespace;
     private long           id;
     private String         name;
     private NodeType       type;
@@ -58,7 +57,11 @@ public class Node implements Serializable{
         this.id = id;
         this.name = name;
         this.type = type;
-        this.description = description;
+        if(description != null) {
+            this.description = description;
+        } else {
+            this.description = "";
+        }
         this.properties = new ArrayList<>();
     }
 
@@ -72,7 +75,11 @@ public class Node implements Serializable{
 
         this.name = name;
         this.type = type;
-        this.description = description;
+        if(description != null) {
+            this.description = description;
+        } else {
+            this.description = "";
+        }
         this.properties = new ArrayList<>();
     }
 
@@ -87,7 +94,11 @@ public class Node implements Serializable{
         this.id = id;
         this.name = name;
         this.type = type;
-        this.description = description;
+        if(description != null) {
+            this.description = description;
+        } else {
+            this.description = "";
+        }
         this.properties = Arrays.asList(properties);
     }
 
