@@ -3,10 +3,19 @@ package gov.nist.policyserver.requests;
 import gov.nist.policyserver.model.graph.nodes.Property;
 
 public class CreateNodeRequest {
+    long       id;
     String     name;
     String     type;
     String     description;
     Property[] properties;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
