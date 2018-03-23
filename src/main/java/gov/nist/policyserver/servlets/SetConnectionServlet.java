@@ -36,12 +36,10 @@ public class SetConnectionServlet extends HttpServlet {
         try {
             DAO.init(props);
 
-            request.setAttribute("successMessage", "Database connection was successful");
-            request.getRequestDispatcher("/config.jsp").forward(request, response);
+            request.getRequestDispatcher("/config.jsp?display=block&result=success&message=Database+connection+successful").forward(request, response);
         }
         catch (DatabaseException | ConfigurationException e) {
-            request.setAttribute("errorMessage", e.getMessage());
-            request.getRequestDispatcher("/config.jsp").forward(request, response);
+            request.getRequestDispatcher("/config.jsp?display=block&result=danger&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
         }
     }
 }

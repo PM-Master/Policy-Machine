@@ -19,7 +19,6 @@ public class SaveConfigurationScriptServlet extends HttpServlet {
             System.out.println(System.getProperty("user.dir"));
             ConfigurationService service = new ConfigurationService();
             String configuration = service.save();
-            System.out.println(configuration);
 
             String configName = request.getParameter("configName");
 
@@ -35,12 +34,10 @@ public class SaveConfigurationScriptServlet extends HttpServlet {
             out.flush();
             out.close();
 
-            request.setAttribute("successMessage", "Configuration '" + configName + "' saved successfully");
-            request.getRequestDispatcher("/config.jsp").forward(request, response);
+            request.getRequestDispatcher("/config.jsp?display=block&result=success&message=Configuration+saved").forward(request, response);
         }
         catch (Exception e) {
-            request.setAttribute("errorMessage", e.getMessage());
-            request.getRequestDispatcher("/config.jsp").forward(request, response);
+            request.getRequestDispatcher("/config.jsp?display=block&result=success&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
         }
     }
 }

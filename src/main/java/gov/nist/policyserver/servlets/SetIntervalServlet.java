@@ -17,12 +17,10 @@ public class SetIntervalServlet extends HttpServlet {
             try {
                 DAO.setInterval(Integer.parseInt(inter));
 
-                request.setAttribute("successMessage", "Configuration dump interval successfully set");
-                request.getRequestDispatcher("/config.jsp").forward(request, response);
+                request.getRequestDispatcher("/config.jsp?display=block&result=success&message=Interval+set").forward(request, response);
             }
             catch (Exception e) {
-                request.setAttribute("errorMessage", e.getMessage());
-                request.getRequestDispatcher("/config.jsp").forward(request, response);
+                request.getRequestDispatcher("/config.jsp?display=block&result=success&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
             }
         }
     }

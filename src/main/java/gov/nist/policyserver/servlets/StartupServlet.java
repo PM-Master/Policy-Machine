@@ -16,6 +16,5 @@ public class StartupServlet extends HttpServlet {
         catch (DatabaseException | ConfigurationException e) {
             e.printStackTrace();
         }
-
     }
 }
