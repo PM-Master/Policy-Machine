@@ -31,8 +31,8 @@ public class NodeResource {
     }
 
     @POST
-    public Response createNode(CreateNodeRequest request) throws NullNameException, NodeNameExistsInNamespaceException, NameInNamespaceNotFoundException, NullTypeException, InvalidPropertyException, DatabaseException, InvalidNodeTypeException, NodeNameExistsException, ConfigurationException {
-        return new ApiResponse(nodeService.createNode(request.getName(), request.getType(), request.getDescription(), request.getProperties())).toResponse();
+    public Response createNode(CreateNodeRequest request) throws NullNameException, NodeNameExistsInNamespaceException, NameInNamespaceNotFoundException, NullTypeException, InvalidPropertyException, DatabaseException, InvalidNodeTypeException, NodeNameExistsException, ConfigurationException, NodeIdExistsException {
+        return new ApiResponse(nodeService.createNode(request.getId(), request.getName(), request.getType(), request.getDescription(), request.getProperties())).toResponse();
     }
 
 

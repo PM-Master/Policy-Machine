@@ -15,21 +15,21 @@ import gov.nist.policyserver.requests.AssignmentRequest;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.AssignmentService;
 
-    @Path("/assignments")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public class AssignmentResource {
+@Path("/assignments")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public class AssignmentResource {
 
-        private AssignmentService assignmentService = new AssignmentService();
+    private AssignmentService assignmentService = new AssignmentService();
 
-        public AssignmentResource() throws ConfigurationException {
-        }
+    public AssignmentResource() throws ConfigurationException {
+    }
 
-        @GET
-        public Response isAssigned(@QueryParam("childId") long childId,
-                                   @QueryParam("parentId") long parentId) throws NodeNotFoundException, CustomException {
-            return new ApiResponse(assignmentService.isAssigned(childId, parentId)).toResponse();
-        }
+    @GET
+    public Response isAssigned(@QueryParam("childId") long childId,
+                               @QueryParam("parentId") long parentId) throws NodeNotFoundException, CustomException {
+        return new ApiResponse(assignmentService.isAssigned(childId, parentId)).toResponse();
+    }
 
     @POST
     public Response createAssignment(AssignmentRequest request) throws DatabaseException, NodeNotFoundException, ConfigurationException, AssignmentExistsException {
@@ -39,7 +39,7 @@ import gov.nist.policyserver.service.AssignmentService;
 
     @DELETE
     public Response deleteAssignment(@QueryParam("childId") long childId,
-                             @QueryParam("parentId") long parentId) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException {
+                                     @QueryParam("parentId") long parentId) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException {
         assignmentService.deleteAssignment(childId, parentId);
         return new ApiResponse(ApiResponse.DELETE_ASSIGNMENT_SUCCESS).toResponse();
     }

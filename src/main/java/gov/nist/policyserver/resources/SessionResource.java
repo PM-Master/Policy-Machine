@@ -22,7 +22,7 @@ public class SessionResource {
     public Response createSession(CreateSessionRequest request)
             throws NullNameException, NodeNameExistsInNamespaceException, NodeNameExistsException,
             NodeNotFoundException, DatabaseException, InvalidNodeTypeException,
-            InvalidPropertyException, ConfigurationException, NullTypeException {
+            InvalidPropertyException, ConfigurationException, NullTypeException, NodeIdExistsException {
         String username = request.getUsername();
         String password = request.getPassword();
 
