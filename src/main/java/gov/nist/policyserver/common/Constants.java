@@ -1,6 +1,18 @@
 package gov.nist.policyserver.common;
 
 public class Constants {
+    //operations
+    public static final String FILE_WRITE = "file write";
+    public static final String FILE_READ = "file read";
+    public static final String CREATE_OBJECT_ATTRIBUTE = "create object attribute";
+    public static final String ASSIGN_OBJECT_ATTRIBUTE = "assign object attribute";
+    public static final String CREATE_OBJECT = "create object";
+    public static final String ASSIGN_OBJECT = "assign object";
+    public static final String ASSIGN_OBJECT_TO = "assign object to";
+    public static final String ASSIGN_OBJECT_ATTRIBUTE_TO = "assign object attribute to";
+
+
+
     //error codes
     //web services
     public static final int ERR_ASSIGNMENT_DOES_NOT_EXIST           = 6001;
@@ -27,6 +39,7 @@ public class Constants {
     public static final int ERR_PROHIBITION_DOES_NOT_EXIST          = 6022;
     public static final int ERR_SESSION_DOES_NOT_EXIST              = 6023;
     public static final int ERR_ACCESS_DENIED                       = 6024;
+    public static final int ERR_NODE_ID_EXISTS                      = 6025;
     public static final int ERR_NEO                                 = 7000;
     public static final int ERR_MYSQL                               = 8000;
     public static final int SUCCESS                                 = 9000;
@@ -43,14 +56,14 @@ public class Constants {
     public static final String PM_EVENT_CREATE = "create";
     public static final String PM_EVENT_DELETE = "delete";
     // Events.
-    public static final String PM_EVENT_OBJECT_CREATE = "Object create";
-    public static final String PM_EVENT_OBJECT_DELETE  = "Object delete";
-    public static final String PM_EVENT_OBJECT_READ    = "Object read";
-    public static final String PM_EVENT_OBJECT_WRITE   = "Object write";
-    public static final String PM_EVENT_USER_CREATE    = "User create";
-    public static final String PM_EVENT_SESSION_CREATE = "Session create";
-    public static final String PM_EVENT_SESSION_DELETE = "Session delete";
-    public static final String PM_EVENT_OBJECT_SEND    = "Object send";
+    public static final String PM_EVENT_OBJECT_CREATE = "object create";
+    public static final String PM_EVENT_OBJECT_DELETE  = "object delete";
+    public static final String PM_EVENT_OBJECT_READ    = "object read";
+    public static final String PM_EVENT_OBJECT_WRITE   = "object write";
+    public static final String PM_EVENT_USER_CREATE    = "user create";
+    public static final String PM_EVENT_SESSION_CREATE = "session create";
+    public static final String PM_EVENT_SESSION_DELETE = "session delete";
+    public static final String PM_EVENT_OBJECT_SEND    = "object send";
 
     public static final String NAMESPACE_PROPERTY       = "namespace";
     public static final String COLUMN_INDEX_PROPERTY    = "column_index";
