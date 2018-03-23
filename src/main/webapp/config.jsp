@@ -1,134 +1,275 @@
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="./css/theme.css">
-<link rel="stylesheet" href="./css/nav.css">
-<style>
-    input[type=text]{
-        margin-bottom: 3%;
-    }
-    body{
-        background-color: lightgrey;
-        padding-bottom: 20px;
-    }
-</style>
-<body>
-<div class="header">
-    <ul>
-        <li style="float: right; margin-right: 5px; color: white; font-size: 40px">PolicyMachine</li>
-        <li><a href="userguide.jsp" class="">User Guide</a></li>
-        <li><a href="doc.jsp" class="">API Documentation</a></li>
-        <li><a href="config.jsp" class="pmactive">Server Configuration</a></li>
-    </ul>
-</div>
-<div class="footer" onclick="this.style.display='none'">
-    <div class="error">${errorMessage}</div>
-    <div class="success">${successMessage}</div>
-</div>
-<div class="card content" style="padding: 15px; text-align: center; margin-right: 25%; margin-left: 25%">
-    <h1>Policy Machine Configuration</h1>
-    <div id="database-div">
-        <h2>Select a Database</h2>
-        <button class="green-btn" style="display: inline-block;width:45%" onclick="setDb('neo4j')">Neo4j</button>
-        <button class="blue-btn" style="display: inline-block;width:45%" onclick="setDb('mysql')">MySQL</button>
-        <div id="neo4j" class="card" style="display: none; padding: 15px;">
-            <form action="SetConnection" method="post" style="text-align: left">
-                <input type="hidden" name="database" id="database" value="neo4j">
+<head>
+    <title>Home</title>
 
-                <label for="host" style="font-weight: bold">Host</label>
-                <input class="green-txt" type="text" name="host" id="host" value="localhost" placeholder="host">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/theme.css">
+    <style>
 
-                <label for="port" style="font-weight: bold">Port</label>
-                <input class="green-txt" type="text" name="port" id="port" value="7474" placeholder="port">
+    </style>
 
-                <label for="username" style="font-weight: bold">Username</label>
-                <input class="green-txt" type="text" name="username" id="username" value="neo4j" placeholder="username">
+    <script type="text/javascript">
+        function showForm(name) {
+            document.getElementById(name + 'Form').style.display = 'block';
 
-                <label for="password" style="font-weight: bold">Password</label>
-                <input class="green-txt" type="text" name="password" id="password" value="root" placeholder="password">
-
-                <input class="green-btn" type="submit" value="Connect"/>
-            </form>
-        </div>
-        <div id="mysql" class="card" style="display: none; padding: 15px;">
-            <form action="SetConnection" method="post" style="text-align: left">
-                <input type="hidden" name="database" id="database" value="mysql">
-
-                <label for="host" style="font-weight: bold">Host</label>
-                <input class="blue-txt" type="text" name="host" id="host" value="localhost" placeholder="host">
-
-                <label for="port" style="font-weight: bold">Port</label>
-                <input class="blue-txt" type="text" name="port" id="port" value="3306" placeholder="port">
-
-                <label for="username" style="font-weight: bold">Username</label>
-                <input class="blue-txt" type="text" name="username" id="username" value="root" placeholder="username">
-
-                <label for="password" style="font-weight: bold">Password</label>
-                <input class="blue-txt" type="text" name="password" id="password" value="root" placeholder="password">
-
-                <label for="schema" style="font-weight: bold">Database</label>
-                <input class="blue-txt" type="text" name="schema" id="schema" value="pmwsdb" placeholder="schema">
-
-                <input class="blue-btn" type="submit" value="Connect"/>
-            </form>
-        </div>
-        <script type="text/javascript">
-            function setDb(db){
-                if(db === 'neo4j'){
-                    if(document.getElementById('neo4j').style.display === 'block'){
-                        document.getElementById('neo4j').style.display = 'none';
-                    }else {
-                        document.getElementById('neo4j').style.display = 'block';
-                        document.getElementById('mysql').style.display = 'none';
-                    }
-                }else{
-                    if(document.getElementById('mysql').style.display === 'block'){
-                        document.getElementById('mysql').style.display = 'none';
-                    }else {
-                        document.getElementById('neo4j').style.display = 'none';
-                        document.getElementById('mysql').style.display = 'block';
-                    }
-                }
+            switch (name) {
+                case 'neo4j':
+                    hideForm('mysql');
+                    hideForm('load');
+                    hideForm('save');
+                    hideForm('interval');
+                    break;
+                case 'mysql':
+                    hideForm('neo4j');
+                    hideForm('load');
+                    hideForm('save');
+                    hideForm('interval');
+                    break;
+                case 'interval':
+                    hideForm('neo4j');
+                    hideForm('mysql');
+                    hideForm('load');
+                    hideForm('save');
+                    break;
+                case 'save':
+                    hideForm('neo4j');
+                    hideForm('mysql');
+                    hideForm('interval');
+                    hideForm('load');
+                    break;
+                case 'load':
+                    hideForm('neo4j');
+                    hideForm('mysql');
+                    hideForm('interval');
+                    hideForm('save');
+                    break;
             }
-        </script>
+        }
+
+        function hideForm(name) {
+            document.getElementById(name + 'Form').style.display = 'none';
+        }
+
+        function message() {
+
+        }
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Policy Machine</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="config.jsp">Server Configuration</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="userguide.jsp">User Guide</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="doc.jsp">Documentation</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">About</a>
+            </li>
+        </ul>
     </div>
-    <div>
-        <h2>Set Configuration Dump Interval</h2>
-        <p style="font-size: 12px; text-align: left">
-            * The Policy Machine periodically saves the current policy configuration to avoid losing data.
-            This value will tell the Policy Machine how often to save the current configuration. The default is 30 seconds.
-            <strong>Value must be in seconds and greater than 0.</strong>
-        </p>
+</nav>
+<div id="messageDiv" style="display: <%= request.getParameter("display") != null ? request.getParameter("display") : "none" %>">
+    <div class="alert alert-dismissible alert-<%= request.getParameter("result") %>">
+        <button type="button" class="close" data-dismiss="alert" onclick="document.getElementById('messageDiv').style.display='none'">&times;</button>
+        <span id="message"><%= request.getParameter("message") %></span>
+    </div>
+</div>
 
-        <form action="SetInterval" method="post" style="text-align: left">
-            <label for="interval" style="font-weight: bold">Interval</label>
-            <input class="blue-txt" type="text" name="interval" id="interval" value="">
-
-            <div style="text-align: center">
-                <input class="blue-btn" type="submit" value="Set Interval" style="width: 45%;">
+<div style="width: 70%; margin: 2% 15%; background-color: white; padding: 10px">
+    <div class="row" style="margin: 0">
+        <div id="neo4j" class="col col-lg-6 tile" style="padding: 10px 10px 10px 10px;">
+            <div class="card text-white bg-primary" style="padding: 0;">
+                <!--<div class="card-header" onclick="showIcon('neo4j')">Connect</div>-->
+                <div id="neo4jIcon" class="card-body icon-panel" style="text-align: center" onclick="showForm('neo4j')">
+                    <h4 class="card-title">Connect to Neo4j</h4>
+                    <img src="images/graph.png" alt="graph" width="150" height="150">
+                </div>
             </div>
+        </div>
+        <div id="mysql" class="col col-lg-6 tile" style="padding: 10px 10px 10px 10px;">
+            <div class="card text-white bg-primary" style="padding: 0;">
+                <!--<div class="card-header" onclick="showIcon('neo4j')">Connect</div>-->
+                <div id="mysqlIcon" class="card-body icon-panel" style="text-align: center" onclick="showForm('mysql')">
+                    <h4 class="card-title">Connect to MySQL</h4>
+                    <img src="images/database.png" alt="mysql" width="150" height="150">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="neo4jForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
+        <button type="button" class="close" onclick="hideForm('neo4j')" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form action="SetConnection" method="post">
+            <input type="hidden" name="database" value="neo4j">
+            <fieldset>
+                <legend>Connect to Neo4j</legend>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <label>Host</label>
+                        <input class="form-control" name="host" placeholder="Host" type="text">
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>Port</label>
+                        <input class="form-control" name="port" placeholder="Port" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <label>Username</label>
+                        <input class="form-control" name="username" placeholder="Username" type="text">
+                    </div>
+                    <div class="form-group col-lg-6" style="margin: 0">
+                        <label>Password</label>
+                        <input class="form-control" name="password" placeholder="Password" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
         </form>
     </div>
-    <div>
-        <h2>Get Current Configuration Script</h2>
-        <form action="save" method="post" style="text-align: left">
-            <label for="configName" style="font-weight: bold">Configuration Name</label>
-            <input class="blue-txt" type="text" name="configName" id="configName" value="">
-
-            <div style="text-align: center">
-                <input class="blue-btn" type="submit" value="Save Configuration" style="width: 45%;">
-            </div>
-
+    <div id="mysqlForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
+        <button type="button" class="close" onclick="hideForm('mysql')" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form action="SetConnection" method="post">
+            <input type="hidden" name="database" value="mysql">
+            <fieldset>
+                <legend>Connect to MySQL</legend>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <label>Host</label>
+                        <input class="form-control" name="host" placeholder="Host" type="text">
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>Port</label>
+                        <input class="form-control" name="port" placeholder="Port" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <label>Username</label>
+                        <input class="form-control" name="username" placeholder="Username" type="text">
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>Password</label>
+                        <input class="form-control" name="password" placeholder="Password" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-12" style="margin: 0">
+                        <label>Database</label>
+                        <input class="form-control" name="schema" placeholder="Database" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
         </form>
     </div>
-    <div>
-        <h2>Load Configuration Script</h2>
-        <form  enctype="multipart/form-data" action="load" method="post" style="text-align: left">
-            <input type="file" name="configFile" accept=".pm">
-
-            <div style="text-align: center">
-                <input class="blue-btn" class="blue-btn" type="submit" value="Load Configuration" style="width: 45%;">
+    <div class="row" style="margin: 0">
+        <div class=" col-lg-4 tile" style="padding: 10px 10px 10px 10px;">
+            <div class="card text-white bg-primary" style="padding: 0">
+                <div class="card-body" style="text-align: center" onclick="showForm('interval')">
+                    <h4 class="card-title">Set Data Dump Interval</h4>
+                    <img src="images/interval.png" alt="interval" width="150" height="150">
+                </div>
             </div>
-
+        </div>
+        <div class=" col-lg-4 tile" style="padding: 10px 10px 10px;">
+            <div class="card text-white bg-primary" style="padding: 0">
+                <div class="card-body" style="text-align: center" onclick="showForm('save')">
+                    <h4 class="card-title">Save Configuration</h4>
+                    <img src="images/save.png" alt="save" width="150" height="150">
+                </div>
+            </div>
+        </div>
+        <div class=" col-lg-4 tile" style="padding: 10px 10px 10px 10px;">
+            <div class="card text-white bg-primary" style="padding: 0">
+                <div class="card-body" style="text-align: center" onclick="showForm('load')">
+                    <h4 class="card-title">Load Configuration</h4>
+                    <img src="images/load.png" alt="load" width="150" height="150">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="intervalForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
+        <button type="button" class="close" onclick="hideForm('interval')" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form action="SetInterval" method="post">
+            <fieldset>
+                <legend>Set Data Dump Interval</legend>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <input class="form-control" name="interval" placeholder="Interval" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="saveForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
+        <button type="button" class="close" onclick="hideForm('save')" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form action="save" method="post">
+            <fieldset>
+                <legend>Save Configuration</legend>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <input class="form-control" name="configName" placeholder="Configuration Name" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="loadForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
+        <button type="button" class="close" onclick="hideForm('load')" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form  enctype="multipart/form-data" action="load" method="post">
+            <fieldset>
+                <legend>Load Configuration</legend>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <input type="file" name="configFile" accept=".pm">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
         </form>
     </div>
 </div>
