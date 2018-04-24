@@ -44,4 +44,7 @@ public class EvrService {
 
     public void enableEvr(String scriptName) {
     }
+
+    public void processSql(String sqlId) {
+    }
 }

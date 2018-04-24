@@ -2,10 +2,10 @@ package gov.nist.policyserver.evr.model.script.rule.event;
 
 import java.util.List;
 
-public class OpSpec {
-    List<String> ops;
+public class EvrOpSpec {
+    private List<String> ops;
 
-    public OpSpec(List<String> ops) {
+    public EvrOpSpec(List<String> ops) {
         this.ops = ops;
     }
 
@@ -15,5 +15,9 @@ public class OpSpec {
 
     public void setOps(List<String> ops) {
         this.ops = ops;
+    }
+
+    public boolean isAny() {
+        return ops.isEmpty();
     }
 }

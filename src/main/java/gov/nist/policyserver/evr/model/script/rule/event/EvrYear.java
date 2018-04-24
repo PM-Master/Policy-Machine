@@ -1,4 +1,4 @@
 package gov.nist.policyserver.evr.model.script.rule.event;
 
-public class ObjSubSpec {
+public class EvrYear {
 }
