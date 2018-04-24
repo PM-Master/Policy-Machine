@@ -9,6 +9,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 import static gov.nist.policyserver.common.Constants.SUCCESS;
 
 @Path("/configuration")
@@ -21,7 +24,7 @@ public class ConfigurationResource {
     }
 
     @GET
-    public Response getConfiguration() {
+    public Response getConfiguration() throws NodeNotFoundException, InvalidPropertyException {
         return new ApiResponse(configService.save()).toResponse();
     }
 
@@ -51,7 +54,9 @@ public class ConfigurationResource {
 
     @Path("data")
     @POST
-    public Response importData(ConnectRequest request) throws DatabaseException, NullNameException, ConfigurationException, NullTypeException, NodeNameExistsException, NodeNameExistsInNamespaceException, InvalidNodeTypeException, InvalidPropertyException, AssignmentExistsException, PropertyNotFoundException, NodeNotFoundException, NameInNamespaceNotFoundException {
+    public Response importData(@QueryParam("session") String session,
+                               @QueryParam("process") long process,
+                               ConnectRequest request) throws DatabaseException, NullNameException, ConfigurationException, NullTypeException, NodeNameExistsException, NodeNameExistsInNamespaceException, InvalidNodeTypeException, InvalidPropertyException, AssignmentExistsException, PropertyNotFoundException, NodeNotFoundException, NameInNamespaceNotFoundException {
         String host = request.getHost();
         int port = request.getPort();
         String schema = request.getSchema();
@@ -65,7 +70,9 @@ public class ConfigurationResource {
 
     @Path("data/tables")
     @POST
-    public Response getData(DataRequest request) throws PmException {
+    public Response getData(DataRequest request,
+                            @QueryParam("session") String session,
+                            @QueryParam("process") long process) throws PmException {
         String host = request.getHost();
         int port = request.getPort();
         String username = request.getUsername();
@@ -75,6 +82,16 @@ public class ConfigurationResource {
 
         return new ApiResponse(configService.getData(host, port, username, password, schema, tableName)).toResponse();
     }
+
+    @Path("data/files")
+    @POST
+    public Response uploadFiles(String[] files,
+                                @QueryParam("session") String session,
+                                @QueryParam("process") long process) throws InvalidPropertyException, AssignmentExistsException, DatabaseException, InvalidKeySpecException, NodeNotFoundException, NodeIdExistsException, NodeNameExistsException, NodeNameExistsInNamespaceException, NoSuchAlgorithmException, NameInNamespaceNotFoundException, NullNameException, ConfigurationException, NullTypeException, InvalidNodeTypeException {
+        configService.uploadFiles(files);
+        return new ApiResponse(SUCCESS).toResponse();
+    }
+
 
     @Path("graph")
     @GET
