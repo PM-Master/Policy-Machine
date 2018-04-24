@@ -29,24 +29,25 @@ public class ApiResponse {
     public static final String ASSOCIATION_DOES_NOT_EXIST         = "Could not update access1";
     public static final String PROP_NOT_FOUND_ERRMSG              = "Node with ID = %d does not have a property with key '%s'";*/
 
-    public static final String DELETE_ASSIGNMENT_SUCCESS    = "Assignment was successfully deleted";
-    public static final String POST_NODE_PROPERTY_SUCCESS   = "The property was successfully added to the node";
-    public static final String DELETE_NODE_PROPERTY_SUCCESS = "The property was successfully deleted";
-    public static final String DELETE_NODE_CHILDREN_SUCESS  = "The children of the node were all deleted";
-    public static final String REMOVE_ACCESS_SUCCESS        = "Access successfully removed";
-    public static final String CREATE_ASSIGNMENT_SUCCESS    = "Assignment was successfully created";
-    public static final String GRANT_ACCESS_SUCCESS         = "Access successfully granted";
-    public static final String UPDATE_ACCESS_SUCESS         = "Successfully updated access1";
-    public static final String DELETE_NODE_SUCCESS          = "Node successfully deleted";
-    public static final String PUT_NODE_SUCCESS             = "Node was successfully updated";
-    public static final String CREATE_PROHIBITION_SUCCESS   = "The Prohibition was successfully created";
-    public static final String DELETE_PROHIBITION_SUCCESS           = "Prohibition was deleted successfully";
-    public static final String ADD_PROHIBITION_RESOURCE_SUCCESS     = "Resource was added to the prohibitions";
+    public static final String DELETE_ASSIGNMENT_SUCCESS      = "Assignment was successfully deleted";
+    public static final String POST_NODE_PROPERTY_SUCCESS     = "The property was successfully added to the node";
+    public static final String DELETE_NODE_PROPERTY_SUCCESS   = "The property was successfully deleted";
+    public static final String DELETE_NODE_CHILDREN_SUCESS    = "The children of the node were all deleted";
+    public static final String DELETE_ASSOCIATION_ASSOCIATION = "Successfully deleted Association";
+    public static final String CREATE_ASSIGNMENT_SUCCESS      = "Assignment was successfully created";
+    public static final String CREATE_ASSOCIATION_SUCCESS     = "Association was successfully created";
+    public static final String UPDATE_ASSOCIATION_SUCCESS     = "Successfully updated the association";
+    public static final String DELETE_NODE_SUCCESS            = "Node successfully deleted";
+    public static final String PUT_NODE_SUCCESS               = "Node was successfully updated";
+    public static final String CREATE_PROHIBITION_SUCCESS       = "The Prohibition was successfully created";
+    public static final String DELETE_PROHIBITION_SUCCESS       = "Prohibition was deleted successfully";
+    public static final String ADD_PROHIBITION_RESOURCE_SUCCESS = "Resource was added to the prohibitions";
     public static final String REMOVE_PROHIBITION_RESOURCE_SUCCESS  = "The resource was successfully removed from the prohibitions";
     public static final String POST_PROHIBITION_SUBJECT_SUCCESS     = "The subject was successfully set for the prohibitions";
     public static final String ADD_PROHIBITION_OPS_SUCCESS          = "The operations were successfully added to the prohibitions";
     public static final String REMOVE_PROHIBITION_OP_SUCCESS        = "The operation was successfully removed from the prohibitions";
     public static final String DELETE_NODE_IN_NAMESPACE_SUCCESS     = "The node was successfully deleted";
+    public static final String DELETE_SESSION_SUCCESS     = "Session was deleted";
 
 
     private static final String SUCCESS_MSG = "Success";
