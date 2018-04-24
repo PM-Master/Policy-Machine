@@ -1,5 +1,6 @@
 package gov.nist.policyserver.access;
 
+import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
@@ -56,6 +57,12 @@ public class PmAccess implements Serializable{
         HashMap<Node, HashSet<String>> pcMap = D.get(target);
         boolean addOps = true;
         for(Node pc : pcMap.keySet()){
+            //if there are permissions in the super pc then they apply to all pcs
+            if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                ops.addAll(pcMap.get(pc));
+                break;
+            }
+
             if(addOps){
                 ops.addAll(pcMap.get(pc));
                 addOps = false;
@@ -75,7 +82,7 @@ public class PmAccess implements Serializable{
      * @param user The user
      * @return A Map with Nodes as the keys and a HashSets of access1 rights as the values
      */
-    public List<PmAccessEntry> getAccessibleNodes(Node user){
+    public synchronized List<PmAccessEntry> getAccessibleNodes(Node user){
         //Node->{ops}
         List<PmAccessEntry> accessibleObjects = new ArrayList<>();
 
@@ -98,10 +105,7 @@ public class PmAccess implements Serializable{
             D.put(pc, pcMap);
         }
 
-        Set<Node> objects;
-        synchronized (this) {
-            objects = graph.getAscesndants(vNode);
-        }
+        Set<Node> objects = graph.getAscesndants(vNode);
 
         for(Node v : objects){
             dfs(v, D, dc);
@@ -111,6 +115,12 @@ public class PmAccess implements Serializable{
             HashMap<Node, HashSet<String>> pcMap = D.get(v);
             boolean addOps = true;
             for(Node pc : pcMap.keySet()){
+                //if there are permissions in the super pc then they apply to all pcs
+                if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                    finalOps.addAll(pcMap.get(pc));
+                    break;
+                }
+
                 if(addOps){
                     finalOps.addAll(pcMap.get(pc));
                     addOps = false;
@@ -123,9 +133,7 @@ public class PmAccess implements Serializable{
             }
         }
 
-        synchronized (this) {
-            graph.deleteNode(vNode);
-        }
+        graph.deleteNode(vNode);
 
         return accessibleObjects;
     }
@@ -176,6 +184,12 @@ public class PmAccess implements Serializable{
             HashSet<String> ops = new HashSet<>();
             boolean addOps = true;
             for (Node pc : pcMap.keySet()) {
+                //if there are permissions in the super pc then they apply to all pcs
+                if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                    ops.addAll(pcMap.get(pc));
+                    break;
+                }
+
                 if (addOps) {
                     ops.addAll(pcMap.get(pc));
                     addOps = false;
@@ -198,7 +212,7 @@ public class PmAccess implements Serializable{
      * @param target The Node to get the accessible children for
      * @return a map with the child Nodes as the keys and the HashSets of access1 rights as the values
      */
-    public List<PmAccessEntry> getAccessibleChildrenOf(Node target, Node user){
+    public synchronized List<PmAccessEntry> getAccessibleChildrenOf(Node target, Node user){
         //Node->{ops}
         List<PmAccessEntry> accessibleObjects = new ArrayList<>();
 
@@ -230,6 +244,12 @@ public class PmAccess implements Serializable{
             HashMap<Node, HashSet<String>> pcMap = D.get(v);
             boolean addOps = true;
             for(Node pc : pcMap.keySet()){
+                //if there are permissions in the super pc then they apply to all pcs
+                if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                    finalOps.addAll(pcMap.get(pc));
+                    break;
+                }
+
                 if(addOps){
                     finalOps.addAll(pcMap.get(pc));
                     addOps = false;
@@ -242,20 +262,15 @@ public class PmAccess implements Serializable{
             }
         }
 
-        synchronized (this) {
-            graph.deleteNode(vNode);
-        }
+        graph.deleteNode(vNode);
 
         return accessibleObjects;
     }
 
-    private HashMap<Node, HashSet<String>> getBorderOas(Node user){
+    private synchronized HashMap<Node, HashSet<String>> getBorderOas(Node user){
         HashMap<Node, HashSet<String>> d = new HashMap<>();
         HashSet<Assignment> uaEdges = new HashSet<>();
-        Set<Assignment> edges;
-        synchronized (this) {
-            edges = graph.outgoingEdgesOf(user);
-        }
+        Set<Assignment> edges = graph.outgoingEdgesOf(user);
         uaEdges.addAll(edges);
         while(!uaEdges.isEmpty()){
             Assignment edge = uaEdges.iterator().next();
@@ -271,10 +286,8 @@ public class PmAccess implements Serializable{
                 }
             }
 
-            Set<Assignment> newEdges;
-            synchronized (this) {
-                newEdges = graph.outgoingEdgesOf(edge.getParent());
-            }
+            Set<Assignment> newEdges = graph.outgoingEdgesOf(edge.getParent());
+
             uaEdges.addAll(newEdges);
             uaEdges.remove(edge);
         }
@@ -282,15 +295,12 @@ public class PmAccess implements Serializable{
         return d;
     }
 
-    private void dfs(Node w, HashMap<Node, HashMap<Node, HashSet<String>>> D, HashMap<Node, HashSet<String>> dc){
+    private synchronized void dfs(Node w, HashMap<Node, HashMap<Node, HashSet<String>>> D, HashMap<Node, HashSet<String>> dc){
         D.put(w, new HashMap<>());
         //for loop through nodes
         //if node is not in D, recrusive call to dfs
 
-        Set<Assignment> assignments;
-        synchronized (this) {
-            assignments = graph.outgoingEdgesOf(w);
-        }
+        Set<Assignment> assignments = graph.outgoingEdgesOf(w);
 
         for(Assignment edge : assignments){
             if(edge instanceof Association){
