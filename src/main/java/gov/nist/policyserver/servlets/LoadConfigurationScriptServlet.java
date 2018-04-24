@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 public class LoadConfigurationScriptServlet extends HttpServlet {
@@ -56,8 +58,8 @@ public class LoadConfigurationScriptServlet extends HttpServlet {
         catch (NodeIdExistsException | FileUploadException | ConfigurationException |
                 InvalidPropertyException | AssignmentExistsException | DatabaseException |
                 NodeNameExistsException | NodeNotFoundException | NodeNameExistsInNamespaceException |
-                NullNameException | NullTypeException | InvalidNodeTypeException e) {
-            request.getRequestDispatcher("/config.jsp?display=block&result=error&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
+                NullNameException | NullTypeException | InvalidNodeTypeException | AssociationExistsException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+            request.getRequestDispatcher("/config.jsp?display=block&result=danger&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
         }
     }
 }

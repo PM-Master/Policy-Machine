@@ -20,7 +20,7 @@ public class SetIntervalServlet extends HttpServlet {
                 request.getRequestDispatcher("/config.jsp?display=block&result=success&message=Interval+set").forward(request, response);
             }
             catch (Exception e) {
-                request.getRequestDispatcher("/config.jsp?display=block&result=success&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
+                request.getRequestDispatcher("/config.jsp?display=block&result=danger&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
             }
         }
     }

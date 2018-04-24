@@ -37,7 +37,7 @@ public class SaveConfigurationScriptServlet extends HttpServlet {
             request.getRequestDispatcher("/config.jsp?display=block&result=success&message=Configuration+saved").forward(request, response);
         }
         catch (Exception e) {
-            request.getRequestDispatcher("/config.jsp?display=block&result=success&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
+            request.getRequestDispatcher("/config.jsp?display=block&result=error&message=" + e.getMessage().replaceAll(" ", "+")).forward(request, response);
         }
     }
 }
