@@ -8,24 +8,31 @@ import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
+import gov.nist.policyserver.translator.exceptions.PMAccessDeniedException;
 import scala.reflect.internal.pickling.Translations;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import static gov.nist.policyserver.common.Constants.DESCRIPTION_PROPERTY;
+import static gov.nist.policyserver.common.Constants.PASSWORD_PROPERTY;
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class SessionService extends Service{
     private NodeService nodeService;
-    private AccessService accessService;
+    private AssignmentService assignmentService;
+    private PermissionsService permissionsService;
 
     public SessionService() throws ConfigurationException {
         nodeService = new NodeService();
-        accessService = new AccessService();
+        assignmentService = new AssignmentService();
+        permissionsService = new PermissionsService();
     }
 
-    public String createSession(String username, String password) throws InvalidNodeTypeException, InvalidPropertyException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, DatabaseException, NodeNotFoundException, NodeIdExistsException {
+    public String createSession(String username, String password) throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException, PropertyNotFoundException, InvalidKeySpecException, NoSuchAlgorithmException, PMAccessDeniedException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, NodeIdExistsException, DatabaseException, AssignmentExistsException {
         //authenticate
         HashSet<Node> nodes = nodeService.getNodes(null, username, NodeType.U.toString(), null, null);
         if(nodes.isEmpty()){
@@ -34,20 +41,65 @@ public class SessionService extends Service{
 
         Node userNode = nodes.iterator().next();
 
+        //check password
+        //get stored password
+        Property property = userNode.getProperty(PASSWORD_PROPERTY);
+        String storedPass = property.getValue();
+
+        if(!checkPasswordHash(storedPass, password)) {
+            throw new PMAccessDeniedException("Username and password does not match.");
+        }
+
         //create session id
         String sessionId = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
 
         //create session node
-        Property[] properties = new Property[]{
-                new Property(Constants.SESSION_USER_ID_PROPERTY, String.valueOf(userNode.getId()))
+        Property[] properties = new Property[] {
+                new Property(DESCRIPTION_PROPERTY, "Session for " + username)
         };
-        nodeService.createNode(0, sessionId, NodeType.S.toString(), "Session for " + username, properties);
+        Node sessionNode = nodeService.createNode(0, sessionId, NodeType.S.toString(), properties);
 
+        //assign user node to session node
+        assignmentService.createAssignment(userNode.getId(), sessionNode.getId());
 
         return sessionId;
     }
 
-    public List<PmAccessEntry> getSessionAccess(String sessionId) throws InvalidNodeTypeException, InvalidPropertyException, SessionDoesNotExistException, PropertyNotFoundException, NodeNotFoundException, NoUserParameterException {
+    public String createSession(String username) throws InvalidNodeTypeException, InvalidPropertyException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, DatabaseException, NodeNotFoundException, NodeIdExistsException, AssignmentExistsException, InvalidKeySpecException, NoSuchAlgorithmException {
+        //get the user node
+        HashSet<Node> nodes = nodeService.getNodes(null, username, NodeType.U.toString(), null, null);
+        if(nodes.size() != 1) {
+            throw new NodeNotFoundException(username);
+        }
+        Node userNode = nodes.iterator().next();
+
+        //create session id
+        String sessionId = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+
+        //create session node
+        Property[] properties = new Property[] {
+                new Property(DESCRIPTION_PROPERTY, "Session for " + username)
+        };
+        Node sessionNode = nodeService.createNode(0, sessionId, NodeType.S.toString(), properties);
+
+        //assign user node to session node
+        assignmentService.createAssignment(userNode.getId(), sessionNode.getId());
+
+        return sessionId;
+    }
+
+    public void deleteSession(String sessionId) throws NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException, DatabaseException, ConfigurationException {
+        HashSet<Node> nodes = nodeService.getNodes(null, sessionId, NodeType.S.toString(), null, null);
+        if(nodes.isEmpty()) {
+            throw new NodeNotFoundException(sessionId);
+        }
+
+        Node sessionNode = nodes.iterator().next();
+
+        nodeService.deleteNode(sessionNode.getId());
+    }
+
+    public List<PmAccessEntry> getSessionAccess(String sessionId) throws InvalidNodeTypeException, InvalidPropertyException, SessionDoesNotExistException, PropertyNotFoundException, NodeNotFoundException, NoUserParameterException, ConfigurationException {
         HashSet<Node> nodes = nodeService.getNodes(null, sessionId, NodeType.S.toString(), null, null);
         if(nodes.isEmpty()){
             throw new SessionDoesNotExistException(sessionId);
@@ -56,6 +108,6 @@ public class SessionService extends Service{
         Node sessionNode = nodes.iterator().next();
         Property userIdProp = sessionNode.getProperty(Constants.SESSION_USER_ID_PROPERTY);
 
-        return accessService.getAccessibleNodes(Long.parseLong(userIdProp.getValue()));
+        return permissionsService.getAccessibleNodes(Long.parseLong(userIdProp.getValue()));
     }
 }

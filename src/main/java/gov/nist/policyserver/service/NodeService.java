@@ -5,31 +5,26 @@ import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashSet;
 import java.util.List;
 
+import static gov.nist.policyserver.common.Constants.HASH_LENGTH;
+import static gov.nist.policyserver.common.Constants.NAMESPACE_PROPERTY;
+import static gov.nist.policyserver.common.Constants.PASSWORD_PROPERTY;
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class NodeService extends Service{
-
-    private static final String NAMESPACE_PROPERTY = "namespace";
 
     public NodeService() throws ConfigurationException {
         super();
     }
 
-
-    /**
-     * Search for nodes
-     * @param namespace
-     * @param name
-     * @param type
-     * @param key
-     * @param value
-     * @return A HashSet of nodes, if none are found it will be empty
-     * @throws InvalidNodeTypeException
-     * @throws InvalidPropertyException
-     */
     public HashSet<Node> getNodes(String namespace, String name, String type, String key, String value)
             throws InvalidNodeTypeException, InvalidPropertyException {
         NodeType nodeType = (type != null) ? NodeType.toNodeType(type) : null;
@@ -68,7 +63,7 @@ public class NodeService extends Service{
     }
 
     public HashSet<Node> getNodes(String namespace, String name, String type, List<Property> properties)
-            throws InvalidNodeTypeException, InvalidPropertyException {
+            throws InvalidNodeTypeException {
         NodeType nodeType = (type != null) ? NodeType.toNodeType(type) : null;
 
         HashSet<Node> nodes = graph.getNodes();
@@ -95,26 +90,61 @@ public class NodeService extends Service{
             nodes.removeIf(node -> !node.getType().equals(nodeType));
         }
 
-        HashSet<Node> nodesCopy = new HashSet<>();
-        nodesCopy.addAll(nodes);
-
         //check property match
         if(properties != null) {
-            for(Node node : nodes) {
+            nodes.removeIf(node -> {
                 for (Property prop : properties) {
-                    if(!node.hasProperty(prop)) {
-                        nodesCopy.remove(node);
+                    if(node.hasProperty(prop)) {
+                        return false;
                     }
                 }
-            }
+                return true;
+            });
         }
 
         return nodes;
     }
 
-    public Node createNode(long id, String name, String type, String description, Property[] properties)
-            throws NullNameException, NullTypeException, InvalidNodeTypeException, InvalidPropertyException, NodeNameExistsInNamespaceException,
-            DatabaseException, ConfigurationException, NodeNameExistsException, NodeIdExistsException {
+    public HashSet<Node> getNodes(HashSet<Node> nodes, String namespace, String name, String type, String key, String value)
+            throws InvalidNodeTypeException, InvalidPropertyException {
+        NodeType nodeType = (type != null) ? NodeType.toNodeType(type) : null;
+        Property property = (key==null||value==null)?null : new Property(key, value);
+
+        //check namespace match
+        if(namespace != null){
+            nodes.removeIf(node -> {
+                try {
+                    return !node.hasProperty(NAMESPACE_PROPERTY) || !node.getProperty(NAMESPACE_PROPERTY).getValue().equalsIgnoreCase(namespace);
+                }
+                catch (PropertyNotFoundException e) {
+                    return true;
+                }
+            });
+        }
+
+        //check name match
+        if(name != null){
+            nodes.removeIf(node -> !node.getName().equals(name));
+        }
+
+        //check type match
+        if(nodeType != null){
+            nodes.removeIf(node -> !node.getType().equals(nodeType));
+        }
+
+        //check property match
+        if(property != null) {
+            nodes.removeIf(node -> !node.hasProperty(property));
+        }
+
+        return nodes;
+    }
+
+    public Node createNode(long id, String name, String type, Property[] properties)
+            throws NullNameException, NullTypeException, InvalidNodeTypeException,
+            InvalidPropertyException, NodeNameExistsInNamespaceException, DatabaseException,
+            ConfigurationException, NodeNameExistsException, NodeIdExistsException,
+            NodeNotFoundException {
         //check name and type are not null
         if(name == null){
             throw new NullNameException();
@@ -123,13 +153,15 @@ public class NodeService extends Service{
             throw new NullTypeException();
         }
 
-        if(id > 0) {
+        if(id != 0) {
             //check if ID exists
             try {
                 Node node = getNode(id);
                 throw new NodeIdExistsException(id, node);
             }
             catch (NodeNotFoundException e) {/*expected exception*/}
+        } else {
+
         }
 
         boolean checkDefault = true;
@@ -137,18 +169,22 @@ public class NodeService extends Service{
         if(properties != null) {
             for (Property property : properties) {
                 //check if namespace property exists
-                if (property.getKey().equals(NAMESPACE_PROPERTY)) {
-                    Node nodeInNamespace = null;
-                    try {
-                        nodeInNamespace = getNodeInNamespace(property.getValue(), name);                    }
-                    catch (NameInNamespaceNotFoundException e) {}
+                if(property.isValid()) {
+                    if (property.getKey().equals(NAMESPACE_PROPERTY)) {
+                        Node nodeInNamespace = null;
+                        try {
+                            nodeInNamespace = getNodeInNamespace(property.getValue(), name);
+                        }
+                        catch (NameInNamespaceNotFoundException e) {
+                        }
 
-                    if (nodeInNamespace != null) {
-                        throw new NodeNameExistsInNamespaceException(property.getValue(), name);
+                        if (nodeInNamespace != null) {
+                            throw new NodeNameExistsInNamespaceException(property.getValue(), name);
+                        }
+
+                        checkDefault = false;
+                        break;
                     }
-
-                    checkDefault = false;
-                    break;
                 }
             }
         }
@@ -163,24 +199,61 @@ public class NodeService extends Service{
 
         //create node in database
         NodeType nt = NodeType.toNodeType(type);
-        Node newNode = getDao().createNode(id, name, nt, description);
+        Node newNode = getDao().createNode(id, name, nt);
 
         //add the node to the nodes
         graph.addNode(newNode);
 
+        //assign node to connector
+        if(newNode.getId() > 0) {
+            AssignmentService assignmentService = new AssignmentService();
+            try {
+                assignmentService.createAssignment(newNode.getId(), getConnector().getId());
+            }
+            catch (AssignmentExistsException e) {
+                //a new node should not be assigned to the connector yet
+                //ignore
+            }
+        }
+
         //add properties to the node
+        try {
+            newNode = addNodeProperties(newNode, properties);
+        }
+        catch (PropertyNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return newNode;
+    }
+
+    private Node addNodeProperties(Node node, Property[] properties) throws NodeNotFoundException, DatabaseException, ConfigurationException, InvalidPropertyException, PropertyNotFoundException {
         if(properties != null) {
             for (Property property : properties) {
-                try {
-                    addNodeProperty(newNode.getId(), property.getKey(), property.getValue());
-                }
-                catch (NodeNotFoundException e) {
-                    e.printStackTrace();
+                if(property.isValid()) {
+                    try {
+                        if(node.hasProperty(property.getKey())) {
+                            updateNodeProperty(node.getId(), property.getKey(), property.getValue());
+                        } else {
+                            if(property.getKey().equals(PASSWORD_PROPERTY)) {
+                                //check ic password is already hashed, and hash it if not
+                                //this will occur when loading a configuration
+                                if(property.getValue().length() != HASH_LENGTH) {
+                                    String hash = generatePasswordHash(property.getValue());
+                                    property.setValue(hash);
+                                }
+                            }
+                            addNodeProperty(node.getId(), property.getKey(), property.getValue());
+                        }
+                    }
+                    catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+                        throw new InvalidPropertyException("Could not add password property. Node was created anyways.");
+                    }
                 }
             }
         }
 
-        return newNode;
+        return node;
     }
 
     public Node getNode(long nodeId)
@@ -211,15 +284,17 @@ public class NodeService extends Service{
         deleteNode(node.getId());
     }
 
-    public Node updateNode(long nodeId, String name, String description) throws NodeNotFoundException, DatabaseException, ConfigurationException {
+    public Node updateNode(long nodeId, String name, Property[] properties) throws NodeNotFoundException, DatabaseException, ConfigurationException, InvalidPropertyException, PropertyNotFoundException {
         //check node exists
-        getNode(nodeId);
+        Node node = getNode(nodeId);
 
         //update node in the database
-        getDao().updateNode(nodeId, name, description);
+        getDao().updateNode(nodeId, name);
 
         //update node in nodes
-        graph.updateNode(nodeId, name, description);
+        graph.updateNode(nodeId, name);
+
+        addNodeProperties(node, properties);
 
         return graph.getNode(nodeId);
     }
@@ -276,6 +351,21 @@ public class NodeService extends Service{
         graph.deleteNodeProperty(nodeId, key);
     }
 
+    public void updateNodeProperty(long nodeId, String key, String value) throws NodeNotFoundException, PropertyNotFoundException, ConfigurationException, DatabaseException, InvalidKeySpecException, NoSuchAlgorithmException {
+        //check if the property exists
+        getNodeProperty(nodeId, key);
+
+        if(key.equals(PASSWORD_PROPERTY)) {
+            value = generatePasswordHash(value);
+        }
+
+        //update the property
+        getDao().updateNodeProperty(nodeId, key, value);
+
+        //update property in graph
+        graph.updateNodeProperty(nodeId, key, value);
+    }
+
     public HashSet<Node> getChildrenOfType(long nodeId, String childType) throws NodeNotFoundException, InvalidNodeTypeException {
         Node node = getNode(nodeId);
 
@@ -294,6 +384,8 @@ public class NodeService extends Service{
     }
 
     public void deleteNodeChildren(long nodeId, String childType) throws NodeNotFoundException, InvalidNodeTypeException, DatabaseException, ConfigurationException {
+        //TODO
+
         HashSet<Node> children = getChildrenOfType(nodeId, childType);
         for(Node node : children){
             //delete node in db

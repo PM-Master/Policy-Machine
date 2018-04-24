@@ -1,13 +1,19 @@
 package gov.nist.policyserver.service;
 
 import gov.nist.policyserver.exceptions.*;
+import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
+import gov.nist.policyserver.model.graph.nodes.NodeType;
+import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 
 import java.util.HashSet;
 
+import static gov.nist.policyserver.common.Constants.*;
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class AssignmentService extends Service{
+    private NodeService nodeService = new NodeService();
+
     public AssignmentService() throws ConfigurationException {
         super();
     }
@@ -26,7 +32,7 @@ public class AssignmentService extends Service{
         return graph.isAssigned(child, parent);
     }
 
-    public void createAssignment(long childId, long parentId) throws NodeNotFoundException, ConfigurationException, DatabaseException, AssignmentExistsException {
+    public void createAssignment(long childId, long parentId) throws NodeNotFoundException, AssignmentExistsException, ConfigurationException, DatabaseException {
         //check if the nodes exist
         Node child = graph.getNode(childId);
         if(child == null){
@@ -46,7 +52,7 @@ public class AssignmentService extends Service{
         graph.createAssignment(child, parent);
     }
 
-    public void deleteAssignment(long childId, long parentId) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException {
+    public void deleteAssignment(long childId, long parentId) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException {
         //check if the nodes exist
         Node child = graph.getNode(childId);
         if(child == null){
@@ -77,5 +83,4 @@ public class AssignmentService extends Service{
 
         return graph.getAscesndants(nodeId);
     }
-
 }

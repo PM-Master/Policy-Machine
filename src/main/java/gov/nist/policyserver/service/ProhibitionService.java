@@ -8,6 +8,7 @@ import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -31,8 +32,8 @@ public class ProhibitionService extends Service{
         //create prohibitions in database
         HashSet<String> hsOps = new HashSet<>(Arrays.asList(operations));
         getDao().createProhibition(name, hsOps, intersection, resources, denySubject);
-        List<ProhibitionRes> rsrcs = (List<ProhibitionRes>) Arrays.asList(resources);
-        System.out.println(rsrcs.size());
+        List<ProhibitionRes> rsrcs = Arrays.asList(resources);
+
         //add prohibitions to nodes
         prohibition = new Prohibition(denySubject, rsrcs, name, hsOps, intersection);
         access.addProhibition(prohibition);
@@ -203,5 +204,51 @@ public class ProhibitionService extends Service{
         getDao().setProhibitionOperations(prohibitionName, prohibition.getOperations());
 
         return prohibition;
+    }
+
+    public Prohibition updateProhibition(String name, String[] operations, ProhibitionRes[] resources, ProhibitionSubject subject) throws ProhibitionDoesNotExistException, ConfigurationException, DatabaseException, InvalidProhibitionSubjectTypeException, ProhibitionResourceDoesNotExistException, NodeNotFoundException, ProhibitionResourceExistsException {
+        //check the prohibition exists
+        Prohibition prohibition = getProhibition(name);
+
+        //set operations
+        getDao().setProhibitionOperations(prohibition.getName(), new HashSet<>(Arrays.asList(operations)));
+
+        //set resources
+        //remove existing resources
+        List<ProhibitionRes> oldResources = prohibition.getResources();
+        for(ProhibitionRes prohibitionRes : oldResources) {
+            deleteProhibitionResource(prohibition.getName(), prohibitionRes.getResourceId());
+        }
+
+        //add new resources
+        for(ProhibitionRes prohibitionRes : resources) {
+            addResourceToProhibition(prohibition.getName(), prohibitionRes.getResourceId(), prohibitionRes.isCompliment());
+        }
+
+        //set subject
+        setProhibitionSubject(prohibition.getName(), subject.getSubjectId(), subject.getSubjectType().toString());
+
+        return getProhibition(name);
+    }
+
+    public List<Prohibition> getProhibitions(long subjectId, long resourceId) {
+        List<Prohibition> prohibitions = access.getProhibitions();
+        if(subjectId != 0) {
+            prohibitions.removeIf(prohibition -> prohibition.getSubject().getSubjectId() != subjectId);
+        }
+
+        if(resourceId != 0) {
+            prohibitions.removeIf(prohibition -> {
+                List<ProhibitionRes> resources = prohibition.getResources();
+                for(ProhibitionRes resource : resources) {
+                    if(resource.getResourceId() == resourceId) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        return prohibitions;
     }
 }
