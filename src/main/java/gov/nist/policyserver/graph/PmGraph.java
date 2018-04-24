@@ -1,5 +1,6 @@
 package gov.nist.policyserver.graph;
 
+import gov.nist.policyserver.exceptions.PropertyNotFoundException;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
@@ -24,13 +25,10 @@ public class PmGraph implements Serializable{
         graph.addVertex(n);
     }
 
-    public synchronized void updateNode(long nodeId, String name, String description){
+    public synchronized void updateNode(long nodeId, String name){
         Node n = getNode(nodeId);
         if(name != null && !name.isEmpty()) {
             n.setName(name);
-        }
-        if(description != null && !description.isEmpty()){
-            n.setDescription(description);
         }
     }
 
@@ -158,6 +156,11 @@ public class PmGraph implements Serializable{
     public synchronized void deleteNodeProperty(long nodeId, String key){
         Node node = getNode(nodeId);
         node.deleteProperty(key);
+    }
+
+    public synchronized void updateNodeProperty(long nodeId, String key, String value) throws PropertyNotFoundException {
+        Node node = getNode(nodeId);
+        node.updateProperty(key, value);
     }
 
     public synchronized void addNodeProperty(long nodeId, Property property){
