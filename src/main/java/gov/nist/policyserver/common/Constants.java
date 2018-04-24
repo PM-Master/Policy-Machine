@@ -6,12 +6,30 @@ public class Constants {
     public static final String FILE_READ = "file read";
     public static final String CREATE_OBJECT_ATTRIBUTE = "create object attribute";
     public static final String ASSIGN_OBJECT_ATTRIBUTE = "assign object attribute";
-    public static final String CREATE_OBJECT = "create object";
-    public static final String ASSIGN_OBJECT = "assign object";
-    public static final String ASSIGN_OBJECT_TO = "assign object to";
-    public static final String ASSIGN_OBJECT_ATTRIBUTE_TO = "assign object attribute to";
+    public static final String CREATE_NODE = "create node";
+    public static final String DELETE_NODE = "delete node";
+    public static final String UPDATE_NODE = "update node";
+    public static final String ASSIGN_TO = "assign to";
+    public static final String ASSIGN = "assign";
+    public static final String DEASSIGN = "deassign";
+    public static final String DEASSIGN_FROM = "deassign from";
+    public static final String CREATE_ASSOCIATION = "create association";
+    public static final String UPDATE_ASSOCIATION = "update association";
+    public static final String DELETE_ASSOCIATION = "delete association";
+    public static final String GET_ASSOCIATIONS = "get associations";
+    public static final String ALL_OPERATIONS = "*";
+    public static final String ANY_OPERATIONS = "any";
+    public static final String GET_PERMISSIONS = "get permissions";
+    public static final String GET_ACCESSIBLE_CHILDREN = "get accessible children";
+    public static final String GET_PROHIBITED_OPS = "get prohibited ops";
+    public static final String GET_ACCESSIBLE_NODES = "get accessible nodes";
 
+    //connector
+    public static final String CONNECTOR_NAME = "PM";
+    public static final String CONNECTOR_NAMESPACE = "connector";
 
+    //super pc
+    public static final String SUPER_PC_NAME = "Super PC";
 
     //error codes
     //web services
@@ -40,8 +58,14 @@ public class Constants {
     public static final int ERR_SESSION_DOES_NOT_EXIST              = 6023;
     public static final int ERR_ACCESS_DENIED                       = 6024;
     public static final int ERR_NODE_ID_EXISTS                      = 6025;
+    public static final int ERR_ASSOCIATION_EXISTS                  = 6025;
+    public static final int ERR_MISSING_PERMISSIONS                 = 6025;
+    public static final int ERR_SESSION_USER_NOT_FOUND              = 6026;
+
     public static final int ERR_NEO                                 = 7000;
+
     public static final int ERR_MYSQL                               = 8000;
+
     public static final int SUCCESS                                 = 9000;
 
 
@@ -65,6 +89,9 @@ public class Constants {
     public static final String PM_EVENT_SESSION_DELETE = "session delete";
     public static final String PM_EVENT_OBJECT_SEND    = "object send";
 
+    public static final int HASH_LENGTH = 163;
+    public static final String PASSWORD_PROPERTY        = "password";
+    public static final String DESCRIPTION_PROPERTY     = "description";
     public static final String NAMESPACE_PROPERTY       = "namespace";
     public static final String COLUMN_INDEX_PROPERTY    = "column_index";
     public static final String ORDER_BY_PROPERTY        = "order_by";
