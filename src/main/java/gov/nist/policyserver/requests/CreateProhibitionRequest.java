@@ -7,7 +7,7 @@ public class CreateProhibitionRequest {
     public String                name;
     public boolean               intersection;
     public String[]              operations;
-    public ProhibitionRes[] resources;
+    public ProhibitionRes[]      resources;
     public ProhibitionSubject    subject;
 
     public String getName() {

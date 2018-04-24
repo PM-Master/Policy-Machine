@@ -6,7 +6,6 @@ public class CreateNodeRequest {
     long       id;
     String     name;
     String     type;
-    String     description;
     Property[] properties;
 
     public long getId() {
@@ -31,14 +30,6 @@ public class CreateNodeRequest {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Property[] getProperties() {
