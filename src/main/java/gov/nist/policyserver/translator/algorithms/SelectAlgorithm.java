@@ -27,6 +27,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static gov.nist.policyserver.common.Constants.FILE_READ;
+
 public class SelectAlgorithm extends Algorithm {
     private static final String ROW_NOT_AVAILABLE = "ROW_NOT_AVAILABLE";
     private Select select;
@@ -34,8 +36,8 @@ public class SelectAlgorithm extends Algorithm {
     private CompositeTable     compositeTable;
     private List<CompositeRow> compositeRows;
 
-    public SelectAlgorithm(Select select, PmManager pm, DbManager db){
-        super(pm, db);
+    public SelectAlgorithm(String id, Select select, PmManager pm, DbManager db){
+        super(id, pm, db);
         this.select = select;
         compositeTable = new CompositeTable();
         compositeRows = new ArrayList<>();
@@ -46,7 +48,7 @@ public class SelectAlgorithm extends Algorithm {
     }
 
     @Override
-    public String run() throws SQLException, JSQLParserException, PMAccessDeniedException, PolicyMachineException, IOException, InvalidNodeTypeException, InvalidPropertyException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException {
+    public String run() throws SQLException, JSQLParserException, PMAccessDeniedException, PolicyMachineException, IOException, InvalidNodeTypeException, InvalidPropertyException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
         log("SELECT: " + plainSelect);
 
@@ -77,6 +79,9 @@ public class SelectAlgorithm extends Algorithm {
         String permittedSelect = getPermittedSelect(plainSelect, groups);
         e = System.nanoTime();
         System.out.println("3: " + (e-s));
+
+        //process select
+        pmManager.processSelect(id, groups.keySet(), compositeRows, dbManager);
 
         return permittedSelect;
     }
@@ -187,7 +192,7 @@ public class SelectAlgorithm extends Algorithm {
         System.out.println(compositeTable);
     }
 
-    private Hashtable groupRows() throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidPropertyException, InvalidNodeTypeException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException {
+    private Hashtable groupRows() throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidPropertyException, InvalidNodeTypeException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
 
         Hashtable<CompositeRow, List<Column>> results = new Hashtable<>();
@@ -222,7 +227,7 @@ public class SelectAlgorithm extends Algorithm {
                     //if the intersection (an object) is in the accessible children add the COLUMN to a list
                     //else if not in accChildren, check if its in where clause
 
-                    if (checkColumn(columnPmId, rowPmId, PmManager.FILE_READ)) {
+                    if (checkColumn(columnPmId, rowPmId, FILE_READ)) {
                         okColumns.add(column);
                     }
                     addToSet(getWhereColumns(plainSelect.getWhere()), whereColumns);
@@ -236,7 +241,7 @@ public class SelectAlgorithm extends Algorithm {
                     if(columnInList(compositeTable.getSimpleTable(row.getTableName()).getColumns(), column)){
                         long columnPmId = pmManager.getEntityId(row.getTableName(), column.getColumnName());
 
-                        if (!checkColumn(columnPmId, rowPmId, PmManager.FILE_READ)) {
+                        if (!checkColumn(columnPmId, rowPmId, FILE_READ)) {
                             throw new PMAccessDeniedException(column.toString());
                         }
                     }

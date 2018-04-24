@@ -1,5 +1,6 @@
 package gov.nist.policyserver.translator;
 
+import gov.nist.policyserver.evr.exceptions.InvalidEntityException;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.translator.exceptions.PMAccessDeniedException;
@@ -21,14 +22,13 @@ import java.sql.SQLException;
 public class TranslatorResource {
     private TranslatorService translatorService = new TranslatorService();
 
-    public TranslatorResource() throws ConfigurationException {
+    public TranslatorResource() throws ConfigurationException, ClassNotFoundException {
     }
 
     @POST
-    public Response translate(TranslateRequest request) throws ClassNotFoundException, SQLException, JSQLParserException, IOException, NodeNotFoundException, PMAccessDeniedException, PolicyMachineException, InvalidNodeTypeException, NameInNamespaceNotFoundException, InvalidPropertyException, NoUserParameterException {
-        return new ApiResponse(translatorService.translate(request.getSql(), request.getUsername(),
+    public Response translate(TranslateRequest request) throws ClassNotFoundException, SQLException, JSQLParserException, IOException, PmException, PolicyMachineException, InvalidEntityException {
+        return new ApiResponse(translatorService.translate(request.getSql(), request.getUsername(), request.getProcess(),
                 request.getHost(), request.getPort(), request.getDbUsername(),
                 request.getDbPassword(), request.getDatabase())).toResponse();
     }
-
 }

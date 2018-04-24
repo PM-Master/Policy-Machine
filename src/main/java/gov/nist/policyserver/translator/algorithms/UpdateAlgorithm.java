@@ -1,5 +1,6 @@
 package gov.nist.policyserver.translator.algorithms;
 
+import gov.nist.policyserver.evr.exceptions.InvalidEntityException;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.translator.exceptions.PMAccessDeniedException;
 import gov.nist.policyserver.translator.exceptions.PolicyMachineException;
@@ -23,21 +24,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static gov.nist.policyserver.common.Constants.FILE_READ;
+import static gov.nist.policyserver.common.Constants.FILE_WRITE;
+
 public class UpdateAlgorithm extends Algorithm {
     private Update update;
+    private Select select;
 
-    public UpdateAlgorithm(Update update, PmManager pm, DbManager db){
-        super(pm, db);
+    public UpdateAlgorithm(String id, Update update, PmManager pm, DbManager db){
+        super(id, pm, db);
         this.update = update;
     }
 
     @Override
-    public String run() throws SQLException, IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, NodeNotFoundException, InvalidNodeTypeException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException {
+    public String run() throws SQLException, IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, NodeNotFoundException, InvalidNodeTypeException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException, InvalidEntityException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
         //determine the rows that are going to be updated
         List<String> rows = getTargetRows();
 
         //check each row that the user has write access to each row,column
         checkRows(rows);
+
+        //process the statement as an event
+        pmManager.processUpdate(id, update, rows, dbManager);
 
         //return update statement
         return update.toString();
@@ -48,14 +56,14 @@ public class UpdateAlgorithm extends Algorithm {
         List<String> keys = getKeys(tableName);
 
         //build select
-        Select select = buildSelect(tableName, keys, update.getWhere());
+        buildSelect(tableName, keys, update.getWhere());
 
         //return rows
         return getRows(select);
     }
 
     private List<String> getRows(Select select) throws SQLException {
-        List<String> rows = new ArrayList<String>();
+        List<String> rows = new ArrayList<>();
 
         ResultSet rs = dbManager.getConnection().createStatement().executeQuery(select.toString());
         ResultSetMetaData meta = rs.getMetaData();
@@ -76,7 +84,7 @@ public class UpdateAlgorithm extends Algorithm {
         return rows;
     }
 
-    private Select buildSelect(String tableName, List<String> keys, Expression where){
+    private void  buildSelect(String tableName, List<String> keys, Expression where){
         Select select = SelectUtils.buildSelectFromTable(new Table(tableName));
         PlainSelect ps = (PlainSelect) select.getSelectBody();
 
@@ -88,10 +96,10 @@ public class UpdateAlgorithm extends Algorithm {
         ps.setSelectItems(selectItems);
         ps.setWhere(where);
 
-        return select;
+        this.select = select;
     }
 
-    private void checkRows(List<String> rows) throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidNodeTypeException, NodeNotFoundException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException {
+    private void checkRows(List<String> rows) throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidNodeTypeException, NodeNotFoundException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
         List<String> reqColumns = update.getColumns().stream().map(
                 Column::getColumnName).collect(Collectors.toList());
 
@@ -104,7 +112,7 @@ public class UpdateAlgorithm extends Algorithm {
                 //if the intersection (an object) is in the accessible children add the COLUMN to a list
                 //else if not in accChildren, check if its in where clause
 
-                if(!checkColumn(columnPmId, rowPmId, PmManager.FILE_WRITE)){
+                if(!checkColumn(columnPmId, rowPmId, FILE_WRITE)){
                     throw new PMAccessDeniedException(columnName);
                 }
             }
@@ -121,8 +129,8 @@ public class UpdateAlgorithm extends Algorithm {
 
                     //if the intersection (an object) is in the accessible children add the COLUMN to a list
                     //else if not in accChildren, check if its in where clause
-
-                    if(!checkColumn(columnPmId, rowPmId, PmManager.FILE_READ)){
+                    //if a column is in a where clause, the iser needs to be able to read that column
+                    if(!checkColumn(columnPmId, rowPmId, FILE_READ)){
                         throw new PMAccessDeniedException(column.toString());
                     }
                 }

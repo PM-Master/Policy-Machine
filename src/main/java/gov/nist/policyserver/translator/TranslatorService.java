@@ -1,5 +1,6 @@
 package gov.nist.policyserver.translator;
 
+import gov.nist.policyserver.evr.exceptions.InvalidEntityException;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.service.AccessService;
 import gov.nist.policyserver.service.NodeService;
@@ -17,28 +18,25 @@ import net.sf.jsqlparser.statement.update.Update;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class TranslatorService {
-    private NodeService   nodeService;
-    private AccessService accessService;
-
-    private Connection conn;
-    private String     database;
-    private Algorithm  algorithm;
     private PmManager  pmManager;
     private DbManager  dbManager;
-    public TranslatorService() throws ConfigurationException {
-        nodeService = new NodeService();
-        accessService = new AccessService();
+    public TranslatorService() {
     }
 
-    public String translate(String sql, String username, String host, int port,
+    public TranslateResponse translate(String sql, String username, String process, String host, int port,
                             String dbUsername, String dbPassword, String database)
             throws SQLException, IOException, ClassNotFoundException,
-            JSQLParserException, PolicyMachineException, PMAccessDeniedException,
-            NodeNotFoundException, NameInNamespaceNotFoundException,
-            InvalidNodeTypeException, InvalidPropertyException, NoUserParameterException {
-        pmManager = new PmManager(username, nodeService, accessService);
+            JSQLParserException, PolicyMachineException, PmException, InvalidEntityException {
+        Algorithm algorithm = null;
+        pmManager = new PmManager(username, process);
+
+        //create an ID for this algorithm
+        String id = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
+        System.out.println("Translating sql with id = " + id);
+        pmManager.addActiveSql(id);
 
         dbManager = new DbManager();
         dbManager.setConnection(host, port, dbUsername, dbPassword);
@@ -46,14 +44,18 @@ public class TranslatorService {
 
         Statement statement = CCJSqlParserUtil.parse(sql);
         if (statement instanceof Select) {
-            algorithm = new SelectAlgorithm((Select) statement, pmManager, dbManager);
+            algorithm = new SelectAlgorithm(id, (Select) statement, pmManager, dbManager);
         } else if (statement instanceof Insert) {
-            algorithm = new InsertAlgorithm((Insert) statement, pmManager, dbManager);
+            algorithm = new InsertAlgorithm(id, (Insert) statement, pmManager, dbManager);
         } else if (statement instanceof Update) {
-            algorithm = new UpdateAlgorithm((Update) statement, pmManager, dbManager);
+            algorithm = new UpdateAlgorithm(id, (Update) statement, pmManager, dbManager);
         } else if (statement instanceof Delete) {
         }
 
-        return algorithm.run();
+        if(algorithm != null) {
+            return new TranslateResponse(id, algorithm.run());
+        } else {
+            throw new PmException(6000, "Algorithm returned null");
+        }
     }
 }

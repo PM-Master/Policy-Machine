@@ -12,19 +12,20 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static gov.nist.policyserver.common.Constants.*;
 
 public class InsertAlgorithm extends Algorithm{
     private Insert insert;
 
-    public InsertAlgorithm(Insert insert, PmManager pm, DbManager db) {
-        super(pm, db);
+    public InsertAlgorithm(String id, Insert insert, PmManager pm, DbManager db) {
+        super(id, pm, db);
         this.insert = insert;
     }
 
     @Override
-    public String run() throws SQLException, IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidPropertyException, InvalidNodeTypeException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException {
+    public String run() throws PmException {
         //Check user can create an object attribute in the table oa
         Table table = insert.getTable();
 
@@ -36,18 +37,29 @@ public class InsertAlgorithm extends Algorithm{
             accColumnNames.add(node.getName());
         }
 
-        //check that each target column is in accColumns
+        //check user can create a row in the table and assign the row to the table
+        //schema_comp = table
+        //namespace = tableName
+        boolean access = pmManager.checkRowAccess(table.getName(), CREATE_OBJECT_ATTRIBUTE, ASSIGN_OBJECT_ATTRIBUTE);
+        if(!access) {
+            throw new PMAccessDeniedException(table.getName());
+        }
+
+        //check user can create object in columns
         List<Column> targetColumns = insert.getColumns();
         for(Column column : targetColumns) {
-            if(!accColumnNames.contains(column.getColumnName())) {
+            access = pmManager.checkColumnAccess(column.getColumnName(), table.getName(), CREATE_NODE, ASSIGN);
+            if(!access) {
                 throw new PMAccessDeniedException(column.getColumnName());
             }
         }
 
 
-        //check they can write to each column
+        //check user can assign object to OA in row
+        // can we assume that if they can create the row they can assign to that row?
 
-        return null;
+        //return the original sql if passed all checks
+        return insert.toString();
     }
 
     /*Insert_Row_in_EmployeeTable(row, name, phone, ssn, salary)

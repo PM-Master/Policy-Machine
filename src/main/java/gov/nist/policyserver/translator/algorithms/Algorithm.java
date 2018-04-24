@@ -1,5 +1,6 @@
 package gov.nist.policyserver.translator.algorithms;
 
+import gov.nist.policyserver.evr.exceptions.InvalidEntityException;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.translator.exceptions.PMAccessDeniedException;
@@ -19,15 +20,21 @@ import java.util.List;
 
 
 public abstract class Algorithm {
+    protected String    id;
     protected PmManager pmManager;
     protected DbManager dbManager;
 
-    public Algorithm(PmManager pm, DbManager db){
+    public Algorithm(String id, PmManager pm, DbManager db) {
+        this.id = id;
         this.pmManager = pm;
         this.dbManager = db;
     }
 
-    public abstract String run() throws SQLException, IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidNodeTypeException, InvalidPropertyException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException;
+    public String getId() {
+        return this.id;
+    }
+
+    public abstract String run() throws SQLException, IOException, PolicyMachineException, PmException, JSQLParserException, InvalidEntityException;
 
     protected List<String> getKeys(String tableName) throws SQLException {
         PreparedStatement ps2 = dbManager.getConnection().prepareStatement("SELECT k.COLUMN_NAME\n" +
@@ -101,7 +108,7 @@ public abstract class Algorithm {
         return visitedColumns;
     }
 
-    public boolean checkColumn(long columnPmId, long rowPmId, String perm) throws IOException, PolicyMachineException, NodeNotFoundException, NoUserParameterException, InvalidNodeTypeException {
+    public boolean checkColumn(long columnPmId, long rowPmId, String perm) throws IOException, PolicyMachineException, NodeNotFoundException, NoUserParameterException, InvalidNodeTypeException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
         List<Node> accChildren = pmManager.getAccessibleChildren(rowPmId, perm);
 
         Node intersection = pmManager.getIntersection(columnPmId, rowPmId);
