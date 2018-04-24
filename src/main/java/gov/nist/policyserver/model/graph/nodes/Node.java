@@ -12,7 +12,6 @@ public class Node implements Serializable{
     private long           id;
     private String         name;
     private NodeType       type;
-    private String         description;
     private List<Property> properties;
 
     public Node(){}
@@ -27,7 +26,6 @@ public class Node implements Serializable{
 
         this.name = name;
         this.type = type;
-        description = "";
         properties = new ArrayList<>();
     }
 
@@ -42,7 +40,6 @@ public class Node implements Serializable{
         this.id = id;
         this.name = name;
         this.type = type;
-        description = "";
         properties = new ArrayList<>();
     }
 
@@ -57,11 +54,6 @@ public class Node implements Serializable{
         this.id = id;
         this.name = name;
         this.type = type;
-        if(description != null) {
-            this.description = description;
-        } else {
-            this.description = "";
-        }
         this.properties = new ArrayList<>();
     }
 
@@ -75,11 +67,6 @@ public class Node implements Serializable{
 
         this.name = name;
         this.type = type;
-        if(description != null) {
-            this.description = description;
-        } else {
-            this.description = "";
-        }
         this.properties = new ArrayList<>();
     }
 
@@ -94,11 +81,6 @@ public class Node implements Serializable{
         this.id = id;
         this.name = name;
         this.type = type;
-        if(description != null) {
-            this.description = description;
-        } else {
-            this.description = "";
-        }
         this.properties = Arrays.asList(properties);
     }
 
@@ -124,14 +106,6 @@ public class Node implements Serializable{
 
     public void setType(NodeType type) {
         this.type = type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public List<Property> getProperties() {
@@ -176,6 +150,11 @@ public class Node implements Serializable{
         properties.removeIf(property -> property.getKey().equals(key));
     }
 
+    public void updateProperty(String key, String value) throws PropertyNotFoundException {
+        Property property = getProperty(key);
+        property.setValue(value);
+    }
+
     public int hashCode(){
         return (int) id;
     }
@@ -186,5 +165,9 @@ public class Node implements Serializable{
             return this.id == n.id;
         }
         return false;
+    }
+
+    public String toString() {
+        return name + ":" + type + ":" + id + ":" + properties;
     }
 }

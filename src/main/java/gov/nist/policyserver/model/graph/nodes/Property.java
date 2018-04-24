@@ -35,4 +35,12 @@ public class Property  implements Serializable {
 		}
 		return false;
 	}
+
+    public boolean isValid() {
+		return key != null && value != null;
+    }
+
+    public String toString() {
+	    return key + "=" + value;
+    }
 }
