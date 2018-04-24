@@ -16,31 +16,43 @@
             switch (name) {
                 case 'neo4j':
                     hideForm('mysql');
+                    hideForm('reset');
                     hideForm('load');
                     hideForm('save');
                     hideForm('interval');
                     break;
                 case 'mysql':
                     hideForm('neo4j');
+                    hideForm('reset');
                     hideForm('load');
                     hideForm('save');
                     hideForm('interval');
                     break;
+                case 'reset':
+                    hideForm('neo4j');
+                    hideForm('mysql');
+                    hideForm('interval');
+                    hideForm('save');
+                    hideForm('load');
+                    break;
                 case 'interval':
                     hideForm('neo4j');
                     hideForm('mysql');
+                    hideForm('reset');
                     hideForm('load');
                     hideForm('save');
                     break;
                 case 'save':
                     hideForm('neo4j');
                     hideForm('mysql');
+                    hideForm('reset');
                     hideForm('interval');
                     hideForm('load');
                     break;
                 case 'load':
                     hideForm('neo4j');
                     hideForm('mysql');
+                    hideForm('reset');
                     hideForm('interval');
                     hideForm('save');
                     break;
@@ -119,21 +131,21 @@
                 <div class="row">
                     <div class="form-group col-lg-6">
                         <label>Host</label>
-                        <input class="form-control" name="host" placeholder="Host" type="text">
+                        <input class="form-control" name="host" placeholder="Host" type="text" value="">
                     </div>
                     <div class="form-group col-lg-6">
                         <label>Port</label>
-                        <input class="form-control" name="port" placeholder="Port" type="text">
+                        <input class="form-control" name="port" placeholder="Port" type="text" value="">
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-lg-6">
                         <label>Username</label>
-                        <input class="form-control" name="username" placeholder="Username" type="text">
+                        <input class="form-control" name="username" placeholder="Username" type="text" value="">
                     </div>
                     <div class="form-group col-lg-6" style="margin: 0">
                         <label>Password</label>
-                        <input class="form-control" name="password" placeholder="Password" type="text">
+                        <input class="form-control" name="password" placeholder="Password" type="text" value="">
                     </div>
                 </div>
                 <div class="row">
@@ -187,30 +199,54 @@
         </form>
     </div>
     <div class="row" style="margin: 0">
-        <div class=" col-lg-4 tile" style="padding: 10px 10px 10px 10px;">
+        <div class=" col-lg-3 tile" style="padding: 10px 10px 10px 10px;">
+            <div class="card text-white bg-primary" style="padding: 0">
+                <div class="card-body" style="text-align: center" onclick="showForm('reset')">
+                    <h5 class="card-title">Reset Data</h5>
+                    <img src="images/reset.png" alt="reset" width="150" height="150">
+                </div>
+            </div>
+        </div>
+        <div class=" col-lg-3 tile" style="padding: 10px 10px 10px 10px;">
             <div class="card text-white bg-primary" style="padding: 0">
                 <div class="card-body" style="text-align: center" onclick="showForm('interval')">
-                    <h4 class="card-title">Set Data Dump Interval</h4>
+                    <h5 class="card-title">Set Data Dump Interval</h5>
                     <img src="images/interval.png" alt="interval" width="150" height="150">
                 </div>
             </div>
         </div>
-        <div class=" col-lg-4 tile" style="padding: 10px 10px 10px;">
+        <div class=" col-lg-3 tile" style="padding: 10px 10px 10px;">
             <div class="card text-white bg-primary" style="padding: 0">
                 <div class="card-body" style="text-align: center" onclick="showForm('save')">
-                    <h4 class="card-title">Save Configuration</h4>
+                    <h5 class="card-title">Save Configuration</h5>
                     <img src="images/save.png" alt="save" width="150" height="150">
                 </div>
             </div>
         </div>
-        <div class=" col-lg-4 tile" style="padding: 10px 10px 10px 10px;">
+        <div class=" col-lg-3 tile" style="padding: 10px 10px 10px 10px;">
             <div class="card text-white bg-primary" style="padding: 0">
                 <div class="card-body" style="text-align: center" onclick="showForm('load')">
-                    <h4 class="card-title">Load Configuration</h4>
+                    <h5 class="card-title">Load Configuration</h5>
                     <img src="images/load.png" alt="load" width="150" height="150">
                 </div>
             </div>
         </div>
+    </div>
+    <div id="resetForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
+        <button type="button" class="close" onclick="hideForm('reset')" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form action="Reset" method="post">
+            <fieldset>
+                <legend>Reset Policy Machine Data</legend>
+                <p class="text-danger">This will delete all current data in the Policy Machine.</p>
+                <div class="row">
+                    <div class="form-group col-lg-3">
+                        <button type="submit" class="btn btn-primary">Reset</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
     </div>
     <div id="intervalForm" class="col-lg-12 card-body" style="display: none; background-color: white; height: inherit; color: #008cba">
         <button type="button" class="close" onclick="hideForm('interval')" aria-label="Close">
@@ -259,6 +295,14 @@
         <form  enctype="multipart/form-data" action="load" method="post">
             <fieldset>
                 <legend>Load Configuration</legend>
+                <ul style="list-style: decimal">
+                    <li class="text-muted">
+                        Make sure the super.pm configuration is already loaded.
+                    </li>
+                    <li class="text-muted">
+                        This may take a few minutes depending on the size of the configuration.
+                    </li>
+                </ul>
                 <div class="row">
                     <div class="form-group col-lg-6">
                         <input type="file" name="configFile" accept=".pm">

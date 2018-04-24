@@ -64,4 +64,12 @@
 		<servlet-name>LoadEvr</servlet-name>
 		<url-pattern>/api/evr/LoadEvr</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>Reset</servlet-name>
+		<servlet-class>gov.nist.policyserver.servlets.ResetServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Reset</servlet-name>
+		<url-pattern>/Reset</url-pattern>
+	</servlet-mapping>
 </web-app>
