@@ -2,8 +2,11 @@ package gov.nist.policyserver.dao;
 
 import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.common.Constants;
+import gov.nist.policyserver.evr.EvrManager;
+import gov.nist.policyserver.evr.exceptions.InvalidEvrException;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.graph.PmGraph;
+import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
@@ -30,12 +33,13 @@ public abstract class DAO {
     static String schema;
     static int interval = 30;
 
+
     /**
      * @return The static instance of the DaoHelper
      */
     public static DAO getDao() throws ConfigurationException {
         if(dao == null){
-            throw new ConfigurationException("Make sure to configure the Policy Machine database");
+            throw new ConfigurationException("There is no database connection. Visit /pm/config.jsp to connect to a database.");
         }
         return dao;
     }
@@ -73,6 +77,7 @@ public abstract class DAO {
             }else{
                 dao = new SqlDAO();
             }
+            dao.buildScripts();
         }
         catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -108,6 +113,7 @@ public abstract class DAO {
         }else{
             dao = new SqlDAO();
         }
+        dao.buildScripts();
     }
 
     public static synchronized void setInterval(int newInterval) throws ConfigurationException {
@@ -146,30 +152,31 @@ public abstract class DAO {
 
     public  PmGraph    graph;
     public  PmAccess   access;
+    private EvrManager evrManager;
 
     public Connection conn;
     public DAO() throws DatabaseException {
         //connect to database
         connect();
 
-        //if(reinitializing || !deserialize()) {
-        System.out.println("Building nodes...");
-        //build the nodes in memory
-        buildGraph();
+        if(reinitializing || !deserialize()) {
+            System.out.println("Building nodes...");
+            //build the nodes in memory
+            buildGraph();
 
-        //initialize the access object
-        access = new PmAccess(graph);
+            //initialize the access object
+            access = new PmAccess(graph);
 
-        //build the prohibitions list
-        buildProhibitions();
+            //build the prohibitions list
+            buildProhibitions();
 
-        reinitializing = false;
-        System.out.println("Finished!");
-        //}
+            reinitializing = false;
+            System.out.println("Finished!");
+        }
 
         Runnable r = () -> {
             while(true) {
-                System.out.println("Serializing... " + new Date());
+                //System.out.println("Serializing... " + new Date());
                 serialize();
                 try {
                     Thread.sleep(interval * 1000);
@@ -181,6 +188,14 @@ public abstract class DAO {
         };
 
         new Thread(r).start();
+    }
+
+    public EvrManager getEvrManager() {
+        return evrManager;
+    }
+
+    public void buildScripts() throws ConfigurationException {
+        evrManager = new EvrManager();
     }
 
     public PmGraph getGraph(){
@@ -256,15 +271,17 @@ public abstract class DAO {
 
     public abstract List<Assignment> getAssignments() throws DatabaseException;
 
-    public abstract Node createNode(long id, String name, NodeType nt, String description) throws DatabaseException;
+    public abstract Node createNode(long id, String name, NodeType nt) throws DatabaseException;
 
-    public abstract void updateNode(long nodeId, String name, String descr) throws DatabaseException;
+    public abstract void updateNode(long nodeId, String name) throws DatabaseException;
 
     public abstract void deleteNode(long nodeId) throws DatabaseException;
 
     public abstract void addNodeProperty(long nodeId, Property property) throws DatabaseException;
 
     public abstract void deleteNodeProperty(long nodeId, String key) throws DatabaseException;
+
+    public abstract void updateNodeProperty(long nodeId, String key, String value) throws DatabaseException;
 
     //assignment
     public abstract void createAssignment(long childId, long parentId) throws DatabaseException;
@@ -291,8 +308,5 @@ public abstract class DAO {
 
     public abstract void setProhibitionOperations(String prohibitionName, HashSet<String> ops) throws DatabaseException;
 
-    public abstract void createSession(long id, long id1) throws DatabaseException;
-
-    public abstract Node getSessionUser(String sessionId) throws DatabaseException;
-
+    public abstract void reset() throws DatabaseException;
 }

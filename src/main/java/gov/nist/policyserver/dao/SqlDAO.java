@@ -1,5 +1,6 @@
 package gov.nist.policyserver.dao;
 
+import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
@@ -211,34 +212,27 @@ public class SqlDAO extends DAO {
     }
 
     @Override
-    public Node createNode(long id, String name, NodeType type, String descr) throws DatabaseException {
+    public Node createNode(long id, String name, NodeType type) throws DatabaseException {
         try{
-            CallableStatement cs = conn.prepareCall("{? = call create_node_fun(?,?,?,?)}");
+            CallableStatement cs = conn.prepareCall("{? = call create_node_fun(?,?,?)}");
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setLong(2, id);
             cs.setString(3, name);
             cs.setString(4, type.toString());
-            cs.setString(5, descr);
             cs.execute();
             id = cs.getInt(1);
 
-            return new Node(id, name, type, descr);
+            return new Node(id, name, type);
         }catch(SQLException e){
             throw new DatabaseException(e.getErrorCode(), e.getMessage());
         }
     }
 
     @Override
-    public synchronized void updateNode(long nodeId, String name, String descr) throws DatabaseException {
+    public synchronized void updateNode(long nodeId, String name) throws DatabaseException {
         try {
             if(name != null && !name.isEmpty()) {
                 String sql = "update node set name='" + name + "' where node_id = " + nodeId  ;
-                Statement stmt = conn.createStatement();
-                stmt.execute(sql);
-            }
-
-            if(descr != null && !descr.isEmpty()) {
-                String sql = "update node set description='" + name + "' where node_id = " + nodeId  ;
                 Statement stmt = conn.createStatement();
                 stmt.execute(sql);
             }
@@ -287,6 +281,11 @@ public class SqlDAO extends DAO {
         catch (SQLException e) {
             throw new DatabaseException(e.getErrorCode(), e.getMessage());
         }
+    }
+
+    @Override
+    public void updateNodeProperty(long nodeId, String key, String value) throws DatabaseException {
+
     }
 
     @Override
@@ -518,12 +517,7 @@ public class SqlDAO extends DAO {
     }
 
     @Override
-    public void createSession(long id, long id1) throws DatabaseException {
-
-    }
-
-    @Override
-    public Node getSessionUser(String sessionId) throws DatabaseException {
-        return null;
+    public void reset() throws DatabaseException {
+        throw new DatabaseException(Constants.ERR_MYSQL, "Not yet implemented for MySQL.  Delete data in MySQL and reconnect");
     }
 }

@@ -183,8 +183,8 @@ public class NeoDAO extends DAO {
     }
 
     @Override
-    public Node createNode(long id, String name, NodeType type, String descr) throws DatabaseException {
-        if(id <= 0) {
+    public Node createNode(long id, String name, NodeType type) throws DatabaseException {
+        if(id == 0) {
             id = getMaxId() + 1;
         }
         String cypher = "CREATE " +
@@ -192,12 +192,10 @@ public class NeoDAO extends DAO {
                 "{" +
                 "id: " + id + ", " +
                 "name:'" + name + "'," +
-                "type:'" + type + "'," +
-                "description:'" + descr + "'" +
-                "})";
+                "type:'" + type + "'})";
         execute(cypher);
 
-        return new Node(id, name, type, descr);
+        return new Node(id, name, type);
     }
 
     public long getMaxId() throws DatabaseException {
@@ -205,7 +203,11 @@ public class NeoDAO extends DAO {
         try {
             ResultSet rs = execute(cypher);
             rs.next();
-            return rs.getLong(1);
+            long maxId = rs.getLong(1);
+            if(maxId == -1) {
+                maxId = 1;
+            }
+            return maxId;
         }
         catch (SQLException e) {
             throw new DatabaseException(ERR_NEO, e.getMessage());
@@ -213,16 +215,10 @@ public class NeoDAO extends DAO {
     }
 
     @Override
-    public void updateNode(long nodeId, String name, String descr) throws DatabaseException {
+    public void updateNode(long nodeId, String name) throws DatabaseException {
         if(name != null && !name.isEmpty()) {
             //update name
             String cypher = "merge (n {id:" + nodeId + "}) set n.name='" + name + "'";
-            execute(cypher);
-        }
-
-        if(descr != null && !descr.isEmpty()){
-            //update description
-            String cypher = "merge (n {id:" + nodeId + "}) set n.description='" + descr + "'";
             execute(cypher);
         }
     }
@@ -243,6 +239,12 @@ public class NeoDAO extends DAO {
     @Override
     public void deleteNodeProperty(long nodeId, String key) throws DatabaseException {
         String cypher = "match(n{id:" + nodeId + "}) remove n." + key;
+        execute(cypher);
+    }
+
+    @Override
+    public void updateNodeProperty(long nodeId, String key, String value) throws DatabaseException {
+        String cypher = "match(n{id:" + nodeId + "}) set n." + key + " = '" + value + "'";
         execute(cypher);
     }
 
@@ -365,24 +367,8 @@ public class NeoDAO extends DAO {
     }
 
     @Override
-    public void createSession(long sessionNodeId, long userNodeId) throws DatabaseException {
-        String cypher = "match(s:S{id:" + sessionNodeId + "}), (u:U{id:" + userNodeId + "}) create (s)-[:session]->(u)";
+    public void reset() throws DatabaseException {
+        String cypher = "match(n) detach delete n";
         execute(cypher);
-    }
-
-    @Override
-    public Node getSessionUser(String sessionId) throws DatabaseException {
-        String cypher = "match(s:S{name:'" + sessionId + "'})-[:session]->(u:U) return u";
-        ResultSet rs = execute(cypher);
-        try {
-            rs.next();
-            if(rs.next()){
-                return JsonHelper.getNodeFromJson(rs.getString(1));
-            }else{
-                throw new SessionDoesNotExistException(sessionId);
-            }
-        }catch (Exception e) {
-            throw new DatabaseException(ERR_NEO, e.getMessage());
-        }
     }
 }
