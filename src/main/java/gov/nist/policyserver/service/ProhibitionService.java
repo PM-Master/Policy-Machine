@@ -22,7 +22,7 @@ public class ProhibitionService extends Service{
 
     public Prohibition createProhibition(String name, String[] operations, boolean intersection,
                                          ProhibitionRes[] resources, ProhibitionSubject denySubject)
-            throws ProhibitionNameExistsException, DatabaseException, InvalidProhibitionSubjectTypeException, ProhibitionDoesNotExistException, NodeNotFoundException, ProhibitionResourceExistsException, ConfigurationException {
+            throws ProhibitionNameExistsException, DatabaseException, ConfigurationException {
         //check the prohibitions doesn't already exist
         Prohibition prohibition = access.getProhibition(name);
         if(prohibition != null){
@@ -88,30 +88,7 @@ public class ProhibitionService extends Service{
         return prohibition;
     }
 
-    public List<ProhibitionRes> getProhibitionResources(String prohibitionName)
-            throws ProhibitionDoesNotExistException {
-        Prohibition prohibition = getProhibition(prohibitionName);
-
-        return prohibition.getResources();
-    }
-
-    public ProhibitionRes getProhibitionResource(String prohibitionName, long resourceId)
-            throws ProhibitionDoesNotExistException, ProhibitionResourceDoesNotExistException {
-        //get the prohibitions
-        Prohibition prohibition = getProhibition(prohibitionName);
-
-        //find the resource given
-        for(ProhibitionRes pr : prohibition.getResources()){
-            if(pr.getResourceId()==resourceId){
-                return pr;
-            }
-        }
-
-        //if no resource is found throw exception
-        throw new ProhibitionResourceDoesNotExistException(prohibitionName, resourceId);
-    }
-
-    public Prohibition deleteProhibitionResource(String prohibitionName, long resourceId)
+    private Prohibition deleteProhibitionResource(String prohibitionName, long resourceId)
             throws ProhibitionDoesNotExistException, DatabaseException, ProhibitionResourceDoesNotExistException, ConfigurationException {
         //check if prohibitions exists
         Prohibition prohibition = getProhibition(prohibitionName);
@@ -138,7 +115,7 @@ public class ProhibitionService extends Service{
         return prohibition;
     }
 
-    public Prohibition setProhibitionSubject(String prohibitionName, long subjectId, String subjectType)
+    private Prohibition setProhibitionSubject(String prohibitionName, long subjectId, String subjectType)
             throws InvalidProhibitionSubjectTypeException, DatabaseException, ProhibitionDoesNotExistException, ConfigurationException {
         ProhibitionSubjectType subType = ProhibitionSubjectType.toProhibitionSubjectType(subjectType);
 
@@ -150,58 +127,6 @@ public class ProhibitionService extends Service{
 
         //set the prohibitions subject in memory
         prohibition.setSubject(new ProhibitionSubject(subjectId, subType));
-
-        return prohibition;
-    }
-
-    public ProhibitionSubject getProhibitionSubject(String prohibitionName)
-            throws ProhibitionDoesNotExistException, ProhibitionSubjectDoesNotExistException {
-        Prohibition prohibition = getProhibition(prohibitionName);
-
-        ProhibitionSubject ps = prohibition.getSubject();
-        if(ps == null){
-            throw new ProhibitionSubjectDoesNotExistException(prohibitionName);
-        }
-
-        return prohibition.getSubject();
-    }
-
-    public Prohibition addOperationsToProhibition(String prohibitionName, String[] operations)
-            throws ProhibitionDoesNotExistException, DatabaseException, ConfigurationException {
-        HashSet<String> opSet = new HashSet<>(Arrays.asList(operations));
-
-        //check if prohibitions exists
-        Prohibition prohibition = getProhibition(prohibitionName);
-
-        //add existing ops to new ones
-        opSet.addAll(prohibition.getOperations());
-
-        //add the operations in the database
-        getDao().setProhibitionOperations(prohibitionName, opSet);
-
-        //set the prohibitions subject in memory
-        prohibition.setOperations(opSet);
-
-        return prohibition;
-    }
-
-    public HashSet<String> getProhibitionOperations(String prohibitionName)
-            throws ProhibitionDoesNotExistException {
-        Prohibition prohibition = getProhibition(prohibitionName);
-
-        return prohibition.getOperations();
-    }
-
-    public Prohibition removeOperationFromProhibition(String prohibitionName, String op)
-            throws ProhibitionDoesNotExistException, DatabaseException, ConfigurationException {
-        //check if prohibitions exists
-        Prohibition prohibition = getProhibition(prohibitionName);
-
-        //remove op from prohibitions in memory
-        prohibition.getOperations().remove(op);
-
-        //remove the operation in the database
-        getDao().setProhibitionOperations(prohibitionName, prohibition.getOperations());
 
         return prohibition;
     }
