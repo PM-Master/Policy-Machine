@@ -28,7 +28,7 @@ public class PermissionsResource {
     @GET
     public Response getPermissions(@PathParam("targetId") long targetId,
                                    @QueryParam("session") String session,
-                                   @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+                                   @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         
         Node user = permissionsService.getSessionUser(session);
 
@@ -39,7 +39,7 @@ public class PermissionsResource {
     @GET
     public Response getAccessibleChildren(@PathParam("targetId") long targetId,
                                           @QueryParam("session") String session,
-                                          @QueryParam("process") long process) throws NodeNotFoundException, NoUserParameterException, SessionUserNotFoundException {
+                                          @QueryParam("process") long process) throws NodeNotFoundException, NoUserParameterException, SessionUserNotFoundException, ConfigurationException {
         
         Node user = permissionsService.getSessionUser(session);
         

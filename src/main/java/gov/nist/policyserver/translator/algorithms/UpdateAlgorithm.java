@@ -37,7 +37,7 @@ public class UpdateAlgorithm extends Algorithm {
     }
 
     @Override
-    public String run() throws SQLException, IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, NodeNotFoundException, InvalidNodeTypeException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException, InvalidEntityException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    public String run() throws SQLException, IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, NodeNotFoundException, InvalidNodeTypeException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException, InvalidEntityException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         //determine the rows that are going to be updated
         List<String> rows = getTargetRows();
 
@@ -99,7 +99,7 @@ public class UpdateAlgorithm extends Algorithm {
         this.select = select;
     }
 
-    private void checkRows(List<String> rows) throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidNodeTypeException, NodeNotFoundException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    private void checkRows(List<String> rows) throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidNodeTypeException, NodeNotFoundException, NoUserParameterException, NameInNamespaceNotFoundException, InvalidPropertyException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         List<String> reqColumns = update.getColumns().stream().map(
                 Column::getColumnName).collect(Collectors.toList());
 

@@ -48,7 +48,7 @@ public class SelectAlgorithm extends Algorithm {
     }
 
     @Override
-    public String run() throws SQLException, JSQLParserException, PMAccessDeniedException, PolicyMachineException, IOException, InvalidNodeTypeException, InvalidPropertyException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    public String run() throws SQLException, JSQLParserException, PMAccessDeniedException, PolicyMachineException, IOException, InvalidNodeTypeException, InvalidPropertyException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
         log("SELECT: " + plainSelect);
 
@@ -192,7 +192,7 @@ public class SelectAlgorithm extends Algorithm {
         System.out.println(compositeTable);
     }
 
-    private Hashtable groupRows() throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidPropertyException, InvalidNodeTypeException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    private Hashtable groupRows() throws IOException, PolicyMachineException, PMAccessDeniedException, JSQLParserException, InvalidPropertyException, InvalidNodeTypeException, NameInNamespaceNotFoundException, NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
 
         Hashtable<CompositeRow, List<Column>> results = new Hashtable<>();

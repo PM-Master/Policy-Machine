@@ -1,6 +1,7 @@
 package gov.nist.policyserver.access;
 
 import gov.nist.policyserver.common.Constants;
+import gov.nist.policyserver.exceptions.ConfigurationException;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
@@ -13,15 +14,19 @@ import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
 import java.io.Serializable;
 import java.util.*;
 
+import static gov.nist.policyserver.dao.DAO.getDao;
+
 /**
  * Class that uses the algorithm to determine access1 to nodes
  */
 public class PmAccess implements Serializable{
-    private PmGraph           graph;
     private List<Prohibition> prohibitions;
-    public PmAccess(PmGraph graph){
-        this.graph = graph;
+    public PmAccess(){
         prohibitions = new ArrayList<>();
+    }
+    
+    private PmGraph getGraph() throws ConfigurationException {
+        return getDao().getGraph();
     }
 
     /**
@@ -30,7 +35,7 @@ public class PmAccess implements Serializable{
      * @param target The node to get the access1 rights for
      * @return a HashSet of operations
      */
-    public PmAccessEntry getUserAccessOn(Node user, Node target){
+    public PmAccessEntry getUserAccessOn(Node user, Node target) throws ConfigurationException {
         PmAccessEntry entry = new PmAccessEntry();
         HashSet<String> ops = new HashSet<>();
 
@@ -82,7 +87,7 @@ public class PmAccess implements Serializable{
      * @param user The user
      * @return A Map with Nodes as the keys and a HashSets of access1 rights as the values
      */
-    public synchronized List<PmAccessEntry> getAccessibleNodes(Node user){
+    public synchronized List<PmAccessEntry> getAccessibleNodes(Node user) throws ConfigurationException {
         //Node->{ops}
         List<PmAccessEntry> accessibleObjects = new ArrayList<>();
 
@@ -105,7 +110,7 @@ public class PmAccess implements Serializable{
             D.put(pc, pcMap);
         }
 
-        Set<Node> objects = graph.getAscesndants(vNode);
+        Set<Node> objects = getGraph().getAscesndants(vNode);
 
         for(Node v : objects){
             dfs(v, D, dc);
@@ -133,17 +138,17 @@ public class PmAccess implements Serializable{
             }
         }
 
-        graph.deleteNode(vNode);
+        getGraph().deleteNode(vNode);
 
         return accessibleObjects;
     }
 
-    private synchronized Node createVNode(HashMap<Node, HashSet<String>> dc) {
+    private synchronized Node createVNode(HashMap<Node, HashSet<String>> dc) throws ConfigurationException {
         long id = new Random().nextLong();
         Node vNode = new Node(id, "VNODE", NodeType.OA);
-        graph.addNode(vNode);
+        getGraph().addNode(vNode);
         for(Node node : dc.keySet()){
-            graph.addEdge(node, vNode, new Assignment<>(node, vNode));
+            getGraph().addEdge(node, vNode, new Assignment<>(node, vNode));
         }
         return vNode;
     }
@@ -153,7 +158,7 @@ public class PmAccess implements Serializable{
      * @param target The node to get the Users and their access1 rights for
      * @return A Map with User Nodes as the keys and HashSets of access1 rights as the values
      */
-    public List<PmAccessEntry> getUsersWithAccessOn(Node target){
+    public List<PmAccessEntry> getUsersWithAccessOn(Node target) throws ConfigurationException {
         //user->ops
         List<PmAccessEntry> entries = new ArrayList<>();
 
@@ -212,7 +217,7 @@ public class PmAccess implements Serializable{
      * @param target The Node to get the accessible children for
      * @return a map with the child Nodes as the keys and the HashSets of access1 rights as the values
      */
-    public synchronized List<PmAccessEntry> getAccessibleChildrenOf(Node target, Node user){
+    public synchronized List<PmAccessEntry> getAccessibleChildrenOf(Node target, Node user) throws ConfigurationException {
         //Node->{ops}
         List<PmAccessEntry> accessibleObjects = new ArrayList<>();
 
@@ -235,7 +240,7 @@ public class PmAccess implements Serializable{
             D.put(pc, pcMap);
         }
 
-        Set<Node> objects = graph.getChildren(target);
+        Set<Node> objects = getGraph().getChildren(target);
         for(Node v : objects){
             dfs(v, D, dc);
 
@@ -262,15 +267,15 @@ public class PmAccess implements Serializable{
             }
         }
 
-        graph.deleteNode(vNode);
+        getGraph().deleteNode(vNode);
 
         return accessibleObjects;
     }
 
-    private synchronized HashMap<Node, HashSet<String>> getBorderOas(Node user){
+    private synchronized HashMap<Node, HashSet<String>> getBorderOas(Node user) throws ConfigurationException {
         HashMap<Node, HashSet<String>> d = new HashMap<>();
         HashSet<Assignment> uaEdges = new HashSet<>();
-        Set<Assignment> edges = graph.outgoingEdgesOf(user);
+        Set<Assignment> edges = getGraph().outgoingEdgesOf(user);
         uaEdges.addAll(edges);
         while(!uaEdges.isEmpty()){
             Assignment edge = uaEdges.iterator().next();
@@ -286,7 +291,7 @@ public class PmAccess implements Serializable{
                 }
             }
 
-            Set<Assignment> newEdges = graph.outgoingEdgesOf(edge.getParent());
+            Set<Assignment> newEdges = getGraph().outgoingEdgesOf(edge.getParent());
 
             uaEdges.addAll(newEdges);
             uaEdges.remove(edge);
@@ -295,12 +300,12 @@ public class PmAccess implements Serializable{
         return d;
     }
 
-    private synchronized void dfs(Node w, HashMap<Node, HashMap<Node, HashSet<String>>> D, HashMap<Node, HashSet<String>> dc){
+    private synchronized void dfs(Node w, HashMap<Node, HashMap<Node, HashSet<String>>> D, HashMap<Node, HashSet<String>> dc) throws ConfigurationException {
         D.put(w, new HashMap<>());
         //for loop through nodes
         //if node is not in D, recrusive call to dfs
 
-        Set<Assignment> assignments = graph.outgoingEdgesOf(w);
+        Set<Assignment> assignments = getGraph().outgoingEdgesOf(w);
 
         for(Assignment edge : assignments){
             if(edge instanceof Association){
@@ -331,12 +336,12 @@ public class PmAccess implements Serializable{
 
     }
 
-    private synchronized HashSet<Node> getPolicyClasses() {
-        return new HashSet<>(graph.getNodesOfType(NodeType.PC));
+    private synchronized HashSet<Node> getPolicyClasses() throws ConfigurationException {
+        return new HashSet<>(getGraph().getNodesOfType(NodeType.PC));
     }
 
-    private synchronized HashSet<Node> getUsers() {
-        return new HashSet<>(graph.getNodesOfType(NodeType.U));
+    private synchronized HashSet<Node> getUsers() throws ConfigurationException {
+        return new HashSet<>(getGraph().getNodesOfType(NodeType.U));
     }
 
     /**
@@ -384,11 +389,11 @@ public class PmAccess implements Serializable{
      * @param subjectId the ID of the user/user attribute/process
      * @return The set of prohibited operations for the subject on the resource
      */
-    public HashSet<String> getProhibitedOps(long targetId, long subjectId){
+    public HashSet<String> getProhibitedOps(long targetId, long subjectId) throws ConfigurationException {
         HashSet<String> prohibitedOps = new HashSet<>();
         for(Prohibition prohibition : prohibitions){
             boolean subjectInDeny = (prohibition.getSubject().getSubjectId()==subjectId) ||
-                    graph.getAscesndants(prohibition.getSubject().getSubjectId()).contains(graph.getNode(subjectId));
+                    getGraph().getAscesndants(prohibition.getSubject().getSubjectId()).contains(getGraph().getNode(subjectId));
             if(subjectInDeny){
                 boolean inter = prohibition.isIntersection();
                 List<ProhibitionRes> resources = prohibition.getResources();
@@ -396,7 +401,7 @@ public class PmAccess implements Serializable{
                 HashMap<ProhibitionRes, HashSet<Node>> drAscendants = new HashMap<>();
                 HashSet<Node> nodes = new HashSet<>();
                 for (ProhibitionRes dr : resources) {
-                    HashSet<Node> ascendants = graph.getAscesndants(dr.getResourceId());
+                    HashSet<Node> ascendants = getGraph().getAscesndants(dr.getResourceId());
                     drAscendants.put(dr, ascendants);
                     nodes.addAll(ascendants);
                 }
@@ -408,7 +413,7 @@ public class PmAccess implements Serializable{
                             nodes.removeAll(drAscendants.get(dr));
                         }
                     }
-                    if (nodes.contains(graph.getNode(targetId))) {
+                    if (nodes.contains(getGraph().getNode(targetId))) {
                         addOps = true;
                     }
                 }else{
@@ -416,11 +421,11 @@ public class PmAccess implements Serializable{
                     for (ProhibitionRes dr : drAscendants.keySet()) {
                         HashSet<Node> ascs = drAscendants.get(dr);
                         if (dr.isCompliment()) {
-                            if(ascs.contains(graph.getNode(targetId))){
+                            if(ascs.contains(getGraph().getNode(targetId))){
                                 addOps = false;
                             }
                         }else{
-                            if(!ascs.contains(graph.getNode(targetId))){
+                            if(!ascs.contains(getGraph().getNode(targetId))){
                                 addOps = false;
                             }
                         }

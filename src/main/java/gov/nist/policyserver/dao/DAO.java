@@ -159,20 +159,20 @@ public abstract class DAO {
         //connect to database
         connect();
 
-        if(reinitializing || !deserialize()) {
+        //if(reinitializing || !deserialize()) {
             System.out.println("Building nodes...");
             //build the nodes in memory
             buildGraph();
 
             //initialize the access object
-            access = new PmAccess(graph);
+            access = new PmAccess();
 
             //build the prohibitions list
             buildProhibitions();
 
             reinitializing = false;
             System.out.println("Finished!");
-        }
+        //}
 
         Runnable r = () -> {
             while(true) {

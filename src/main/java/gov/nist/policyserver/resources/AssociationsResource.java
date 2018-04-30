@@ -117,7 +117,7 @@ public class AssociationsResource {
     public Response getSubjectAssociations(@PathParam("subjectId") long subjectId,
                                            @QueryParam("session") String session,
                                            @QueryParam("process") long process)
-            throws NodeNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException {
+            throws NodeNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException, ConfigurationException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);

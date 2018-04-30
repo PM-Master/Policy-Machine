@@ -3,7 +3,6 @@ package gov.nist.policyserver.translator.algorithms;
 import gov.nist.policyserver.evr.exceptions.InvalidEntityException;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
-import gov.nist.policyserver.translator.exceptions.PMAccessDeniedException;
 import gov.nist.policyserver.translator.exceptions.PolicyMachineException;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
@@ -108,7 +107,7 @@ public abstract class Algorithm {
         return visitedColumns;
     }
 
-    public boolean checkColumn(long columnPmId, long rowPmId, String perm) throws IOException, PolicyMachineException, NodeNotFoundException, NoUserParameterException, InvalidNodeTypeException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    public boolean checkColumn(long columnPmId, long rowPmId, String perm) throws IOException, PolicyMachineException, NodeNotFoundException, NoUserParameterException, InvalidNodeTypeException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         List<Node> accChildren = pmManager.getAccessibleChildren(rowPmId, perm);
 
         Node intersection = pmManager.getIntersection(columnPmId, rowPmId);

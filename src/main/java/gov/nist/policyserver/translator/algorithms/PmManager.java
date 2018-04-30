@@ -84,7 +84,7 @@ public class PmManager {
         return nodeService.getNodeInNamespace(namespace, name).getId();
     }
 
-    public List<Node> getAccessibleChildren(long id, String perm) throws NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    public List<Node> getAccessibleChildren(long id, String perm) throws NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         List<PmAccessEntry> accessibleChildren = permissionsService.getAccessibleChildren(id, pmUser.getId());
         List<Node> nodes = new ArrayList<>();
         for(PmAccessEntry entry : accessibleChildren) {
@@ -106,7 +106,7 @@ public class PmManager {
      * @throws NodeNotFoundException
      * @throws InvalidProhibitionSubjectTypeException
      */
-    private HashSet<String> getProhibitedOps(long id) throws NoSubjectParameterException, NodeNotFoundException, InvalidProhibitionSubjectTypeException {
+    private HashSet<String> getProhibitedOps(long id) throws NoSubjectParameterException, NodeNotFoundException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         //get the prohibited ops for the user
         HashSet<String> prohibitedOps = permissionsService.getProhibitedOps(id, pmUser.getId(), "U");
 

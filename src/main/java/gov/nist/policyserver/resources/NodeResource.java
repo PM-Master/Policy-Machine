@@ -43,7 +43,7 @@ public class NodeResource {
                              @QueryParam("session") String session,
                              @QueryParam("process") long process)
             throws InvalidNodeTypeException, InvalidPropertyException,
-            NodeNotFoundException, SessionUserNotFoundException  {
+            NodeNotFoundException, SessionUserNotFoundException, ConfigurationException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -85,7 +85,7 @@ public class NodeResource {
     @GET
     public Response getNode(@PathParam("nodeId") long id,
                             @QueryParam("session") String session,
-                            @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException {
+                            @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -158,7 +158,7 @@ public class NodeResource {
                                     @QueryParam("type") String type,
                                     @QueryParam("session") String session,
                                     @QueryParam("process") long process)
-            throws NodeNotFoundException, SessionUserNotFoundException, NoUserParameterException {
+            throws NodeNotFoundException, SessionUserNotFoundException, NoUserParameterException, ConfigurationException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -209,7 +209,7 @@ public class NodeResource {
                                    @QueryParam("type") String type,
                                    @QueryParam("session") String session,
                                    @QueryParam("process") long process)
-            throws InvalidNodeTypeException, NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, MissingPermissionException {
+            throws InvalidNodeTypeException, NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, MissingPermissionException, ConfigurationException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);

@@ -10,10 +10,7 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DirectedMultigraph;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PmGraph implements Serializable{
     DirectedGraph<Node, Assignment> graph;
@@ -34,7 +31,7 @@ public class PmGraph implements Serializable{
 
     public synchronized void deleteNode(long nodeId){
         Node n = getNode(nodeId);
-        graph.removeVertex(n);
+        deleteNode(n);
     }
 
     public synchronized void deleteNode(Node node){
@@ -81,6 +78,9 @@ public class PmGraph implements Serializable{
         HashSet<Node> children = new HashSet<>();
         Set<Assignment> assignments = graph.incomingEdgesOf(n);
         for(Assignment edge : assignments){
+            if(edge instanceof Association) {
+                continue;
+            }
             children.add(edge.getChild());
         }
         return children;

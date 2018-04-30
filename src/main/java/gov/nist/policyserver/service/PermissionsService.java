@@ -20,7 +20,7 @@ public class PermissionsService extends Service{
     }
 
     public List<PmAccessEntry> getUsersPermissionsOn(long targetId)
-            throws NodeNotFoundException {
+            throws NodeNotFoundException, ConfigurationException {
         //check that the target node exists
         Node target = graph.getNode(targetId);
         if(target == null){
@@ -31,7 +31,7 @@ public class PermissionsService extends Service{
     }
 
     public PmAccessEntry getUserPermissionsOn(long targetId, long userId)
-            throws NodeNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+            throws NodeNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         //check that the target and user nodes exist
         Node target = graph.getNode(targetId);
         if(target == null){
@@ -54,7 +54,7 @@ public class PermissionsService extends Service{
         return userAccess;
     }
 
-    public List<PmAccessEntry> getAccessibleChildren(long targetId, long userId) throws NodeNotFoundException, NoUserParameterException {
+    public List<PmAccessEntry> getAccessibleChildren(long targetId, long userId) throws NodeNotFoundException, NoUserParameterException, ConfigurationException {
         //check that a user id is present
         if(userId == 0){
             throw new NoUserParameterException();
@@ -95,13 +95,13 @@ public class PermissionsService extends Service{
         return access.getAccessibleNodes(user);
     }
 
-    public List<PmAccessEntry> getAccessibleNodes(Node user) {
+    public List<PmAccessEntry> getAccessibleNodes(Node user) throws ConfigurationException {
         //get the accessible nodes and add it to the cache
 
         return access.getAccessibleNodes(user);
     }
 
-    public HashSet<String> getProhibitedOps(long targetId, long subjectId, String subjectType) throws NodeNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException {
+    public HashSet<String> getProhibitedOps(long targetId, long subjectId, String subjectType) throws NodeNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         if(subjectId == 0){
             throw new NoSubjectParameterException();
         }
@@ -124,7 +124,7 @@ public class PermissionsService extends Service{
         return access.getProhibitedOps(targetId, subjectId);
     }
 
-    public void checkPermissions(Node user, long process, long targetId, String reqPerm) throws MissingPermissionException, NoSubjectParameterException, NodeNotFoundException, InvalidProhibitionSubjectTypeException {
+    public void checkPermissions(Node user, long process, long targetId, String reqPerm) throws MissingPermissionException, NoSubjectParameterException, NodeNotFoundException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         if(user == null && process == 0) {
             throw new MissingPermissionException("No User or Process found in checking permissions");
         }

@@ -37,7 +37,7 @@ public class PmKernelResource {
 
     @Path("/access/rows/{rowId}/columns")
     @GET
-    public Response getRowAccessibleColumns(@PathParam("rowId") String rowId, @QueryParam("table") String table, @QueryParam("username") String username) throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException, NoUserParameterException {
+    public Response getRowAccessibleColumns(@PathParam("rowId") String rowId, @QueryParam("table") String table, @QueryParam("username") String username) throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException, NoUserParameterException, ConfigurationException {
         System.out.println(rowId + " " + table + " " + username);
         //get the user id
         HashSet<Node> nodes = nodeService.getNodes(null, username, NodeType.U.toString(), null);
