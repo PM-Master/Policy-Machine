@@ -190,7 +190,7 @@ public class NodeService extends Service{
         graph.addNode(newNode);
 
         //assign node to connector
-        if(newNode.getId() > 0 && !newNode.getType().equals(NodeType.PC)) {
+        if(newNode.getId() > 0) {
             AssignmentService assignmentService = new AssignmentService();
             try {
                 assignmentService.createAssignment(newNode.getId(), getConnector().getId());
