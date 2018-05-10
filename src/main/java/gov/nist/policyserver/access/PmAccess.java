@@ -537,10 +537,8 @@ public class PmAccess implements Serializable{
 
         if(dc.containsKey(w)){
             HashMap<Node, HashSet<String>> pcSet = D.get(w);
-            System.out.println(pcSet);
             for(Node pcId : pcSet.keySet()){
                 HashSet<String> ops = dc.get(w);
-                System.out.println("adding ops: " + ops + " for PC: " + pcId.getName() + " for node: " + w.getName());
                 D.get(w).get(pcId).addAll(ops);
             }
         }
