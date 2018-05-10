@@ -1,23 +1,16 @@
 package gov.nist.policyserver.resources;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
-import gov.nist.policyserver.model.graph.nodes.Property;
-import gov.nist.policyserver.requests.AddNodePropertyRequest;
 import gov.nist.policyserver.requests.CreateNodeRequest;
-import gov.nist.policyserver.requests.UpdateNodeRequest;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.NodeService;
 import gov.nist.policyserver.service.PermissionsService;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.HashSet;
 import java.util.List;
 
@@ -43,7 +36,7 @@ public class NodeResource {
                              @QueryParam("session") String session,
                              @QueryParam("process") long process)
             throws InvalidNodeTypeException, InvalidPropertyException,
-            NodeNotFoundException, SessionUserNotFoundException, ConfigurationException {
+            SessionUserNotFoundException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -66,7 +59,7 @@ public class NodeResource {
             InvalidPropertyException, DatabaseException, InvalidNodeTypeException,
             NodeNameExistsException, ConfigurationException, NodeIdExistsException,
             NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException,
-            MissingPermissionException, InvalidProhibitionSubjectTypeException {
+            MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -85,7 +78,7 @@ public class NodeResource {
     @GET
     public Response getNode(@PathParam("nodeId") long id,
                             @QueryParam("session") String session,
-                            @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, ConfigurationException {
+                            @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -104,7 +97,7 @@ public class NodeResource {
                                @QueryParam("process") long process)
             throws NodeNotFoundException, DatabaseException, ConfigurationException,
             SessionUserNotFoundException, NoSubjectParameterException, MissingPermissionException,
-            InvalidProhibitionSubjectTypeException, InvalidPropertyException, PropertyNotFoundException {
+            InvalidProhibitionSubjectTypeException, InvalidPropertyException, PropertyNotFoundException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -122,7 +115,7 @@ public class NodeResource {
                                @QueryParam("process") long process)
             throws NodeNotFoundException, DatabaseException, ConfigurationException,
             SessionUserNotFoundException, NoSubjectParameterException,
-            MissingPermissionException, InvalidProhibitionSubjectTypeException {
+            MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -140,7 +133,7 @@ public class NodeResource {
                                        @PathParam("key") String key,
                                        @QueryParam("session") String session,
                                        @QueryParam("process") long process)
-            throws DatabaseException, NodeNotFoundException, PropertyNotFoundException, ConfigurationException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException {
+            throws DatabaseException, NodeNotFoundException, PropertyNotFoundException, ConfigurationException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -158,7 +151,7 @@ public class NodeResource {
                                     @QueryParam("type") String type,
                                     @QueryParam("session") String session,
                                     @QueryParam("process") long process)
-            throws NodeNotFoundException, SessionUserNotFoundException, NoUserParameterException, ConfigurationException {
+            throws NodeNotFoundException, SessionUserNotFoundException, NoUserParameterException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -183,7 +176,7 @@ public class NodeResource {
                                        @QueryParam("process") long process)
             throws InvalidNodeTypeException, NodeNotFoundException, DatabaseException,
             ConfigurationException, SessionUserNotFoundException, NoSubjectParameterException,
-            InvalidProhibitionSubjectTypeException, MissingPermissionException {
+            InvalidProhibitionSubjectTypeException, MissingPermissionException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);
@@ -209,7 +202,7 @@ public class NodeResource {
                                    @QueryParam("type") String type,
                                    @QueryParam("session") String session,
                                    @QueryParam("process") long process)
-            throws InvalidNodeTypeException, NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, MissingPermissionException, ConfigurationException {
+            throws InvalidNodeTypeException, NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, MissingPermissionException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
         Node user = permissionsService.getSessionUser(session);

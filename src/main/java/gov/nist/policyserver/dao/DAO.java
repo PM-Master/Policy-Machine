@@ -3,22 +3,22 @@ package gov.nist.policyserver.dao;
 import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.evr.EvrManager;
-import gov.nist.policyserver.evr.exceptions.InvalidEvrException;
-import gov.nist.policyserver.exceptions.*;
+import gov.nist.policyserver.exceptions.ConfigurationException;
+import gov.nist.policyserver.exceptions.DatabaseException;
 import gov.nist.policyserver.graph.PmGraph;
-import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.model.graph.relationships.Assignment;
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 
 import java.io.*;
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
+import java.sql.Connection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
 
 public abstract class DAO {
     public static DAO         dao;
@@ -139,7 +139,7 @@ public abstract class DAO {
         saveProperties(props);
     }
 
-    private static void saveProperties(Properties props) throws ConfigurationException {
+    private static void saveProperties(Properties props) {
         try {
             FileOutputStream fos = new FileOutputStream("pm.conf");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -296,13 +296,15 @@ public abstract class DAO {
     public abstract void deleteAssociation(long uaId, long targetId) throws DatabaseException;
 
     //prohibitions
-    public abstract void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionRes[] resources, ProhibitionSubject subject) throws DatabaseException;
+    public abstract void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionResource[] resources, ProhibitionSubject subject) throws DatabaseException;
 
     public abstract void deleteProhibition(String prohibitionName) throws DatabaseException;
 
     public abstract void addResourceToProhibition(String prohibitionName, long resourceId, boolean compliment) throws DatabaseException;
 
     public abstract void deleteProhibitionResource(String prohibitionName, long resourceId) throws DatabaseException;
+
+    public abstract void setProhibitionIntersection(String prohibitionName, boolean intersection) throws DatabaseException;
 
     public abstract void setProhibitionSubject(String prohibitionName, long subjectId, ProhibitionSubjectType subjectType) throws DatabaseException;
 

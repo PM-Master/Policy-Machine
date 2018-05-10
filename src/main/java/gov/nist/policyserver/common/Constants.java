@@ -107,5 +107,5 @@ public class Constants {
     public static final String COLUMN_CONTAINER_NAME       = "Columns";
     public static final String ROW_CONTAINER_NAME          = "Rows";
     public static final boolean INHERIT_DEFAULT                = true;
-
+    public static final String SUPER_USER_NAME             = "super";
 }

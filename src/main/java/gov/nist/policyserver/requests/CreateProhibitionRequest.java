@@ -1,13 +1,13 @@
 package gov.nist.policyserver.requests;
 
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 
 public class CreateProhibitionRequest {
     public String                name;
     public boolean               intersection;
     public String[]              operations;
-    public ProhibitionRes[]      resources;
+    public ProhibitionResource[] resources;
     public ProhibitionSubject    subject;
 
     public String getName() {
@@ -22,7 +22,7 @@ public class CreateProhibitionRequest {
         return operations;
     }
 
-    public ProhibitionRes[] getResources() {
+    public ProhibitionResource[] getResources() {
         return resources;
     }
 

@@ -1,7 +1,10 @@
 package gov.nist.policyserver.dao;
 
 import gov.nist.policyserver.common.Constants;
-import gov.nist.policyserver.exceptions.*;
+import gov.nist.policyserver.exceptions.DatabaseException;
+import gov.nist.policyserver.exceptions.InvalidNodeTypeException;
+import gov.nist.policyserver.exceptions.InvalidProhibitionSubjectTypeException;
+import gov.nist.policyserver.exceptions.InvalidPropertyException;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
@@ -9,7 +12,7 @@ import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.model.graph.relationships.Assignment;
 import gov.nist.policyserver.model.graph.relationships.Association;
 import gov.nist.policyserver.model.prohibitions.Prohibition;
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 
@@ -91,8 +94,8 @@ public class SqlDAO extends DAO {
                 Prohibition p = access.getProhibition(deny_name);
                 if (p == null) {
                     ProhibitionSubject subject = new ProhibitionSubject(ua_id, ProhibitionSubjectType.toProhibitionSubjectType(type_abbr));
-                    List<ProhibitionRes> resources = new ArrayList<>();
-                    resources.add(new ProhibitionRes(object_attribute_id, object_complement));
+                    List<ProhibitionResource> resources = new ArrayList<>();
+                    resources.add(new ProhibitionResource(object_attribute_id, object_complement));
                     HashSet<String> operations = new HashSet<>();
                     operations.add(operation_name);
 
@@ -100,14 +103,14 @@ public class SqlDAO extends DAO {
                     access.addProhibition(p);
                 } else {
                     boolean found = false;
-                    List<ProhibitionRes> prs = p.getResources();
-                    for (ProhibitionRes pr: prs) {
+                    List<ProhibitionResource> prs = p.getResources();
+                    for (ProhibitionResource pr: prs) {
                         if (pr.getResourceId() == object_attribute_id) {
                             found = true;
                         }
                     }
                     if (!found) {
-                        p.addResource(new ProhibitionRes(object_attribute_id, object_complement));
+                        p.addResource(new ProhibitionResource(object_attribute_id, object_complement));
                     }
                     HashSet<String> ops = p.getOperations();
                     ops.add(operation_name);
@@ -284,7 +287,7 @@ public class SqlDAO extends DAO {
     }
 
     @Override
-    public void updateNodeProperty(long nodeId, String key, String value) throws DatabaseException {
+    public void updateNodeProperty(long nodeId, String key, String value) {
 
     }
 
@@ -393,15 +396,15 @@ public class SqlDAO extends DAO {
     }
 
     @Override
-    public synchronized void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionRes[] resources, ProhibitionSubject subject) throws DatabaseException{
+    public synchronized void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionResource[] resources, ProhibitionSubject subject) throws DatabaseException{
         String[] resourceCompements = new String[resources.length];
         String resourceCompementsStr = "";
         String operationsStr = "";
         int i=0;
         boolean result;
 
-        for (ProhibitionRes dr : resources) {
-            resourceCompements[i++] = String.valueOf(dr.getResourceId()) + "-" + String.valueOf(dr.isCompliment());
+        for (ProhibitionResource dr : resources) {
+            resourceCompements[i++] = String.valueOf(dr.getResourceId()) + "-" + String.valueOf(dr.isComplement());
         }
 
         resourceCompementsStr = arrayToString(resourceCompements, ",");
@@ -452,9 +455,9 @@ public class SqlDAO extends DAO {
     }
 
     @Override
-    public synchronized void addResourceToProhibition(String prohibitionName, long resourceId, boolean compliment) throws DatabaseException {
+    public synchronized void addResourceToProhibition(String prohibitionName, long resourceId, boolean complement) throws DatabaseException {
         try {
-            String sql = "INSERT INTO deny_obj_attribute VALUES ((SELECT deny_id FROM deny WHERE UPPER(deny_name) = UPPER('" + prohibitionName + "')), " + resourceId + ", " + (compliment ? 1 : 0) + ");";
+            String sql = "INSERT INTO deny_obj_attribute VALUES ((SELECT deny_id FROM deny WHERE UPPER(deny_name) = UPPER('" + prohibitionName + "')), " + resourceId + ", " + (complement ? 1 : 0) + ");";
             Statement stmt = conn.createStatement();
             stmt.execute(sql);
         }
@@ -476,6 +479,18 @@ public class SqlDAO extends DAO {
         }
         catch (SQLException e) {
             e.printStackTrace();
+            throw new DatabaseException(e.getErrorCode(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void setProhibitionIntersection(String prohibitionName, boolean intersection) throws DatabaseException {
+        try{
+            String sql = "update deny set deny.is_intersection=" + intersection;
+            Statement stmt = conn.createStatement();
+            stmt.execute(sql);
+        }
+        catch (SQLException e) {
             throw new DatabaseException(e.getErrorCode(), e.getMessage());
         }
     }

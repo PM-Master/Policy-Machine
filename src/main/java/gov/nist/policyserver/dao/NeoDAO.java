@@ -1,6 +1,7 @@
 package gov.nist.policyserver.dao;
 
-import gov.nist.policyserver.exceptions.*;
+import gov.nist.policyserver.exceptions.DatabaseException;
+import gov.nist.policyserver.exceptions.PmException;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.helpers.JsonHelper;
 import gov.nist.policyserver.model.graph.nodes.Node;
@@ -9,12 +10,14 @@ import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.model.graph.relationships.Assignment;
 import gov.nist.policyserver.model.graph.relationships.Association;
 import gov.nist.policyserver.model.prohibitions.Prohibition;
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import static gov.nist.policyserver.common.Constants.ERR_NEO;
 
@@ -22,6 +25,9 @@ import static gov.nist.policyserver.common.Constants.ERR_NEO;
  * Helper class for Neo4j
  */
 public class NeoDAO extends DAO {
+    
+    private static String PROHIBITION_LABEL = "prohibition";
+    
     public NeoDAO() throws DatabaseException {
 
     }
@@ -85,9 +91,9 @@ public class NeoDAO extends DAO {
 
     @Override
     public void buildProhibitions() throws DatabaseException {
-        String cypher = "match(d:D)<-[:prohibitions]-(s)\n" +
+        String cypher = "match(d:D)<-[" + PROHIBITION_LABEL +"]-(s)\n" +
                 "with d, s\n" +
-                "match(d:D)-[:prohibitions]->(r)\n" +
+                "match(d:D)-[" + PROHIBITION_LABEL +"]->(r)\n" +
                 "return s, d, collect(r)";
         ResultSet rs = execute(cypher);
         try {
@@ -99,7 +105,7 @@ public class NeoDAO extends DAO {
                 Prohibition prohibition = JsonHelper.getProhibition(json);
 
                 json = rs.getString(3);
-                List<ProhibitionRes> prs = JsonHelper.getProhibitionResources(json);
+                List<ProhibitionResource> prs = JsonHelper.getProhibitionResources(json);
 
                 prohibition.setResources(prs);
                 prohibition.setSubject(ps);
@@ -315,16 +321,16 @@ public class NeoDAO extends DAO {
     }
 
     @Override
-    public void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionRes[] resources, ProhibitionSubject subject) throws DatabaseException {
-        String cypher = "create (:D:denies{" +
+    public void createProhibition(String prohibitionName, HashSet<String> operations, boolean intersection, ProhibitionResource[] resources, ProhibitionSubject subject) throws DatabaseException {
+        String cypher = "create (:" + PROHIBITION_LABEL + "{" +
                 "name: '" + prohibitionName + "', " +
                 "operations: " + setToCypherArray(operations) +
-                ", inetersection: " + intersection +
+                ", intersection: " + intersection +
                 "})";
         execute(cypher);
 
-        for(ProhibitionRes pr : resources){
-            addResourceToProhibition(prohibitionName, pr.getResourceId(), pr.isCompliment());
+        for(ProhibitionResource pr : resources){
+            addResourceToProhibition(prohibitionName, pr.getResourceId(), pr.isComplement());
         }
 
         setProhibitionSubject(prohibitionName, subject.getSubjectId(), subject.getSubjectType());
@@ -332,37 +338,43 @@ public class NeoDAO extends DAO {
 
     @Override
     public void deleteProhibition(String prohibitionName) throws DatabaseException {
-        String cypher = "match(d:D) " +
-                "optional match(d)-[*]-(n) " +
-                "detach delete d " +
-                "with n " +
-                "detach delete n";
+        String cypher = "match(p:" + PROHIBITION_LABEL +") detach delete p";
         execute(cypher);
     }
 
     @Override
-    public void addResourceToProhibition(String prohibitionName, long resourceId, boolean compliment) throws DatabaseException {
-        String cypher = "match(d:D{name:'" + prohibitionName + "'}) create (d)-[:prohibitions]->(dr:DR:denies{resourceId:" + resourceId + ", compliment:" + compliment + "})";
+    public void addResourceToProhibition(String prohibitionName, long resourceId, boolean complement) throws DatabaseException {
+        String cypher = "match(p:" + PROHIBITION_LABEL + "{name:'" + prohibitionName + "'}), (n{id:" + resourceId +"}) create (p)-[:" + PROHIBITION_LABEL +"{complement: " + complement + "}]->(n)";
         execute(cypher);
     }
 
     @Override
     public void deleteProhibitionResource(String prohibitionName, long resourceId) throws DatabaseException {
-        String cypher = "match(dr:DR:denies{resourceId:" + resourceId + "})<-[:prohibitions]-(d:D:denies{name:'" + prohibitionName + "'}) detach delete dr";
+        String cypher = "match(n{id:" + resourceId + "})<-[r:" + PROHIBITION_LABEL +"]-(p:" + PROHIBITION_LABEL +"{name:'" + prohibitionName + "'}) delete r";
+        execute(cypher);
+    }
+
+    @Override
+    public void setProhibitionIntersection(String prohibitionName, boolean intersection) throws DatabaseException {
+        String cypher = "match(d:" + PROHIBITION_LABEL +"{name:'" + prohibitionName + "'}) set d.intersection = " + intersection;
         execute(cypher);
     }
 
     @Override
     public void setProhibitionSubject(String prohibitionName, long subjectId, ProhibitionSubjectType subjectType) throws DatabaseException {
-        String cypher = "match(d:D:denies{name:'" + prohibitionName + "'}) create (d)<-[:prohibitions]-(ds:DS:denies{subjectId:" + subjectId + ", subjectType:'" + subjectType + "'})";
+        String cypher;
+        if(subjectType.equals(ProhibitionSubjectType.P)) {
+            cypher = "match(p:" + PROHIBITION_LABEL + "{name:'" + prohibitionName + "'}) create (p)<-[:" + PROHIBITION_LABEL + "]-(:PP{subjectId:" + subjectId + ", subjectType:'" + subjectType + "'})";
+        } else {
+            cypher = "match(p:" + PROHIBITION_LABEL + "{name:'" + prohibitionName + "'}), (n{id:" + subjectId + ", type:'" + subjectType + "'}) create (p)<-[:" + PROHIBITION_LABEL + "]-(n)";
+        }
         execute(cypher);
-
     }
 
     @Override
     public void setProhibitionOperations(String prohibitionName, HashSet<String> operations) throws DatabaseException {
         String opStr = setToCypherArray(operations);
-        String cypher = "match(d:D:denies{name:'" + prohibitionName + "'}) set d.operations = d.operations + " + opStr;
+        String cypher = "match(p:" + PROHIBITION_LABEL +"{name:'" + prohibitionName + "'}) set p.operations = " + opStr;
         execute(cypher);
     }
 

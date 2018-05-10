@@ -1,21 +1,15 @@
 package gov.nist.policyserver.resources;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.requests.AssignmentRequest;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.AssignmentService;
 import gov.nist.policyserver.service.PermissionsService;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static gov.nist.policyserver.common.Constants.*;
 
@@ -44,7 +38,7 @@ public class AssignmentResource {
                                      @QueryParam("process") long process)
             throws NodeNotFoundException, AssignmentExistsException, NoSubjectParameterException,
             MissingPermissionException, InvalidProhibitionSubjectTypeException, DatabaseException,
-            ConfigurationException, SessionUserNotFoundException {
+            ConfigurationException, SessionUserNotFoundException, SessionDoesNotExistException {
         Node user = permissionsService.getSessionUser(session);
 
         //check user can assign the child node to the parent node
@@ -63,7 +57,7 @@ public class AssignmentResource {
     public Response deleteAssignment(@QueryParam("childId") long childId,
                                      @QueryParam("parentId") long parentId,
                                      @QueryParam("session") String session,
-                                     @QueryParam("process") long process) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException {
+                                     @QueryParam("process") long process) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException, SessionDoesNotExistException {
         //get user from username
         Node user = permissionsService.getSessionUser(session);
 

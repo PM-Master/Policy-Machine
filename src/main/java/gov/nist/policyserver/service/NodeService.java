@@ -5,18 +5,12 @@ import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashSet;
 import java.util.List;
 
-import static gov.nist.policyserver.common.Constants.HASH_LENGTH;
-import static gov.nist.policyserver.common.Constants.NAMESPACE_PROPERTY;
-import static gov.nist.policyserver.common.Constants.PASSWORD_PROPERTY;
+import static gov.nist.policyserver.common.Constants.*;
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class NodeService extends Service{
@@ -160,8 +154,6 @@ public class NodeService extends Service{
                 throw new NodeIdExistsException(id, node);
             }
             catch (NodeNotFoundException e) {/*expected exception*/}
-        } else {
-
         }
 
         boolean checkDefault = true;
@@ -169,22 +161,15 @@ public class NodeService extends Service{
         if(properties != null) {
             for (Property property : properties) {
                 //check if namespace property exists
-                if(property.isValid()) {
-                    if (property.getKey().equals(NAMESPACE_PROPERTY)) {
-                        Node nodeInNamespace = null;
-                        try {
-                            nodeInNamespace = getNodeInNamespace(property.getValue(), name);
-                        }
-                        catch (NameInNamespaceNotFoundException e) {
-                        }
+                if (property.isValid() && property.getKey().equals(NAMESPACE_PROPERTY)) {
+                    HashSet<Node> nodes = getNodes(property.getValue(), name, null, null, null);
 
-                        if (nodeInNamespace != null) {
-                            throw new NodeNameExistsInNamespaceException(property.getValue(), name);
-                        }
-
-                        checkDefault = false;
-                        break;
+                    if (nodes.size() > 0) {
+                        throw new NodeNameExistsInNamespaceException(property.getValue(), name);
                     }
+
+                    checkDefault = false;
+                    break;
                 }
             }
         }
@@ -205,7 +190,7 @@ public class NodeService extends Service{
         graph.addNode(newNode);
 
         //assign node to connector
-        if(newNode.getId() > 0) {
+        if(newNode.getId() > 0 && !newNode.getType().equals(NodeType.PC)) {
             AssignmentService assignmentService = new AssignmentService();
             try {
                 assignmentService.createAssignment(newNode.getId(), getConnector().getId());
@@ -294,6 +279,13 @@ public class NodeService extends Service{
         //update node in nodes
         graph.updateNode(nodeId, name);
 
+        //delete node properties
+        List<Property> exProps = node.getProperties();
+        for(Property prop : exProps) {
+            deleteNodeProperty(node.getId(), prop.getKey());
+        }
+
+        //add the new properties
         addNodeProperties(node, properties);
 
         return graph.getNode(nodeId);

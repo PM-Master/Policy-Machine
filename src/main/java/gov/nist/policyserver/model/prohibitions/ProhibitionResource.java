@@ -2,15 +2,15 @@ package gov.nist.policyserver.model.prohibitions;
 
 import java.io.Serializable;
 
-public class ProhibitionRes implements Serializable {
-    long resourceId;
-    boolean compliment;
+public class ProhibitionResource implements Serializable {
+    long    resourceId;
+    boolean complement;
 
-    public ProhibitionRes(){}
+    public ProhibitionResource(){}
 
-    public ProhibitionRes(long resourceId, boolean compliment) {
+    public ProhibitionResource(long resourceId, boolean complement) {
         this.resourceId = resourceId;
-        this.compliment = compliment;
+        this.complement = complement;
     }
 
     public long getResourceId() {
@@ -21,12 +21,12 @@ public class ProhibitionRes implements Serializable {
         this.resourceId = ProhibitionResourceId;
     }
 
-    public boolean isCompliment() {
-        return compliment;
+    public boolean isComplement() {
+        return complement;
     }
 
-    public void setCompliment(boolean compliment) {
-        this.compliment = compliment;
+    public void setComplement(boolean complement) {
+        this.complement = complement;
     }
 
     public int hashCode(){
@@ -34,8 +34,8 @@ public class ProhibitionRes implements Serializable {
     }
 
     public boolean equals(Object o){
-        if(o instanceof ProhibitionRes){
-            ProhibitionRes n = (ProhibitionRes) o;
+        if(o instanceof ProhibitionResource){
+            ProhibitionResource n = (ProhibitionResource) o;
             return this.resourceId == n.resourceId;
         }
         return false;

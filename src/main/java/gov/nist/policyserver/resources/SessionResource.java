@@ -36,14 +36,14 @@ public class SessionResource {
 
     @Path("/{sessionId}")
     @DELETE
-    public Response deleteSession(@PathParam("sessionId") String sessionId) throws NodeNotFoundException, InvalidPropertyException, InvalidNodeTypeException, DatabaseException, ConfigurationException {
+    public Response deleteSession(@PathParam("sessionId") String sessionId) throws NodeNotFoundException, InvalidPropertyException, InvalidNodeTypeException, DatabaseException, ConfigurationException, SessionDoesNotExistException {
         sessionService.deleteSession(sessionId);
         return new ApiResponse(ApiResponse.DELETE_SESSION_SUCCESS).toResponse();
     }
 
     @Path("/users/{username}")
     @GET
-    public Response createSessionForUser(@PathParam("username") String username) throws NullNameException, NodeIdExistsException, NodeNameExistsInNamespaceException, NodeNameExistsException, NodeNotFoundException, NoSuchAlgorithmException, AssignmentExistsException, DatabaseException, InvalidNodeTypeException, InvalidPropertyException, InvalidKeySpecException, ConfigurationException, NullTypeException {
+    public Response createSessionForUser(@PathParam("username") String username) throws NullNameException, NodeIdExistsException, NodeNameExistsInNamespaceException, NodeNameExistsException, NodeNotFoundException, AssignmentExistsException, DatabaseException, InvalidNodeTypeException, InvalidPropertyException, ConfigurationException, NullTypeException {
         return new ApiResponse(sessionService.createSession(username)).toResponse();
     }
 }

@@ -1,14 +1,15 @@
 package gov.nist.policyserver.resources;
 
 import gov.nist.policyserver.exceptions.*;
-import gov.nist.policyserver.requests.*;
+import gov.nist.policyserver.requests.ConnectRequest;
+import gov.nist.policyserver.requests.DataRequest;
+import gov.nist.policyserver.requests.SetIntervalRequest;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.ConfigurationService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -24,7 +25,7 @@ public class ConfigurationResource {
     }
 
     @GET
-    public Response getConfiguration() throws NodeNotFoundException, InvalidPropertyException {
+    public Response getConfiguration() {
         return new ApiResponse(configService.save()).toResponse();
     }
 
@@ -56,7 +57,7 @@ public class ConfigurationResource {
     @POST
     public Response importData(@QueryParam("session") String session,
                                @QueryParam("process") long process,
-                               ConnectRequest request) throws DatabaseException, NullNameException, ConfigurationException, NullTypeException, NodeNameExistsException, NodeNameExistsInNamespaceException, InvalidNodeTypeException, InvalidPropertyException, AssignmentExistsException, PropertyNotFoundException, NodeNotFoundException, NameInNamespaceNotFoundException {
+                               ConnectRequest request) throws DatabaseException, ConfigurationException, InvalidNodeTypeException, InvalidPropertyException, AssignmentExistsException, NodeNotFoundException, NameInNamespaceNotFoundException {
         String host = request.getHost();
         int port = request.getPort();
         String schema = request.getSchema();
@@ -87,7 +88,7 @@ public class ConfigurationResource {
     @POST
     public Response uploadFiles(String[] files,
                                 @QueryParam("session") String session,
-                                @QueryParam("process") long process) throws InvalidPropertyException, AssignmentExistsException, DatabaseException, InvalidKeySpecException, NodeNotFoundException, NodeIdExistsException, NodeNameExistsException, NodeNameExistsInNamespaceException, NoSuchAlgorithmException, NameInNamespaceNotFoundException, NullNameException, ConfigurationException, NullTypeException, InvalidNodeTypeException {
+                                @QueryParam("process") long process) throws InvalidPropertyException, AssignmentExistsException, DatabaseException, InvalidKeySpecException, NodeNotFoundException, NodeIdExistsException, NodeNameExistsException, NodeNameExistsInNamespaceException, NoSuchAlgorithmException, NullNameException, ConfigurationException, NullTypeException, InvalidNodeTypeException {
         configService.uploadFiles(files);
         return new ApiResponse(SUCCESS).toResponse();
     }
@@ -95,20 +96,20 @@ public class ConfigurationResource {
 
     @Path("graph")
     @GET
-    public Response getGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
+    public Response getGraph() throws NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
         return new ApiResponse(configService.getGraph()).toResponse();
     }
 
     @Path("graph/users")
     @GET
-    public Response getUserGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
+    public Response getUserGraph() throws NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
         System.out.println("in user");
         return new ApiResponse(configService.getUserGraph()).toResponse();
     }
 
     @Path("graph/objects")
     @GET
-    public Response getObjGraph() throws ConfigurationException, DatabaseException, NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
+    public Response getObjGraph() throws NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException {
         return new ApiResponse(configService.getObjGraph()).toResponse();
     }
 }

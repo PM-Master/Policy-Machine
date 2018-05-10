@@ -2,17 +2,13 @@ package gov.nist.policyserver.resources;
 
 
 import gov.nist.policyserver.exceptions.*;
-import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
-import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.PermissionsService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import static gov.nist.policyserver.common.Constants.*;
 
 @Path("/permissions")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -28,7 +24,7 @@ public class PermissionsResource {
     @GET
     public Response getPermissions(@PathParam("targetId") long targetId,
                                    @QueryParam("session") String session,
-                                   @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
+                                   @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException, SessionDoesNotExistException {
         
         Node user = permissionsService.getSessionUser(session);
 
@@ -39,7 +35,7 @@ public class PermissionsResource {
     @GET
     public Response getAccessibleChildren(@PathParam("targetId") long targetId,
                                           @QueryParam("session") String session,
-                                          @QueryParam("process") long process) throws NodeNotFoundException, NoUserParameterException, SessionUserNotFoundException, ConfigurationException {
+                                          @QueryParam("process") long process) throws NodeNotFoundException, NoUserParameterException, SessionUserNotFoundException, ConfigurationException, SessionDoesNotExistException {
         
         Node user = permissionsService.getSessionUser(session);
         
@@ -72,7 +68,7 @@ public class PermissionsResource {
     @Path("/sessions")
     @GET
     public Response getAccessibleNodes(@QueryParam("session") String session,
-                                       @QueryParam("process") long process) throws NodeNotFoundException, NoUserParameterException, SessionUserNotFoundException, ConfigurationException {
+                                       @QueryParam("process") long process) throws NodeNotFoundException, NoUserParameterException, SessionUserNotFoundException, ConfigurationException, SessionDoesNotExistException {
         
         Node user = permissionsService.getSessionUser(session);
 

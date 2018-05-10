@@ -6,17 +6,17 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Prohibition  implements Serializable {
-    private ProhibitionSubject subject;
-    private List<ProhibitionRes> resources;
-    private String name;
-    private HashSet<String> operations;
-    private boolean intersection;
+    private ProhibitionSubject        subject;
+    private List<ProhibitionResource> resources;
+    private String                    name;
+    private HashSet<String>           operations;
+    private boolean                   intersection;
 
     public Prohibition(){
 
     }
 
-    public Prohibition(ProhibitionSubject subject, List<ProhibitionRes> resources, String name, HashSet<String> operations, boolean intersection) {
+    public Prohibition(ProhibitionSubject subject, List<ProhibitionResource> resources, String name, HashSet<String> operations, boolean intersection) {
         this.subject = subject;
         if(resources == null){
             this.resources = new ArrayList<>();
@@ -36,16 +36,16 @@ public class Prohibition  implements Serializable {
         this.subject = subject;
     }
 
-    public List<ProhibitionRes> getResources() {
+    public List<ProhibitionResource> getResources() {
         return resources;
     }
 
-    public void addResource(ProhibitionRes resource){
+    public void addResource(ProhibitionResource resource){
         resources.add(resource);
     }
 
     public void removeResource(long resourceId){
-        for(ProhibitionRes dr : resources){
+        for(ProhibitionResource dr : resources){
             if(dr.getResourceId() == resourceId){
                 resources.remove(dr);
                 return;
@@ -53,7 +53,11 @@ public class Prohibition  implements Serializable {
         }
     }
 
-    public void setResources(List<ProhibitionRes> resources){
+    public void clearResources() {
+        resources.clear();
+    }
+
+    public void setResources(List<ProhibitionResource> resources){
         this.resources = resources;
     }
 

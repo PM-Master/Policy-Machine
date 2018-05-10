@@ -9,7 +9,12 @@ public class PmAccessEntry {
     HashSet<String> operations;
 
     public PmAccessEntry(){
+        this.operations = new HashSet<>();
+    }
 
+    public PmAccessEntry(Node node) {
+        this.target = node;
+        this.operations = new HashSet<>();
     }
 
     public PmAccessEntry(Node target, HashSet<String> operations) {

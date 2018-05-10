@@ -8,20 +8,14 @@ import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
-import gov.nist.policyserver.service.AccessService;
 import gov.nist.policyserver.service.NodeService;
 import gov.nist.policyserver.service.PermissionsService;
 import gov.nist.policyserver.translator.model.row.CompositeRow;
 import gov.nist.policyserver.translator.model.row.SimpleRow;
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.*;
@@ -172,7 +166,7 @@ public class PmManager {
      * @param rows the names of the targeted rows
      * @param dbManager
      */
-    public void processUpdate(String id, Update update, List<String> rows, DbManager dbManager) throws InvalidEntityException, SQLException {
+    public void processUpdate(String id, Update update, List<String> rows, DbManager dbManager) {
         new Thread(() -> {
             while(true) {
                 if(!evrManager.isActiveSql(id)) {
@@ -182,11 +176,7 @@ public class PmManager {
 
                         evrManager.processUpdate(pmUser, process, update);
                     }
-                    catch (InvalidEntityException | SQLException | InvalidEvrException |
-                            DatabaseException | ConfigurationException | InvalidPropertyException |
-                            InvalidNodeTypeException | NodeNotFoundException | AssignmentExistsException |
-                            ProhibitionDoesNotExistException | InvalidProhibitionSubjectTypeException |
-                            ProhibitionResourceExistsException | ProhibitionNameExistsException e) {
+                    catch (InvalidEntityException | SQLException | InvalidEvrException | DatabaseException | ConfigurationException | InvalidPropertyException | InvalidNodeTypeException | NodeNotFoundException | AssignmentExistsException | ProhibitionDoesNotExistException | InvalidProhibitionSubjectTypeException | ProhibitionResourceExistsException | ProhibitionNameExistsException | NullNameException e) {
                         e.printStackTrace();
                     }
                     return;
@@ -226,11 +216,7 @@ public class PmManager {
 
                         evrManager.processSelect(pmUser, process);
                     }
-                    catch (InvalidEntityException | SQLException | InvalidEvrException |
-                            DatabaseException | ConfigurationException | InvalidPropertyException |
-                            InvalidNodeTypeException | NodeNotFoundException | AssignmentExistsException |
-                            ProhibitionDoesNotExistException | ProhibitionResourceExistsException |
-                            InvalidProhibitionSubjectTypeException | ProhibitionNameExistsException e) {
+                    catch (InvalidEntityException | SQLException | InvalidEvrException | DatabaseException | ConfigurationException | InvalidPropertyException | InvalidNodeTypeException | NodeNotFoundException | AssignmentExistsException | ProhibitionDoesNotExistException | ProhibitionResourceExistsException | InvalidProhibitionSubjectTypeException | ProhibitionNameExistsException | NullNameException e) {
                         e.printStackTrace();
                     }
                     return;

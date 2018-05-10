@@ -9,7 +9,7 @@ import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.relationships.Assignment;
 import gov.nist.policyserver.model.graph.relationships.Association;
 import gov.nist.policyserver.model.prohibitions.Prohibition;
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 
 import java.io.Serializable;
 import java.util.*;
@@ -24,23 +24,65 @@ public class PmAccess implements Serializable{
     public PmAccess(){
         prohibitions = new ArrayList<>();
     }
-    
+
     private PmGraph getGraph() throws ConfigurationException {
         return getDao().getGraph();
     }
 
     /**
-     * Get the access1 rights a user has on a node
+     * Get the access rights a user has on a node
      * @param user The user
      * @param target The node to get the access1 rights for
      * @return a HashSet of operations
      */
     public PmAccessEntry getUserAccessOn(Node user, Node target) throws ConfigurationException {
-        PmAccessEntry entry = new PmAccessEntry();
+        if(user.getName().equals(Constants.SUPER_USER_NAME)) {
+            return getSuperUserAccessOn(user, target);
+        }
+
+        PmAccessEntry entry = new PmAccessEntry(target);
         HashSet<String> ops = new HashSet<>();
 
         //get policy classes
-        HashSet<Node> pcs = getPolicyClasses();
+        HashSet<Node> pcs = getNonSuperPolicyClasses();
+
+        //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
+        HashMap<Node, HashSet<String>> dc = getBorderOas(user);
+        if(dc.isEmpty()){
+            return entry;
+        }
+
+        HashMap<Node, HashMap<Node, HashSet<String>>> D = new HashMap<>();
+
+        for(Node pc : pcs){
+            HashMap<Node, HashSet<String>> pcMap = new HashMap<>();
+            pcMap.put(pc, new HashSet<>());
+            D.put(pc, pcMap);
+        }
+
+        dfs(target, D, dc);
+
+        //for every pc the object reaches check to see if they have a common access1 right.
+        HashMap<Node, HashSet<String>> pcMap = D.get(target);
+        boolean addOps = true;
+        for(Node pc : pcMap.keySet()){
+            if(addOps){
+                ops.addAll(pcMap.get(pc));
+                addOps = false;
+            }else{
+                ops.retainAll(pcMap.get(pc));
+            }
+        }
+
+        //put the target node and the operations the user is allowed into the map
+        entry = new PmAccessEntry(user, ops);
+
+        return entry;
+    }
+
+    public PmAccessEntry getUserAccessOn(Node user, Node target, HashSet<Node> pcs) throws ConfigurationException {
+        PmAccessEntry entry = new PmAccessEntry(target);
+        HashSet<String> ops = new HashSet<>();
 
         //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
         HashMap<Node, HashSet<String>> dc = getBorderOas(user);
@@ -82,17 +124,25 @@ public class PmAccess implements Serializable{
         return entry;
     }
 
+    private PmAccessEntry getSuperUserAccessOn(Node user, Node target) throws ConfigurationException {
+        return getUserAccessOn(user, target, new HashSet<>(Collections.singletonList(getSuperPc())));
+    }
+
     /**
      * Get all of the objects a user has access1 to, as well as the access1 rights for each object
      * @param user The user
      * @return A Map with Nodes as the keys and a HashSets of access1 rights as the values
      */
     public synchronized List<PmAccessEntry> getAccessibleNodes(Node user) throws ConfigurationException {
+        if(user.getName().equals(Constants.SUPER_USER_NAME)) {
+            return getSuperAccessibleNodes(user);
+        }
+
         //Node->{ops}
         List<PmAccessEntry> accessibleObjects = new ArrayList<>();
 
         //get policy classes
-        HashSet<Node> pcs = getPolicyClasses();
+        HashSet<Node> pcs = getNonSuperPolicyClasses();
 
         //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
         HashMap<Node, HashSet<String>> dc = getBorderOas(user);
@@ -143,15 +193,63 @@ public class PmAccess implements Serializable{
         return accessibleObjects;
     }
 
-    private synchronized Node createVNode(HashMap<Node, HashSet<String>> dc) throws ConfigurationException {
-        long id = new Random().nextLong();
-        Node vNode = new Node(id, "VNODE", NodeType.OA);
-        getGraph().addNode(vNode);
-        for(Node node : dc.keySet()){
-            getGraph().addEdge(node, vNode, new Assignment<>(node, vNode));
+    public synchronized List<PmAccessEntry> getAccessibleNodes(Node user, HashSet<Node> pcs) throws ConfigurationException {
+        //Node->{ops}
+        List<PmAccessEntry> accessibleObjects = new ArrayList<>();
+
+        //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
+        HashMap<Node, HashSet<String>> dc = getBorderOas(user);
+        if(dc.isEmpty()){
+            return accessibleObjects;
         }
-        return vNode;
+
+        Node vNode = createVNode(dc);
+
+        HashMap<Node, HashMap<Node, HashSet<String>>> D = new HashMap<>();
+
+        for(Node pc : pcs){
+            HashMap<Node, HashSet<String>> pcMap = new HashMap<>();
+            pcMap.put(pc, new HashSet<>());
+            D.put(pc, pcMap);
+        }
+
+        Set<Node> objects = getGraph().getAscesndants(vNode);
+
+        for(Node v : objects){
+            dfs(v, D, dc);
+
+            //for every pc the object reaches check to see if they have a common access1 right.
+            HashSet<String> finalOps = new HashSet<>();
+            HashMap<Node, HashSet<String>> pcMap = D.get(v);
+            boolean addOps = true;
+            for(Node pc : pcMap.keySet()){
+                //if there are permissions in the super pc then they apply to all pcs
+                if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                    finalOps.addAll(pcMap.get(pc));
+                    break;
+                }
+
+                if(addOps){
+                    finalOps.addAll(pcMap.get(pc));
+                    addOps = false;
+                }else{
+                    finalOps.retainAll(pcMap.get(pc));
+                }
+            }
+            if(!finalOps.isEmpty()) {
+                accessibleObjects.add(new PmAccessEntry(v, finalOps));
+            }
+        }
+
+        getGraph().deleteNode(vNode);
+
+        return accessibleObjects;
     }
+
+    private List<PmAccessEntry> getSuperAccessibleNodes(Node user) throws ConfigurationException {
+        return getAccessibleNodes(user, new HashSet<>(Collections.singletonList(getSuperPc())));
+    }
+
 
     /**
      * Get the Users and their access1 rights for a specific node
@@ -165,7 +263,57 @@ public class PmAccess implements Serializable{
         HashSet<Node> users = getUsers();
 
         //get policy classes
-        HashSet<Node> pcs = getPolicyClasses();
+        HashSet<Node> pcs = getNonSuperPolicyClasses();
+
+        for(Node user : users) {
+            //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
+            HashMap<Node, HashSet<String>> dc = getBorderOas(user);
+            if (dc.isEmpty()) {
+                return entries;
+            }
+
+            HashMap<Node, HashMap<Node, HashSet<String>>> D = new HashMap<>();
+
+            for (Node pc : pcs) {
+                HashMap<Node, HashSet<String>> pcMap = new HashMap<>();
+                pcMap.put(pc, new HashSet<>());
+                D.put(pc, pcMap);
+            }
+
+            dfs(target, D, dc);
+
+            //for every pc the object reaches check to see if they have a common access1 right.
+            HashMap<Node, HashSet<String>> pcMap = D.get(target);
+            HashSet<String> ops = new HashSet<>();
+            boolean addOps = true;
+            for (Node pc : pcMap.keySet()) {
+                //if there are permissions in the super pc then they apply to all pcs
+                if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                    ops.addAll(pcMap.get(pc));
+                    break;
+                }
+
+                if (addOps) {
+                    ops.addAll(pcMap.get(pc));
+                    addOps = false;
+                } else {
+                    ops.retainAll(pcMap.get(pc));
+                }
+            }
+
+            //put the target node and the operations the user is allowed into the map
+            if(!ops.isEmpty()) {
+                entries.add(new PmAccessEntry(user, ops));
+            }
+        }
+        return entries;
+    }
+
+    public List<PmAccessEntry> getUsersWithAccessOn(Node target, HashSet<Node> pcs) throws ConfigurationException {
+        //user->ops
+        List<PmAccessEntry> entries = new ArrayList<>();
+
+        HashSet<Node> users = getUsers();
 
         for(Node user : users) {
             //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
@@ -218,11 +366,15 @@ public class PmAccess implements Serializable{
      * @return a map with the child Nodes as the keys and the HashSets of access1 rights as the values
      */
     public synchronized List<PmAccessEntry> getAccessibleChildrenOf(Node target, Node user) throws ConfigurationException {
+        if(user.getName().equals(Constants.SUPER_USER_NAME)) {
+            return getSuperAccessibleChildrenOf(target, user);
+        }
+
         //Node->{ops}
         List<PmAccessEntry> accessibleObjects = new ArrayList<>();
 
         //get policy classes
-        HashSet<Node> pcs = getPolicyClasses();
+        HashSet<Node> pcs = getNonSuperPolicyClasses();
 
         //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
         HashMap<Node, HashSet<String>> dc = getBorderOas(user);
@@ -272,6 +424,64 @@ public class PmAccess implements Serializable{
         return accessibleObjects;
     }
 
+    public synchronized List<PmAccessEntry> getAccessibleChildrenOf(Node target, Node user, HashSet<Node> pcs) throws ConfigurationException {
+        //Node->{ops}
+        List<PmAccessEntry> accessibleObjects = new ArrayList<>();
+
+        //get border nodes.  Can be OA or UA.  Return empty set if no OAs are reachable
+        HashMap<Node, HashSet<String>> dc = getBorderOas(user);
+        if(dc.isEmpty()){
+            return accessibleObjects;
+        }
+
+        Node vNode = createVNode(dc);
+
+        HashMap<Node, HashMap<Node, HashSet<String>>> D = new HashMap<>();
+
+        for(Node pc : pcs){
+            HashMap<Node, HashSet<String>> pcMap = new HashMap<>();
+            pcMap.put(pc, new HashSet<>());
+            D.put(pc, pcMap);
+        }
+
+        Set<Node> objects = getGraph().getChildren(target);
+        for(Node v : objects){
+            dfs(v, D, dc);
+
+            //for every pc the object reaches check to see if they have a common access1 right.
+            HashSet<String> finalOps = new HashSet<>();
+            HashMap<Node, HashSet<String>> pcMap = D.get(v);
+            boolean addOps = true;
+            for(Node pc : pcMap.keySet()){
+                //if there are permissions in the super pc then they apply to all pcs
+                if(pc.getName().equals(Constants.SUPER_PC_NAME)) {
+                    finalOps.addAll(pcMap.get(pc));
+                    break;
+                }
+
+                if(addOps){
+                    finalOps.addAll(pcMap.get(pc));
+                    addOps = false;
+                }else{
+                    finalOps.retainAll(pcMap.get(pc));
+                }
+            }
+            if(!finalOps.isEmpty()) {
+                accessibleObjects.add(new PmAccessEntry(v, finalOps));
+            }
+        }
+
+        getGraph().deleteNode(vNode);
+
+        return accessibleObjects;
+    }
+
+    private List<PmAccessEntry> getSuperAccessibleChildrenOf(Node target, Node user) throws ConfigurationException {
+        return getAccessibleChildrenOf(target, user, new HashSet<>(Collections.singletonList(getSuperPc())));
+    }
+
+
+    //Utility Methods
     private synchronized HashMap<Node, HashSet<String>> getBorderOas(Node user) throws ConfigurationException {
         HashMap<Node, HashSet<String>> d = new HashMap<>();
         HashSet<Assignment> uaEdges = new HashSet<>();
@@ -320,7 +530,6 @@ public class PmAccess implements Serializable{
             HashMap<Node, HashSet<String>> pcSet = D.get(node);
             for(Node pc : pcSet.keySet()){
                 HashSet<String> ops = pcSet.get(pc);
-                //HashSet<String> ops = pcSet.computeIfAbsent(pcId, k -> new HashSet<>());
                 HashSet<String> exOps = D.get(w).computeIfAbsent(pc, k -> new HashSet<>());
                 exOps.addAll(ops);
             }
@@ -328,16 +537,45 @@ public class PmAccess implements Serializable{
 
         if(dc.containsKey(w)){
             HashMap<Node, HashSet<String>> pcSet = D.get(w);
+            System.out.println(pcSet);
             for(Node pcId : pcSet.keySet()){
                 HashSet<String> ops = dc.get(w);
+                System.out.println("adding ops: " + ops + " for PC: " + pcId.getName() + " for node: " + w.getName());
                 D.get(w).get(pcId).addAll(ops);
             }
         }
 
     }
 
+    private Node getSuperPc() throws ConfigurationException {
+        HashSet<Node> policyClasses = getPolicyClasses();
+        for(Node node : policyClasses) {
+            if(node.getName().equals(Constants.SUPER_PC_NAME)) {
+                return node;
+            }
+        }
+
+        throw new ConfigurationException("There is no Super Policy Class called 'Super PC'.  Please load super.pm.");
+    }
+
+    private synchronized Node createVNode(HashMap<Node, HashSet<String>> dc) throws ConfigurationException {
+        long id = new Random().nextLong();
+        Node vNode = new Node(id, "VNODE", NodeType.OA);
+        getGraph().addNode(vNode);
+        for(Node node : dc.keySet()){
+            getGraph().addEdge(node, vNode, new Assignment<>(node, vNode));
+        }
+        return vNode;
+    }
+
     private synchronized HashSet<Node> getPolicyClasses() throws ConfigurationException {
         return new HashSet<>(getGraph().getNodesOfType(NodeType.PC));
+    }
+
+    private synchronized HashSet<Node> getNonSuperPolicyClasses() throws ConfigurationException {
+        HashSet<Node> policyClasses = getPolicyClasses();
+        policyClasses.removeIf(node -> node.getName().equals(Constants.SUPER_PC_NAME));
+        return policyClasses;
     }
 
     private synchronized HashSet<Node> getUsers() throws ConfigurationException {
@@ -396,11 +634,11 @@ public class PmAccess implements Serializable{
                     getGraph().getAscesndants(prohibition.getSubject().getSubjectId()).contains(getGraph().getNode(subjectId));
             if(subjectInDeny){
                 boolean inter = prohibition.isIntersection();
-                List<ProhibitionRes> resources = prohibition.getResources();
+                List<ProhibitionResource> resources = prohibition.getResources();
 
-                HashMap<ProhibitionRes, HashSet<Node>> drAscendants = new HashMap<>();
+                HashMap<ProhibitionResource, HashSet<Node>> drAscendants = new HashMap<>();
                 HashSet<Node> nodes = new HashSet<>();
-                for (ProhibitionRes dr : resources) {
+                for (ProhibitionResource dr : resources) {
                     HashSet<Node> ascendants = getGraph().getAscesndants(dr.getResourceId());
                     drAscendants.put(dr, ascendants);
                     nodes.addAll(ascendants);
@@ -408,8 +646,8 @@ public class PmAccess implements Serializable{
 
                 boolean addOps = false;
                 if(inter) {
-                    for (ProhibitionRes dr : drAscendants.keySet()) {
-                        if (dr.isCompliment()) {
+                    for (ProhibitionResource dr : drAscendants.keySet()) {
+                        if (dr.isComplement()) {
                             nodes.removeAll(drAscendants.get(dr));
                         }
                     }
@@ -418,9 +656,9 @@ public class PmAccess implements Serializable{
                     }
                 }else{
                     addOps = true;
-                    for (ProhibitionRes dr : drAscendants.keySet()) {
+                    for (ProhibitionResource dr : drAscendants.keySet()) {
                         HashSet<Node> ascs = drAscendants.get(dr);
-                        if (dr.isCompliment()) {
+                        if (dr.isComplement()) {
                             if(ascs.contains(getGraph().getNode(targetId))){
                                 addOps = false;
                             }

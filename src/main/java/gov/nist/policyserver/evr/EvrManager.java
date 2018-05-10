@@ -1,6 +1,5 @@
 package gov.nist.policyserver.evr;
 
-import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.evr.exceptions.InvalidEntityException;
 import gov.nist.policyserver.evr.exceptions.InvalidEvrException;
 import gov.nist.policyserver.evr.model.*;
@@ -14,18 +13,15 @@ import gov.nist.policyserver.evr.model.script.rule.response.*;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
-import gov.nist.policyserver.model.graph.nodes.Property;
-import gov.nist.policyserver.model.prohibitions.Prohibition;
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 import gov.nist.policyserver.service.AccessService;
 import gov.nist.policyserver.service.AssignmentService;
 import gov.nist.policyserver.service.NodeService;
-import gov.nist.policyserver.service.ProhibitionService;
+import gov.nist.policyserver.service.ProhibitionsService;
 import gov.nist.policyserver.translator.algorithms.DbManager;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 import org.xml.sax.SAXException;
 
@@ -33,8 +29,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
-
-import static gov.nist.policyserver.common.Constants.NAMESPACE_PROPERTY;
 
 public class EvrManager {
     private static final String INSERT_EVENT      = "insert";
@@ -54,17 +48,17 @@ public class EvrManager {
     private NodeService          nodeService;
     private AssignmentService    assignmentService;
     private AccessService        accessService;
-    private ProhibitionService   prohibitionService;
+    private ProhibitionsService  prohibitionsService;
     private DbManager            dbManager;
     private List<String>         activeSqls;
-    private List<EvrEntity> curSubjects;
+    private List<EvrEntity>      curSubjects;
 
     public EvrManager() throws ConfigurationException {
         parser = new EvrParser();
         scripts = new ArrayList<>();
         nodeService = new NodeService();
         assignmentService = new AssignmentService();
-        prohibitionService = new ProhibitionService();
+        prohibitionsService = new ProhibitionsService();
         accessService = new AccessService();
         activeSqls = new ArrayList<>();
     }
@@ -100,7 +94,7 @@ public class EvrManager {
         activeSqls.remove(id);
     }
 
-    public void processUpdate(Node user, String process, Update update) throws InvalidPropertyException, InvalidNodeTypeException, InvalidEvrException, NodeNotFoundException, InvalidEntityException, SQLException, ConfigurationException, DatabaseException, AssignmentExistsException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException {
+    public void processUpdate(Node user, String process, Update update) throws InvalidPropertyException, InvalidNodeTypeException, InvalidEvrException, NodeNotFoundException, InvalidEntityException, SQLException, ConfigurationException, DatabaseException, AssignmentExistsException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException, NullNameException {
         //if user is null, its a process
         EvrSubject evrSubject = new EvrSubject();
         if(process != null) {
@@ -143,7 +137,7 @@ public class EvrManager {
         }
     }
 
-    public void processSelect(Node user, String process) throws InvalidPropertyException, InvalidNodeTypeException, InvalidEvrException, NodeNotFoundException, InvalidEntityException, SQLException, ConfigurationException, DatabaseException, AssignmentExistsException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException {
+    public void processSelect(Node user, String process) throws InvalidPropertyException, InvalidNodeTypeException, InvalidEvrException, NodeNotFoundException, InvalidEntityException, SQLException, ConfigurationException, DatabaseException, AssignmentExistsException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException, NullNameException {
         //if user is null, its a process
         EvrSubject evrSubject = new EvrSubject();
         if(process != null) {
@@ -199,7 +193,7 @@ public class EvrManager {
         }
     }
 
-    public void processEvent(EvrSubject procSubject, EvrPcSpec procPc, String procEvent, Node procTarget) throws InvalidNodeTypeException, InvalidEntityException, NodeNotFoundException, InvalidPropertyException, InvalidEvrException, SQLException, DatabaseException, ConfigurationException, AssignmentExistsException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException {
+    public void processEvent(EvrSubject procSubject, EvrPcSpec procPc, String procEvent, Node procTarget) throws InvalidNodeTypeException, InvalidEntityException, NodeNotFoundException, InvalidPropertyException, InvalidEvrException, SQLException, DatabaseException, ConfigurationException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException, NullNameException {
         //get all rules with the same event
         List<EvrRule> rules = getRules(procEvent);
         for(EvrRule rule : rules) {
@@ -323,7 +317,7 @@ public class EvrManager {
         return true;
     }
 
-    private boolean targetMatches(Node procTarget, EvrTarget evrTarget) throws InvalidNodeTypeException, InvalidPropertyException, InvalidEvrException, NodeNotFoundException {
+    private boolean targetMatches(Node procTarget, EvrTarget evrTarget) throws InvalidNodeTypeException, InvalidEvrException, NodeNotFoundException {
         EvrEntity evrTargetEntity = evrTarget.getEntity();
         List<EvrEntity> evrTargetContainers = evrTarget.getContainers();
 
@@ -508,7 +502,7 @@ public class EvrManager {
      * @param evrEntity
      * @return
      */
-    private boolean checkNode(EvrEntity procEntity, EvrEntity evrEntity) throws InvalidNodeTypeException, InvalidPropertyException, InvalidEntityException, NodeNotFoundException {
+    private boolean checkNode(EvrEntity procEntity, EvrEntity evrEntity) throws InvalidNodeTypeException, InvalidEntityException, NodeNotFoundException {
         HashSet<Node> nodes =
                 nodeService.getNodes(null, evrEntity.getName(), evrEntity.getType(), evrEntity.getProperties());
         if(nodes.size() != 1) {
@@ -523,13 +517,10 @@ public class EvrManager {
         } else {
             //is the checked node an ascendant to the processed node
             nodes = assignmentService.getAscendants(procEntity.getNode().getId());
-            if(nodes.contains(checkNode)) {
-                return true;
-            }
+            return nodes.contains(checkNode);
         }
 
         //if it gets to this point, the nodes do not match
-        return false;
     }
 
 
@@ -622,7 +613,7 @@ public class EvrManager {
         return retRules;
     }
 
-    private void doActions(List<EvrAction> actions) throws InvalidEntityException, InvalidNodeTypeException, SQLException, InvalidEvrException, InvalidPropertyException, NodeNotFoundException, DatabaseException, ConfigurationException, AssignmentExistsException, ProhibitionResourceExistsException, ProhibitionNameExistsException, ProhibitionDoesNotExistException, InvalidProhibitionSubjectTypeException {
+    private void doActions(List<EvrAction> actions) throws InvalidEntityException, InvalidNodeTypeException, SQLException, InvalidEvrException, InvalidPropertyException, NodeNotFoundException, DatabaseException, ConfigurationException, ProhibitionNameExistsException, InvalidProhibitionSubjectTypeException, NullNameException {
         for(EvrAction action : actions) {
             if(action instanceof EvrGrantAction) {
                 EvrGrantAction grantAction = (EvrGrantAction) action;
@@ -637,7 +628,7 @@ public class EvrManager {
         }
     }
 
-    private void doDeny(EvrDenyAction denyAction) throws DatabaseException, ProhibitionDoesNotExistException, NodeNotFoundException, ConfigurationException, ProhibitionResourceExistsException, InvalidProhibitionSubjectTypeException, ProhibitionNameExistsException, InvalidEntityException, InvalidNodeTypeException, SQLException, InvalidEvrException, InvalidPropertyException {
+    private void doDeny(EvrDenyAction denyAction) throws DatabaseException, NodeNotFoundException, ConfigurationException, InvalidProhibitionSubjectTypeException, ProhibitionNameExistsException, InvalidEntityException, InvalidNodeTypeException, SQLException, InvalidEvrException, InvalidPropertyException, NullNameException {
         EvrSubject subject = denyAction.getSubject();
         EvrOpSpec opSpec = denyAction.getOpSpec();
         EvrTarget target = denyAction.getTarget();
@@ -646,7 +637,7 @@ public class EvrManager {
         String[] opsArr = new String[ops.size()];
         opsArr = ops.toArray(opsArr);
 
-        ProhibitionRes[] resources = new ProhibitionRes[target.getContainers().size()];
+        ProhibitionResource[] resources = new ProhibitionResource[target.getContainers().size()];
         List<EvrEntity> containers = target.getContainers();
         for(int i = 0; i < containers.size(); i++) {
             EvrEntity evrEntity = containers.get(i);
@@ -659,7 +650,7 @@ public class EvrManager {
                 throw new NodeNotFoundException("Error finding container node when creating a prohibition");
             }
             Node node = nodes.iterator().next();
-            resources[i] = new ProhibitionRes(node.getId(), evrEntity.isCompliment());
+            resources[i] = new ProhibitionResource(node.getId(), evrEntity.isCompliment());
         }
 
         List<EvrEntity> entities = subject.getEntities();
@@ -689,7 +680,7 @@ public class EvrManager {
             }
 
 
-            prohibitionService.createProhibition(UUID.randomUUID().toString(),
+            prohibitionsService.createProhibition(UUID.randomUUID().toString(),
                     opsArr, target.isIntersection(), resources, proSubject);
         }
     }
@@ -717,7 +708,7 @@ public class EvrManager {
         }
     }
 
-    private HashSet<Node> getNodes(EvrEntity evrEntity) throws InvalidEntityException, InvalidNodeTypeException, InvalidPropertyException {
+    private HashSet<Node> getNodes(EvrEntity evrEntity) throws InvalidEntityException, InvalidNodeTypeException {
         HashSet<Node> nodes = new HashSet<>();
         if(evrEntity.isList()) {
             List<EvrEntity> entityList = evrEntity.getEntityList();
@@ -744,7 +735,7 @@ public class EvrManager {
      * grant each subject the ops on the target
      * @param grantAction
      */
-    private void doGrant(EvrGrantAction grantAction) throws InvalidEntityException, InvalidNodeTypeException, SQLException, InvalidEvrException, InvalidPropertyException, DatabaseException, NodeNotFoundException, ConfigurationException {
+    private void doGrant(EvrGrantAction grantAction) throws InvalidEntityException, InvalidNodeTypeException, SQLException, InvalidEvrException, InvalidPropertyException {
         EvrSubject subject = grantAction.getSubject();
         List<EvrEntity> entities = subject.getEntities();
 

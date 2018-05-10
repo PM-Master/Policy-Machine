@@ -3,7 +3,7 @@ package gov.nist.policyserver.service;
 import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.exceptions.ConfigurationException;
 import gov.nist.policyserver.exceptions.InvalidPropertyException;
-import gov.nist.policyserver.exceptions.NodeNotFoundException;
+import gov.nist.policyserver.exceptions.SessionDoesNotExistException;
 import gov.nist.policyserver.exceptions.SessionUserNotFoundException;
 import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.graph.nodes.Node;
@@ -18,9 +18,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashSet;
 
-import static gov.nist.policyserver.common.Constants.CONNECTOR_NAME;
-import static gov.nist.policyserver.common.Constants.CONNECTOR_NAMESPACE;
-import static gov.nist.policyserver.common.Constants.NAMESPACE_PROPERTY;
+import static gov.nist.policyserver.common.Constants.*;
 import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class Service {
@@ -32,7 +30,7 @@ public class Service {
         access = getDao().getAccess();
     }
 
-    public Node getSessionUser(String session) throws NodeNotFoundException, SessionUserNotFoundException {
+    public Node getSessionUser(String session) throws SessionUserNotFoundException, SessionDoesNotExistException {
         HashSet<Node> sessions = graph.getNodesOfType(NodeType.S);
         for(Node node : sessions) {
             if(node.getName().equals(session)) {
@@ -46,7 +44,7 @@ public class Service {
             }
         }
 
-        throw new NodeNotFoundException(session);
+        throw new SessionDoesNotExistException(session);
     }
 
     public Node getConnector() throws InvalidPropertyException, ConfigurationException {

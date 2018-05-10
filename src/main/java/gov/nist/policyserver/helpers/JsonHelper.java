@@ -6,7 +6,7 @@ import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.model.graph.relationships.Association;
 import gov.nist.policyserver.model.prohibitions.Prohibition;
-import gov.nist.policyserver.model.prohibitions.ProhibitionRes;
+import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import org.apache.commons.lang3.StringUtils;
 
@@ -84,12 +84,12 @@ public class JsonHelper {
         return new Gson().fromJson(json, Prohibition.class);
     }
 
-    public static List<ProhibitionRes> getProhibitionResources(String json) {
+    public static List<ProhibitionResource> getProhibitionResources(String json) {
         json = json.replaceAll("[\\[\\]]", "").replaceAll("\\},\\{", "}|{");
         String[] jsonArr = json.split("\\|");
-        List<ProhibitionRes> drs = new ArrayList<>();
+        List<ProhibitionResource> drs = new ArrayList<>();
         for(String j : jsonArr){
-            drs.add(new Gson().fromJson(j, ProhibitionRes.class));
+            drs.add(new Gson().fromJson(j, ProhibitionResource.class));
         }
         return drs;
     }

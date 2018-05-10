@@ -1,15 +1,12 @@
 package gov.nist.policyserver.service;
 
-import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.common.Constants;
 import gov.nist.policyserver.exceptions.*;
-import gov.nist.policyserver.graph.PmGraph;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.translator.exceptions.PMAccessDeniedException;
-import scala.reflect.internal.pickling.Translations;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -19,7 +16,6 @@ import java.util.UUID;
 
 import static gov.nist.policyserver.common.Constants.DESCRIPTION_PROPERTY;
 import static gov.nist.policyserver.common.Constants.PASSWORD_PROPERTY;
-import static gov.nist.policyserver.dao.DAO.getDao;
 
 public class SessionService extends Service{
     private NodeService nodeService;
@@ -65,7 +61,7 @@ public class SessionService extends Service{
         return sessionId;
     }
 
-    public String createSession(String username) throws InvalidNodeTypeException, InvalidPropertyException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, DatabaseException, NodeNotFoundException, NodeIdExistsException, AssignmentExistsException, InvalidKeySpecException, NoSuchAlgorithmException {
+    public String createSession(String username) throws InvalidNodeTypeException, InvalidPropertyException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, DatabaseException, NodeNotFoundException, NodeIdExistsException, AssignmentExistsException {
         //get the user node
         HashSet<Node> nodes = nodeService.getNodes(null, username, NodeType.U.toString(), null, null);
         if(nodes.size() != 1) {
@@ -88,10 +84,10 @@ public class SessionService extends Service{
         return sessionId;
     }
 
-    public void deleteSession(String sessionId) throws NodeNotFoundException, InvalidNodeTypeException, InvalidPropertyException, DatabaseException, ConfigurationException {
+    public void deleteSession(String sessionId) throws InvalidNodeTypeException, InvalidPropertyException, DatabaseException, ConfigurationException, SessionDoesNotExistException, NodeNotFoundException {
         HashSet<Node> nodes = nodeService.getNodes(null, sessionId, NodeType.S.toString(), null, null);
         if(nodes.isEmpty()) {
-            throw new NodeNotFoundException(sessionId);
+            throw new SessionDoesNotExistException(sessionId);
         }
 
         Node sessionNode = nodes.iterator().next();
