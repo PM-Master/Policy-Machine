@@ -58,10 +58,10 @@ public class Constants {
     public static final int ERR_SESSION_DOES_NOT_EXIST     = 6023;
     public static final int ERR_ACCESS_DENIED              = 6024;
     public static final int ERR_NODE_ID_EXISTS             = 6025;
-    public static final int ERR_ASSOCIATION_EXISTS         = 6025;
-    public static final int ERR_MISSING_PERMISSIONS        = 6025;
-    public static final int ERR_SESSION_USER_NOT_FOUND     = 6026;
-    public static final int ERR_UNEXPECTED_NUMBER_OF_NODES = 6027;
+    public static final int ERR_ASSOCIATION_EXISTS         = 6026;
+    public static final int ERR_MISSING_PERMISSIONS        = 6027;
+    public static final int ERR_SESSION_USER_NOT_FOUND     = 6028;
+    public static final int ERR_UNEXPECTED_NUMBER_OF_NODES = 6029;
 
     public static final int ERR_NEO                                 = 7000;
 

@@ -92,7 +92,7 @@
                         Get nodes based on the provided search parameters
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -105,7 +105,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">namespace</td>
+                            <td style="min-width: 40px">namespace</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -113,7 +113,7 @@
                             <td>my_namespace</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">name</td>
+                            <td style="min-width: 40px">name</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -121,7 +121,7 @@
                             <td>MyNode</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">type</td>
+                            <td style="min-width: 40px">type</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -129,7 +129,7 @@
                             <td>OA</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">key</td>
+                            <td style="min-width: 40px">key</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -137,7 +137,7 @@
                             <td>propKey</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">value</td>
+                            <td style="min-width: 40px">value</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -178,7 +178,7 @@
                         Create a new node
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -191,7 +191,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">id</td>
+                            <td style="min-width: 40px">id</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -199,7 +199,7 @@
                             <td>123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">name</td>
+                            <td style="min-width: 40px">name</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -207,7 +207,7 @@
                             <td>Node123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">type</td>
+                            <td style="min-width: 40px">type</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -215,7 +215,7 @@
                             <td>OA</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">description</td>
+                            <td style="min-width: 40px">description</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -223,7 +223,7 @@
                             <td>This is a node</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">properties</td>
+                            <td style="min-width: 40px">properties</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -255,20 +255,20 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NullNameException - There was no name provided</li>
-                        <li>NodeNameExistsInNamespaceException - The provided node name already exists in the given namespace</li>
-                        <li>NullTypeException - There was a null type provided</li>
-                        <li>InvalidPropertyException - A Property was provided but the format was invalid</li>
-                        <li>DatabaseException - There was an error connecting to the database</li>
-                        <li>InvalidNodeTypeException - The provided Node type was not one of (C, OA, UA, U, O, PC, D, OS)</li>
-                        <li>NodeNameExistsException - A node in the default namespace already has the given name</li>
-                        <li>ConfigurationException - The PM is not connected to a database</li>
-                        <li>NodeIdExistsException - A node already exists with the given ID</li>
-                        <li>NodeNotFoundException - If the connector node does not exist</li>
-                        <li>SessionUserNotFoundException - The given session ID was not associated with a User</li>
-                        <li>NoSubjectParameterException - Both session and process IDs were not provided</li>
-                        <li>MissingPermissionException - The user does not have the ability to create a node</li>
-                        <li>InvalidProhibitionSubjectTypeException - The session and/or process were not provided</li>
+                        <li>6011 - A name is required and cannot be null - There was no name provided</li>
+                        <li>6021 - A node with the given name already exists in the given namespace - The provided node name already exists in the given namespace</li>
+                        <li>6020 - A Node Type cannot be null - There was a null type provided</li>
+                        <li>6006 - A property was malformed (Correct format is key=value) - A Property was provided but the format was invalid</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6018 - The provided Node type was not one of (C, OA, UA, U, O, PC, D, OS)</li>
+                        <li>6017 - A node with the given name does not exist in the given namespace - A node in the default namespace already has the given name</li>
+                        <li>6014 - Error with Pm configuration - The PM is not connected to a database</li>
+                        <li>6025 - A node already exists with the given ID</li>
+                        <li>6008 - Node not found - If the connector node does not exist</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6013 - No subject was provided - Both session and process IDs were not provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action - The user does not have the ability to create a node</li>
+                        <li>6007 - The provided Subject Type was invalid - The session and/or process were not provided</li>
                     </ul>
                 </div>
             </div>
@@ -286,7 +286,7 @@
                         Get the node with the given ID
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -299,7 +299,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">nodeId</td>
+                            <td style="min-width: 40px">nodeId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -326,11 +326,11 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
                     </ul>
                 </div>
                 <div id="/nodes/{nodeId}-PUT" style="display: none; padding: 15px">
@@ -338,7 +338,7 @@
                         Update the node with the given ID
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -351,7 +351,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">nodeId</td>
+                            <td style="min-width: 40px">nodeId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -359,7 +359,7 @@
                             <td>1234</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">name</td>
+                            <td style="min-width: 40px">name</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -367,7 +367,7 @@
                             <td>Node123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">type</td>
+                            <td style="min-width: 40px">type</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -375,7 +375,7 @@
                             <td>OA</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">description</td>
+                            <td style="min-width: 40px">description</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -383,7 +383,7 @@
                             <td>This is a node</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">properties</td>
+                            <td style="min-width: 40px">properties</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -415,17 +415,15 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>DatabaseException</li>
-                        <li>ConfigurationException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>InvalidKeySpecException</li>
-                        <li>InvalidPropertyException</li>
-                        <li>NoSuchAlgorithmException</li>
-                        <li>PropertyNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6015 - A property with the given key, value pair was not found</li>
                     </ul>
                 </div>
                 <div id="/nodes/{nodeId}-DELETE" style="display: none; padding: 15px">
@@ -433,7 +431,7 @@
                         Delete the node with the given ID
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -446,7 +444,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">nodeId</td>
+                            <td style="min-width: 40px">nodeId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -472,13 +470,13 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>DatabaseException</li>
-                        <li>ConfigurationException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
+                        <li>6008 - Node not found</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
                     </ul>
                 </div>
             </div>
@@ -494,7 +492,7 @@
                         Delete the property of the node with the given key
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -540,14 +538,14 @@
                 </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>DatabaseException</li>
-                        <li>NodeNotFoundException</li>
-                        <li>PropertyNotFoundException</li>
-                        <li>ConfigurationException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6008 - Node not found</li>
+                        <li>6015 - A property with the given key, value pair was not found</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
             </div>
@@ -564,7 +562,7 @@
                         Get the nodes that are assigned to the node with the given ID
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -625,9 +623,9 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoUserParameterException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6009 - A user parameter was expected but none was received</li>
                     </ul>
                 </div>
                 <div id="/nodes/{nodeId}/children-DELETE" style="display: none; padding: 15px">
@@ -635,7 +633,7 @@
                         Delete the nodes that are assigned to the node with the given ID
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -683,14 +681,14 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>InvalidNodeTypeException</li>
-                        <li>NodeNotFoundException</li>
-                        <li>DatabaseException</li>
-                        <li>ConfigurationException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>MissingPermissionException</li>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6008 - Node not found</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
                     </ul>
                 </div>
             </div>
@@ -706,7 +704,7 @@
                         Get nodes based on the provided search parameters
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -719,7 +717,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">nodeId</td>
+                            <td style="min-width: 40px">nodeId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -749,12 +747,12 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>InvalidNodeTypeException</li>
-                        <li>NodeNotFoundException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>MissingPermissionException</li>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6008 - Node not found</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
                     </ul>
                 </div>
             </div>
@@ -777,7 +775,7 @@
                         Return true or false if the assignment exists between the childId and the parentId
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -790,7 +788,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">childId</td>
+                            <td style="min-width: 40px">childId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">yes</td>
@@ -798,7 +796,7 @@
                             <td>1234</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">parentId</td>
+                            <td style="min-width: 40px">parentId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">yes</td>
@@ -825,7 +823,7 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
+                        <li>6008 - Node not found</li>
                     </ul>
                 </div>
                 <div id="/assignments-POST" style="display: none; padding: 15px">
@@ -833,7 +831,7 @@
                         Create a new assignment
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -846,7 +844,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">childId</td>
+                            <td style="min-width: 40px">childId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -854,7 +852,7 @@
                             <td>1234</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">parentId</td>
+                            <td style="min-width: 40px">parentId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -886,14 +884,14 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>AssignmentExistsException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>DatabaseException</li>
-                        <li>ConfigurationException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6005 - An Assignment already exists between two nodes</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
                 <div id="/assignments-DELETE" style="display: none; padding: 15px">
@@ -901,7 +899,7 @@
                         Delete the assignment between the child and the parent
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -914,7 +912,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">childId</td>
+                            <td style="min-width: 40px">childId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">yes</td>
@@ -922,7 +920,7 @@
                             <td>1234</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">parentId</td>
+                            <td style="min-width: 40px">parentId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">yes</td>
@@ -949,14 +947,14 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>AssignmentDoesNotExistException</li>
-                        <li>ConfigurationException</li>
-                        <li>DatabaseException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6001 - An Assignment does not exist</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
             </div>
@@ -978,7 +976,7 @@
                         Get a list of all the Associations
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -991,7 +989,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">targetId</td>
+                            <td style="min-width: 40px">targetId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -1018,12 +1016,12 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>InvalidPropertyException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
                 <div id="/associations-POST" style="display: none; padding: 15px">
@@ -1031,7 +1029,7 @@
                         Create a new Association
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1044,7 +1042,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">uaId</td>
+                            <td style="min-width: 40px">uaId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1052,7 +1050,7 @@
                             <td>123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">targetId</td>
+                            <td style="min-width: 40px">targetId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1060,7 +1058,7 @@
                             <td>321</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">ops</td>
+                            <td style="min-width: 40px">ops</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1068,7 +1066,7 @@
                             <td>["read", "write"]</td>
                         </tr>
                         <!--<tr>
-                            <td style="max-width: 20px">inherit</td>
+                            <td style="min-width: 40px">inherit</td>
                             <td style="max-width: 5px">boolean</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -1100,14 +1098,14 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>AssociationExistsException</li>
-                        <li>ConfigurationException</li>
-                        <li>DatabaseException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6026 - An Association already exists between these two nodes</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
             </div>
@@ -1123,7 +1121,7 @@
                         Update the operations of an Association between the targetId and the uaId.  The new associations will overwrite the existing ones.
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1136,7 +1134,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">targetId</td>
+                            <td style="min-width: 40px">targetId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1144,7 +1142,7 @@
                             <td>321</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">uaId</td>
+                            <td style="min-width: 40px">uaId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1152,7 +1150,7 @@
                             <td>123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">ops</td>
+                            <td style="min-width: 40px">ops</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1160,7 +1158,7 @@
                             <td>["read", "write"]</td>
                         </tr>
                         <!--<tr>
-                            <td style="max-width: 20px">inherit</td>
+                            <td style="min-width: 40px">inherit</td>
                             <td style="max-width: 5px">boolean</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -1192,14 +1190,14 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>AssociationDoesNotExistException</li>
-                        <li>ConfigurationException</li>
-                        <li>DatabaseException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6010 - An Association does not exist between two nodes</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
             </div>
@@ -1215,7 +1213,7 @@
                         Delete the association between the Subject and the Target
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1228,7 +1226,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">targetId</td>
+                            <td style="min-width: 40px">targetId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1236,7 +1234,7 @@
                             <td>321</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">subjectId</td>
+                            <td style="min-width: 40px">subjectId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1263,15 +1261,15 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>NoUserParameterException</li>
-                        <li>AssociationDoesNotExistException</li>
-                        <li>ConfigurationException</li>
-                        <li>DatabaseException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6009 - A user parameter was expected but none was received</li>
+                        <li>6010 - An Association does not exist between two nodes</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
             </div>
@@ -1287,7 +1285,7 @@
                         Get the Associations that a User Attribute is the subject of
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1300,7 +1298,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">subjectId</td>
+                            <td style="min-width: 40px">subjectId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1327,11 +1325,11 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>MissingPermissionException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>SessionUserNotFoundException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6013 - No subject was provided</li>
+                        <li>6027 - The user is missing the correct permissions to perform this action</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
                     </ul>
                 </div>
             </div>
@@ -1386,7 +1384,7 @@
                         Get a list of all Prohibitions
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1399,7 +1397,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">subjectId</td>
+                            <td style="min-width: 40px">subjectId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -1407,7 +1405,7 @@
                             <td>1234</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">resourceId</td>
+                            <td style="min-width: 40px">resourceId</td>
                             <td style="max-width: 5px">long</td>
                             <td style="max-width: 5px">query</td>
                             <td style="max-width: 5px">no</td>
@@ -1465,7 +1463,7 @@
                         Create a new Prohibition
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1478,7 +1476,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">name</td>
+                            <td style="min-width: 40px">name</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1486,7 +1484,7 @@
                             <td>prohibition123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">subject</td>
+                            <td style="min-width: 40px">subject</td>
                             <td style="max-width: 5px">Object</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1505,7 +1503,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">resources</td>
+                            <td style="min-width: 40px">resources</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1530,7 +1528,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">operations</td>
+                            <td style="min-width: 40px">operations</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1538,7 +1536,7 @@
                             <td>["read","write"]</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">intersection</td>
+                            <td style="min-width: 40px">intersection</td>
                             <td style="max-width: 5px">boolean</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1612,13 +1610,13 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>ProhibitionNameExistsException</li>
-                        <li>ProhibitionDoesNotExistException</li>
-                        <li>NodeNotFoundException</li>
-                        <li>DatabaseException</li>
-                        <li>ProhibitionResourceExistsException</li>
-                        <li>ConfigurationException</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6004 - The provided name already exists for a Prohibition</li>
+                        <li>6022 - The given prohibition does not exist</li>
+                        <li>6008 - Node not found</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6003 - The resource already exists in the Prohibition</li>
+                        <li>6014 - Error with Pm configuration</li>
                     </ul>
                 </div>
             </div>
@@ -1636,7 +1634,7 @@
                         Get the Prohibition with the given name
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1649,7 +1647,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">prohibitionName</td>
+                            <td style="min-width: 40px">prohibitionName</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1699,7 +1697,7 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>ProhibitionDoesNotExistException</li>
+                        <li>6022 - The given prohibition does not exist</li>
                     </ul>
                 </div>
                 <div id="/prohibitions/{prohibitionName}-PUT" style="display: none; padding: 15px">
@@ -1707,7 +1705,7 @@
                         Update the Prohibition with the given name
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1720,7 +1718,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">prohibitionName</td>
+                            <td style="min-width: 40px">prohibitionName</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1728,7 +1726,7 @@
                             <td>prohibition123</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">name</td>
+                            <td style="min-width: 40px">name</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -1736,7 +1734,7 @@
                             <td>prohibitionNEW</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">subject</td>
+                            <td style="min-width: 40px">subject</td>
                             <td style="max-width: 5px">Object</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">no</td>
@@ -1755,7 +1753,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">resources</td>
+                            <td style="min-width: 40px">resources</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1784,7 +1782,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">operations</td>
+                            <td style="min-width: 40px">operations</td>
                             <td style="max-width: 5px">array</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1792,7 +1790,7 @@
                             <td>["read"]</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">intersection</td>
+                            <td style="min-width: 40px">intersection</td>
                             <td style="max-width: 5px">boolean</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -1872,13 +1870,13 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>DatabaseException</li>
-                        <li>ProhibitionDoesNotExistException</li>
-                        <li>ProhibitionResourceDoesNotExistException</li>
-                        <li>NodeNotFoundException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
-                        <li>ProhibitionResourceExistsException</li>
-                        <li>ConfigurationException</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6022 - The given prohibition does not exist</li>
+                        <li>6012 - The provided resource does not exist in the Prohibition</li>
+                        <li>6008 - Node not found</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6003 - The resource already exists in the Prohibition</li>
+                        <li>6014 - Error with Pm configuration</li>
                     </ul>
                 </div>
                 <div id="/prohibitions/{prohibitionName}-DELETE" style="display: none; padding: 15px">
@@ -1886,7 +1884,7 @@
                         Delete the Prohibition with the given name
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1899,7 +1897,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">prohibitionName</td>
+                            <td style="min-width: 40px">prohibitionName</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -1926,30 +1924,30 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>DatabaseException</li>
-                        <li>ProhibitionDoesNotExistException</li>
-                        <li>ConfigurationException</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6022 - The given prohibition does not exist</li>
+                        <li>6014 - Error with Pm configuration</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div id="permissions-card" class="card">
-    <div class="card-header" onclick="show('permissions-api')" style="cursor: pointer">Permissions</div>
-    <div id="permissions-api" class="card-body" style="display: none">
-        <div id="/permissions/{targetId}">
-            <h3>/permissions/{targetId}</h3>
+<div id="analytics-card" class="card">
+    <div class="card-header" onclick="show('analytics-api')" style="cursor: pointer">Analytics</div>
+    <div id="analytics-api" class="card-body" style="display: none">
+        <div id="/analytics/{var1:target}/users/permissions">
+            <h3>analytics/{var1:target}/users/permissions</h3>
             <div>
                 <div class="row" style="padding: 0 20px; margin-bottom: 5px">
-                    <button class="btn btn-success" onclick="showEndpoint('/permissions/{targetId}-GET')">GET</button>
+                    <button class="btn btn-success" onclick="showEndpoint('/{var1:target}/users/permissions-GET')">GET</button>
                 </div>
-                <div id="/permissions/{targetId}-GET" style="display: none; padding: 15px">
+                <div id="/{var1:target}/users/permissions-GET" style="display: none; padding: 15px">
                     <p>
-                        Get the permissions on the target for the current session
+                        Get all of the users that have access to the target node, and the permissions each user has. If the permissions query parameter is present, filter any users that dont have the provided permissions
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -1962,12 +1960,36 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">targetId</td>
-                            <td style="max-width: 5px">long</td>
-                            <td style="max-width: 5px">path</td>
+                            <td style="min-width: 40px">name</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
                             <td style="max-width: 5px">yes</td>
-                            <td>The ID of the target to get the permissions on</td>
-                            <td>1234</td>
+                            <td>The name of the target node</td>
+                            <td>/target;name=object1/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">type</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">no</td>
+                            <td>The type of the target node</td>
+                            <td>/target;name=object1;type=O/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">properties</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The properties of the target node</td>
+                            <td>/target;name=object1;type=O;properties=prop1=value1,prop2=value2/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">permissions</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">query</td>
+                            <td style="max-width: 5px">no</td>
+                            <td>Filter any users that don't have the permissions provided</td>
+                            <td>read, write</td>
                         </tr>
                         </tbody>
                     </table>
@@ -1975,20 +1997,19 @@
                         <div class="col-lg-6">
                             <h5>Example Request</h5>
                             <p>
-                                GET .. /pm/api/permissions/1234
+                                GET .. /pm/api/analytics/target;name=object1;type=O;properties=prop1=value1,prop2=value2/users/permissions?permissions=read,write
                             </p>
                         </div>
                         <div class="col-lg-6">
                             <h5>Example Response</h5>
-                            <pre id="/permissions/{targetId}-GET-response" style="background-color: lightgrey; height: 200px"></pre>
+                            <pre id="/{var1:target}/users/permissions-GET-response" style="background-color: lightgrey; height: 200px"></pre>
                             <script>
                                 var json = {'code':9000,'message':'Success','entity':
                                         {
                                             "target": {
-                                                "id": 123,
-                                                "name": "nodeName",
-                                                "type": "OA",
-                                                "description": ""
+                                                "id": 1234,
+                                                "name": "user1",
+                                                "type": "U"
                                             },
                                             "operations":[
                                                 "read",
@@ -1996,32 +2017,33 @@
                                             ]
                                         }
                                 };
-                                document.getElementById('/permissions/{targetId}-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
+                                document.getElementById('/{var1:target}/users/permissions-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
                             </script>
                         </div>
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoSubjectParameterException</li>
-                        <li>InvalidProhibitionSubjectTypeException</li>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6029 - The returned number of nodes was un expected.  Most likely, expexted one but was multiple or none</li>
+                        <li>6008 - Node not found</li>
+                        <li>6014 - Error with Pm configuration</li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div id="/permissions/{targetId}/children">
-            <h3>/permissions/{targetId}/children</h3>
+        <div id="/analytics/{var1:target}/users/{username}/permissions">
+            <h3>/analytics/{var1:target}/users/{username}/permissions</h3>
             <div>
                 <div class="row" style="padding: 0 20px; margin-bottom: 5px">
-                    <button class="btn btn-success" onclick="showEndpoint('/permissions/{targetId}/children-GET')">GET</button>
+                    <button class="btn btn-success" onclick="showEndpoint('/analytics/{var1:target}/users/{username}/permissions-GET')">GET</button>
                 </div>
-                <div id="/permissions/{targetId}/children-GET" style="display: none; padding: 15px">
+                <div id="/analytics/{var1:target}/users/{username}/permissions-GET" style="display: none; padding: 15px">
                     <p>
-                        Get a list of the children of the node with the given ID, that the user associated with the session, has access to and the permissions they have on each.
+                        Get the permissions a user has on a target node.
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -2034,74 +2056,255 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">targetId</td>
-                            <td style="max-width: 5px">long</td>
+                            <td style="min-width: 40px">name</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The name of the target node</td>
+                            <td>/target;name=object1/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">type</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">no</td>
+                            <td>The type of the target node</td>
+                            <td>/target;name=object1;type=O/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">properties</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The properties of the target node</td>
+                            <td>/target;name=object1;type=O;properties=prop1=value1,prop2=value2/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">username</td>
+                            <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
-                            <td>The ID of the target to get the children of</td>
-                            <td>1234</td>
+                            <td>The name of the user</td>
+                            <td>user1</td>
                         </tr>
                         </tbody>
                     </table>
                     <div class="row">
                         <div class="col-lg-6">
                             <p>
-                                GET .. /pm/api/permissions/1234/children
+                                GET .. /pm/api/analytics/target;name=object1;type=O;properties=prop1=value1,prop2=value2/users/user1/permissions
                             </p>
                         </div>
                         <div class="col-lg-6">
                             <h5>Example Response</h5>
-                            <pre id="/permissions/{targetId}/children-GET-response" style="background-color: lightgrey; height: 200px"></pre>
+                            <pre id="/analytics/{var1:target}/users/{username}/permissions-GET-response" style="background-color: lightgrey; height: 200px"></pre>
                             <script>
                                 var json = {'code':9000,'message':'Success','entity':
                                         [
-                                            {
-                                                "target": {
-                                                    "id": 124,
-                                                    "name": "nodeName",
-                                                    "type": "OA",
-                                                    "description": ""
-                                                },
-                                                "operations":[
-                                                    "read",
-                                                    "write"
-                                                ]
-                                            },
-                                            {
-                                                "target": {
-                                                    "id": 125,
-                                                    "name": "nodeName2",
-                                                    "type": "OA",
-                                                    "description": ""
-                                                },
-                                                "operations":[
-                                                    "read"
-                                                ]
-                                            }
+                                            "read",
+                                            "write"
                                         ]
                                 };
-                                document.getElementById('/permissions/{targetId}/children-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
+                                document.getElementById('/analytics/{var1:target}/users/{username}/permissions-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
                             </script>
                         </div>
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>NoUserParameterException</li>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6029 - The returned number of nodes was un expected.  Most likely, expexted one but was multiple or none</li>
+                        <li>6008 - Node not found</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6013 - No subject was provided</li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div id="/permissions/sessions">
-            <h3>/permissions/sessions</h3>
+        <div id="/analytics/{var1:target}/users/{username}">
+            <h3>/analytics/{var1:target}/users/{username}</h3>
             <div>
                 <div class="row" style="padding: 0 20px; margin-bottom: 5px">
-                    <button class="btn btn-success" onclick="showEndpoint('/permissions/sessions-GET')">GET</button>
+                    <button class="btn btn-success" onclick="showEndpoint('/analytics/{var1:target}/users/{username}-GET')">GET</button>
                 </div>
-                <div id="/permissions/sessions-GET" style="display: none; padding: 15px">
+                <div id="/analytics/{var1:target}/users/{username}-GET" style="display: none; padding: 15px">
                     <p>
-                        Get all of the nodes that the current session has access to, and the permissions on each node
+                        Check if a user has the permissions provided on a target node. If no permissions are given, then check if the user has any permissions on the target.
+                    </p>
+                    <h5>Parameters</h5>
+                    <table class="table table-hover table-sm">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td style="min-width: 40px">name</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The name of the target node</td>
+                            <td>/target;name=object1/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">type</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">no</td>
+                            <td>The type of the target node</td>
+                            <td>/target;name=object1;type=O/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">properties</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">matrix</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The properties of the target node</td>
+                            <td>/target;name=object1;type=O;properties=prop1=value1,prop2=value2/</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">username</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">path</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The name of the user</td>
+                            <td>user1</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">permissions</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">query</td>
+                            <td style="max-width: 5px">no</td>
+                            <td>The permissions to check if the user has on the target</td>
+                            <td>read, write</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p>
+                                GET .. /pm/api/analytics/target;name=object1;type=O;properties=prop1=value1,prop2=value2/users/user1?permissions=read,write
+                            </p>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5>Example Response</h5>
+                            <pre id="/analytics/{var1:target}/users/{username}-GET-response" style="background-color: lightgrey; height: 200px"></pre>
+                            <script>
+                                var json = {'code':9000,'message':'Success','entity': true};
+                                document.getElementById('/analytics/{var1:target}/users/{username}-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
+                            </script>
+                        </div>
+                    </div>
+                    <h5>Response Error Codes</h5>
+                    <ul>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6029 - The returned number of nodes was un expected.  Most likely, expexted one but was multiple or none</li>
+                        <li>6008 - Node not found</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6007 - The provided Subject Type was invalid</li>
+                        <li>6013 - No subject was provided</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="/analytics/{username}/targets/permissions">
+            <h3>/analytics/{username}/targets/permissions</h3>
+            <div>
+                <div class="row" style="padding: 0 20px; margin-bottom: 5px">
+                    <button class="btn btn-success" onclick="showEndpoint('/analytics/{username}/targets/permissions-GET')">GET</button>
+                </div>
+                <div id="/analytics/{username}/targets/permissions-GET" style="display: none; padding: 15px">
+                    <p>
+                        Get all of the nodes that a given user has access to and the permissions they have on each node. Optionally, if permissions are provided aa a query parameter, this method will return the list of nodes that the user has the specified permissions on.
+                    </p>
+                    <h5>Parameters</h5>
+                    <table class="table table-hover table-sm">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td style="min-width: 40px">username</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">path</td>
+                            <td style="max-width: 5px">yes</td>
+                            <td>The name of the user</td>
+                            <td>user1</td>
+                        </tr>
+                        <tr>
+                            <td style="min-width: 40px">permissions</td>
+                            <td style="max-width: 5px">string</td>
+                            <td style="max-width: 5px">query</td>
+                            <td style="max-width: 5px">no</td>
+                            <td>The permissions to check if the user has on the targets</td>
+                            <td>read, write</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p>
+                                GET .. /pm/api/analytics/user1/targets/permissions?permissions=read, write
+                            </p>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5>Example Response</h5>
+                            <pre id="/analytics/{username}/targets/permissions-GET-response" style="background-color: lightgrey; height: 200px"></pre>
+                            <script>
+                                var json = {'code':9000,'message':'Success','entity':
+                                        {
+                                            "target": {
+                                                "id": 1234,
+                                                "name": "object1",
+                                                "type": "o"
+                                            },
+                                            "operations":[
+                                                "read",
+                                                "write",
+                                                "execute"
+                                            ]
+                                        }
+                                };
+                                document.getElementById('/analytics/{username}/targets/permissions-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
+                            </script>
+                        </div>
+                    </div>
+                    <h5>Response Error Codes</h5>
+                    <ul>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6029 - The returned number of nodes was un expected.  Most likely, expexted one but was multiple or none</li>
+                        <li>6008 - Node not found</li>
+                        <li>6009 - A user parameter was expected but none was received</li>
+                        <li>6014 - Error with Pm configuration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="/analytics/sessions">
+            <h3>/analytics/sessions</h3>
+            <div>
+                <div class="row" style="padding: 0 20px; margin-bottom: 5px">
+                    <button class="btn btn-success" onclick="showEndpoint('/analytics/sessions-GET')">GET</button>
+                </div>
+                <div id="/analytics/sessions-GET" style="display: none; padding: 15px">
+                    <p>
+                        Get all of the nodes that the current session has access to, and the analytics on each node
                     </p>
                     <h5>Parameters</h5>
                     *The only parameter is the Session ID described above.
@@ -2110,12 +2313,12 @@
                         <div class="col-lg-6">
                             <h5>Example Request</h5>
                             <p>
-                                GET .. /pm/api/permissions/sessions?session=SESSION_ID
+                                GET .. /pm/api/analytics/sessions?session=SESSION_ID
                             </p>
                         </div>
                         <div class="col-lg-6">
                             <h5>Example Response</h5>
-                            <pre id="/permissions/sessions-GET-response" style="background-color: lightgrey; height: 200px;"></pre>
+                            <pre id="/analytics/sessions-GET-response" style="background-color: lightgrey; height: 200px;"></pre>
                             <script>
                                 var json = {'code':9000,'message':'Success','entity':
                                         [
@@ -2144,16 +2347,16 @@
                                             }
                                         ]
                                 };
-                                document.getElementById('/permissions/sessions-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
+                                document.getElementById('/analytics/sessions-GET-response').innerHTML = JSON.stringify(json, undefined, 2);
                             </script>
                         </div>
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>NoUserParameterException</li>
-                        <li>SessionUserNotFoundException</li>
-                        <li>ConfigurationException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6009 - A user parameter was expected but none was received</li>
+                        <li>6028 - The given session ID was not associated with a User</li>
+                        <li>6014 - Error with Pm configuration</li>
                     </ul>
                 </div>
             </div>
@@ -2175,7 +2378,7 @@
                         Create a new session after authenticating the given username and password
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -2188,7 +2391,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">username</td>
+                            <td style="min-width: 40px">username</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -2196,7 +2399,7 @@
                             <td>bob</td>
                         </tr>
                         <tr>
-                            <td style="max-width: 20px">password</td>
+                            <td style="min-width: 40px">password</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">body</td>
                             <td style="max-width: 5px">yes</td>
@@ -2231,21 +2434,19 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NullNameException</li>
-                        <li>NodeNameExistsInNamespaceException</li>
-                        <li>NodeNameExistsException</li>
-                        <li>NodeNotFoundException</li>
-                        <li>DatabaseException</li>
-                        <li>InvalidNodeTypeException</li>
-                        <li>InvalidPropertyException</li>
-                        <li>ConfigurationException</li>
-                        <li>NullTypeException</li>
-                        <li>NodeIdExistsException</li>
-                        <li>AssignmentExistsException</li>
-                        <li>InvalidKeySpecException</li>
-                        <li>NoSuchAlgorithmException</li>
-                        <li>PMAccessDeniedException</li>
-                        <li>PropertyNotFoundException</li>
+                        <li>6011 - A name is required and cannot be null</li>
+                        <li>6021 - A node with the given name already exists in the given namespace</li>
+                        <li>6017 - A node with the given name does not exist in the given namespace</li>
+                        <li>6008 - Node not found</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6014 - Error with Pm configuration</li>
+                        <li>6020 - A Node Type cannot be null</li>
+                        <li>6025 - A node already exists with the given ID</li>
+                        <li>6005 - An Assignment already exists between two nodes</li>
+                        <li>6024 - The user does not have permission to perform this action</li>
+                        <li>6015 - A property with the given key, value pair was not found</li>
                     </ul>
                 </div>
             </div>
@@ -2261,7 +2462,7 @@
                         Delete the session with the given ID
                     </p>
                     <h5>Parameters</h5>
-                    <table class="table table-hover">
+                    <table class="table table-hover table-sm">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -2274,7 +2475,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="max-width: 20px">session</td>
+                            <td style="min-width: 40px">session</td>
                             <td style="max-width: 5px">string</td>
                             <td style="max-width: 5px">path</td>
                             <td style="max-width: 5px">yes</td>
@@ -2300,11 +2501,11 @@
                     </div>
                     <h5>Response Error Codes</h5>
                     <ul>
-                        <li>NodeNotFoundException</li>
-                        <li>InvalidPropertyException</li>
-                        <li>InvalidNodeTypeException</li>
-                        <li>DatabaseException</li>
-                        <li>ConfigurationException</li>
+                        <li>6008 - Node not found</li>
+                        <li>6006 - A property was malformed (Correct format is key=value)</li>
+                        <li>6018 - An invalid Node Type was recieved</li>
+                        <li>7/8000- There was an error connecting to the database</li>
+                        <li>6014 - Error with Pm configuration</li>
                     </ul>
                 </div>
             </div>
@@ -2315,12 +2516,6 @@
 <script>
     curId = '';
     function show(id){
-        /*if(curId !== id) {
-         var element = document.getElementById(curId);
-         if (element) {
-         element.style.display = 'none';
-         }
-         }*/
         element = document.getElementById(id);
         if (element.style.display === "none") {
             element.style.display = "block";
