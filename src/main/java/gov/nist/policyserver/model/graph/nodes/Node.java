@@ -150,6 +150,10 @@ public class Node implements Serializable{
         properties.removeIf(property -> property.getKey().equals(key));
     }
 
+    public void deleteProperties() {
+        properties.clear();
+    }
+
     public void updateProperty(String key, String value) throws PropertyNotFoundException {
         Property property = getProperty(key);
         property.setValue(value);
