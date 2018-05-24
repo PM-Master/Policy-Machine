@@ -4,8 +4,8 @@ import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.requests.AssignmentRequest;
 import gov.nist.policyserver.response.ApiResponse;
+import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.AssignmentService;
-import gov.nist.policyserver.service.PermissionsService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,7 +19,7 @@ import static gov.nist.policyserver.common.Constants.*;
 public class AssignmentResource {
 
     private AssignmentService assignmentService = new AssignmentService();
-    private PermissionsService permissionsService = new PermissionsService();
+    private AnalyticsService  analyticsService  = new AnalyticsService();
 
     public AssignmentResource() throws ConfigurationException {
     }
@@ -39,14 +39,14 @@ public class AssignmentResource {
             throws NodeNotFoundException, AssignmentExistsException, NoSubjectParameterException,
             MissingPermissionException, InvalidProhibitionSubjectTypeException, DatabaseException,
             ConfigurationException, SessionUserNotFoundException, SessionDoesNotExistException {
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //check user can assign the child node to the parent node
         //1. can assign (type) TO parent node
-        permissionsService.checkPermissions(user, process, request.getParentId(), ASSIGN_TO);
+        analyticsService.checkPermissions(user, process, request.getParentId(), ASSIGN_TO);
 
         //2. can assign child
-        permissionsService.checkPermissions(user, process, request.getChildId(), ASSIGN);
+        analyticsService.checkPermissions(user, process, request.getChildId(), ASSIGN);
 
         assignmentService.createAssignment(request.getChildId(), request.getParentId());
 
@@ -59,15 +59,15 @@ public class AssignmentResource {
                                      @QueryParam("session") String session,
                                      @QueryParam("process") long process) throws NodeNotFoundException, AssignmentDoesNotExistException, ConfigurationException, DatabaseException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException, SessionDoesNotExistException {
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //PERMISSION CHECK
         //check user can deassign the child node from the parent node
         //1. can assign (type) TO parent node
-        permissionsService.checkPermissions(user, process, parentId, DEASSIGN_FROM);
+        analyticsService.checkPermissions(user, process, parentId, DEASSIGN_FROM);
 
         //2. can deassign child
-        permissionsService.checkPermissions(user, process, childId, DEASSIGN);
+        analyticsService.checkPermissions(user, process, childId, DEASSIGN);
 
         assignmentService.deleteAssignment(childId, parentId);
 

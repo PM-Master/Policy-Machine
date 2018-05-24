@@ -16,7 +16,7 @@ import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.model.prohibitions.ProhibitionResource;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubject;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
-import gov.nist.policyserver.service.AccessService;
+import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.AssignmentService;
 import gov.nist.policyserver.service.NodeService;
 import gov.nist.policyserver.service.ProhibitionsService;
@@ -47,7 +47,7 @@ public class EvrManager {
     private EvrResponseProcessor responseProcessor;
     private NodeService          nodeService;
     private AssignmentService    assignmentService;
-    private AccessService        accessService;
+    private AnalyticsService     analyticsService;
     private ProhibitionsService  prohibitionsService;
     private DbManager            dbManager;
     private List<String>         activeSqls;
@@ -59,7 +59,7 @@ public class EvrManager {
         nodeService = new NodeService();
         assignmentService = new AssignmentService();
         prohibitionsService = new ProhibitionsService();
-        accessService = new AccessService();
+        analyticsService = new AnalyticsService();
         activeSqls = new ArrayList<>();
     }
 
@@ -767,7 +767,7 @@ public class EvrManager {
 
                     for(Node targetNode : targetNodes) {
                         System.out.println("Granting " + subjectNode.getName() + " " + ops + " on " + targetNode.getName());
-                        //accessService.grantAccess(subjectNode.getId(), targetNode.getId(), new HashSet<>(ops), true);
+                        //analyticsService.grantAccess(subjectNode.getId(), targetNode.getId(), new HashSet<>(ops), true);
                     }
                 }
             }

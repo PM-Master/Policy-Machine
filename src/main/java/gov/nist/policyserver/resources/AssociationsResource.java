@@ -4,8 +4,8 @@ import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.requests.AssociationRequest;
 import gov.nist.policyserver.response.ApiResponse;
+import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.AssociationsService;
-import gov.nist.policyserver.service.PermissionsService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,7 +19,7 @@ import static gov.nist.policyserver.common.Constants.*;
 public class AssociationsResource {
 
     private AssociationsService associationsService = new AssociationsService();
-    private PermissionsService  permissionsService  = new PermissionsService();
+    private AnalyticsService    permissionsService  = new AnalyticsService();
 
     public AssociationsResource() throws ConfigurationException {
     }

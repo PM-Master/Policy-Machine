@@ -8,8 +8,8 @@ import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
+import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.NodeService;
-import gov.nist.policyserver.service.PermissionsService;
 import gov.nist.policyserver.translator.model.row.CompositeRow;
 import gov.nist.policyserver.translator.model.row.SimpleRow;
 import net.sf.jsqlparser.schema.Column;
@@ -33,15 +33,15 @@ public class PmManager {
     private BufferedReader in;
     private PrintWriter out;
 
-    private Node               pmUser;
-    private NodeService        nodeService;
-    private PermissionsService permissionsService;
-    private EvrManager         evrManager;
-    private String             process;
+    private Node             pmUser;
+    private NodeService      nodeService;
+    private AnalyticsService analyticsService;
+    private EvrManager       evrManager;
+    private String           process;
 
     public PmManager(String username, String process) throws NodeNotFoundException, ConfigurationException {
         this.nodeService = new NodeService();
-        this.permissionsService = new PermissionsService();
+        this.analyticsService = new AnalyticsService();
         this.pmUser = getPmUser(username);
         this.evrManager = DAO.getDao().getEvrManager();
         this.process = process;
@@ -79,7 +79,7 @@ public class PmManager {
     }
 
     public List<Node> getAccessibleChildren(long id, String perm) throws NodeNotFoundException, NoUserParameterException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, ConfigurationException {
-        List<PmAccessEntry> accessibleChildren = permissionsService.getAccessibleChildren(id, pmUser.getId());
+        List<PmAccessEntry> accessibleChildren = analyticsService.getAccessibleChildren(id, pmUser.getId());
         List<Node> nodes = new ArrayList<>();
         for(PmAccessEntry entry : accessibleChildren) {
             Node target = entry.getTarget();
@@ -102,11 +102,11 @@ public class PmManager {
      */
     private HashSet<String> getProhibitedOps(long id) throws NoSubjectParameterException, NodeNotFoundException, InvalidProhibitionSubjectTypeException, ConfigurationException {
         //get the prohibited ops for the user
-        HashSet<String> prohibitedOps = permissionsService.getProhibitedOps(id, pmUser.getId(), "U");
+        HashSet<String> prohibitedOps = analyticsService.getProhibitedOps(id, pmUser.getId(), "U");
 
         //get the prohibited ops for the process if it exists
         if(process != null && !process.isEmpty()) {
-            prohibitedOps.addAll(permissionsService.getProhibitedOps(id, Long.valueOf(process), "P"));
+            prohibitedOps.addAll(analyticsService.getProhibitedOps(id, Long.valueOf(process), "P"));
         }
 
         return prohibitedOps;
@@ -131,7 +131,7 @@ public class PmManager {
 
         List<String> permList = Arrays.asList(perms);
 
-        PmAccessEntry access = permissionsService.getUserPermissionsOn(node.getId(), pmUser.getId());
+        PmAccessEntry access = analyticsService.getUserPermissionsOn(node.getId(), pmUser.getId());
         HashSet<String> operations = access.getOperations();
 
         //get and remove all prohibited operations
@@ -150,7 +150,7 @@ public class PmManager {
         List<String> permList = Arrays.asList(perms);
 
         Node node = nodes.iterator().next();
-        PmAccessEntry access = permissionsService.getUserPermissionsOn(node.getId(), pmUser.getId());
+        PmAccessEntry access = analyticsService.getUserPermissionsOn(node.getId(), pmUser.getId());
         HashSet<String> operations = access.getOperations();
 
         //get and remove all prohibited operations

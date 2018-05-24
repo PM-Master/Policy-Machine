@@ -7,10 +7,9 @@ import gov.nist.policyserver.model.graph.nodes.NodeType;
 import gov.nist.policyserver.requests.AssignmentRequest;
 import gov.nist.policyserver.requests.CreateNodeRequest;
 import gov.nist.policyserver.response.ApiResponse;
-import gov.nist.policyserver.service.AccessService;
+import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.AssignmentService;
 import gov.nist.policyserver.service.NodeService;
-import gov.nist.policyserver.service.PermissionsService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -28,9 +27,9 @@ import static gov.nist.policyserver.common.Constants.FILE_WRITE;
 @Produces(MediaType.APPLICATION_JSON)
 public class PmKernelResource {
 
-    NodeService        nodeService          = new NodeService();
-    PermissionsService permissionsService   = new PermissionsService();
-    AssignmentService  assignmentService    = new AssignmentService();
+    NodeService       nodeService       = new NodeService();
+    AnalyticsService  analyticsService  = new AnalyticsService();
+    AssignmentService assignmentService = new AssignmentService();
 
     public PmKernelResource() throws ConfigurationException {
     }
@@ -56,7 +55,7 @@ public class PmKernelResource {
         System.out.println(userNode.getId() + "&" + rowNode.getName() + "(" + rowNode.getId() + ")");
 
         //get the accessible children of the row with the given permission
-        List<PmAccessEntry> accessibleChildren = permissionsService.getAccessibleChildren(rowNode.getId(), userNode.getId());
+        List<PmAccessEntry> accessibleChildren = analyticsService.getAccessibleChildren(rowNode.getId(), userNode.getId());
         for(PmAccessEntry entry : accessibleChildren) {
             System.out.println(entry.getTarget().getName() + ": " + entry.getOperations());
         }
@@ -98,7 +97,7 @@ public class PmKernelResource {
         nodes = nodeService.getNodes(null, null, null, property, value);
 
         for(Node node : nodes) {
-            PmAccessEntry userAccessOn = permissionsService.getUserPermissionsOn(node.getId(), userNode.getId());
+            PmAccessEntry userAccessOn = analyticsService.getUserPermissionsOn(node.getId(), userNode.getId());
             HashSet<String> operations = userAccessOn.getOperations();
             if(!operations.contains(requiredPermission)) {
                 return new ApiResponse(false).toResponse();

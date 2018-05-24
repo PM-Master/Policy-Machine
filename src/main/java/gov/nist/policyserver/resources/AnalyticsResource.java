@@ -1,15 +1,12 @@
 package gov.nist.policyserver.resources;
 
-import gov.nist.policyserver.access.PmAccess;
 import gov.nist.policyserver.exceptions.*;
 import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.graph.nodes.NodeType;
-import gov.nist.policyserver.model.graph.nodes.Property;
 import gov.nist.policyserver.response.ApiResponse;
 import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.NodeService;
-import gov.nist.policyserver.service.PermissionsService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,14 +17,10 @@ import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 @Path("/analytics")
 public class AnalyticsResource {
-    //get the users that have access to a node - by name
-    //get user POS
-
     AnalyticsService analyticsService = new AnalyticsService();
     NodeService nodeService = new NodeService();
 
@@ -109,6 +102,7 @@ public class AnalyticsResource {
     @Path("/{username}/targets/permissions")
     @GET
     public Response getAccessibleNodes(@PathParam("username") String username,
+                                       @QueryParam("permissions") String permissions,
                                        @QueryParam("session") String session,
                                        @QueryParam("process") long process) throws InvalidNodeTypeException, InvalidPropertyException, UnexpectedNumberOfNodesException, NodeNotFoundException, NoUserParameterException, ConfigurationException {
         //get user node
@@ -117,7 +111,19 @@ public class AnalyticsResource {
         //get all accessible nodes
         List<PmAccessEntry> accessibleNodes = analyticsService.getAccessibleNodes(userNode.getId());
 
-        return new ApiResponse(accessibleNodes).toResponse();
+        if(permissions != null) {
+            String[] permArr = permissions.split(",\\s*");
+            List<PmAccessEntry> entries = new ArrayList<>();
+            for(PmAccessEntry entry : accessibleNodes) {
+                if(entry.getOperations().containsAll(Arrays.asList(permArr))) {
+                    entries.add(entry);
+                }
+            }
+
+            return new ApiResponse(entries).toResponse();
+        } else {
+            return new ApiResponse(accessibleNodes).toResponse();
+        }
     }
 
     /**

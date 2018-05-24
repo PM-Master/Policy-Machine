@@ -20,12 +20,12 @@ import static gov.nist.policyserver.common.Constants.PASSWORD_PROPERTY;
 public class SessionService extends Service{
     private NodeService nodeService;
     private AssignmentService assignmentService;
-    private PermissionsService permissionsService;
+    private AnalyticsService permissionsService;
 
     public SessionService() throws ConfigurationException {
         nodeService = new NodeService();
         assignmentService = new AssignmentService();
-        permissionsService = new PermissionsService();
+        permissionsService = new AnalyticsService();
     }
 
     public String createSession(String username, String password) throws InvalidNodeTypeException, InvalidPropertyException, NodeNotFoundException, PropertyNotFoundException, InvalidKeySpecException, NoSuchAlgorithmException, PMAccessDeniedException, NullNameException, NodeNameExistsException, NodeNameExistsInNamespaceException, ConfigurationException, NullTypeException, NodeIdExistsException, DatabaseException, AssignmentExistsException {

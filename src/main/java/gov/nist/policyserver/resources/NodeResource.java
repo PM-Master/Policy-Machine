@@ -5,8 +5,8 @@ import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.requests.CreateNodeRequest;
 import gov.nist.policyserver.response.ApiResponse;
+import gov.nist.policyserver.service.AnalyticsService;
 import gov.nist.policyserver.service.NodeService;
-import gov.nist.policyserver.service.PermissionsService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,8 +21,8 @@ import static gov.nist.policyserver.common.Constants.*;
 @Produces(MediaType.APPLICATION_JSON)
 public class NodeResource {
 
-    private NodeService nodeService = new NodeService();
-    private PermissionsService permissionsService = new PermissionsService();
+    private NodeService      nodeService      = new NodeService();
+    private AnalyticsService analyticsService = new AnalyticsService();
 
     public NodeResource() throws ConfigurationException {
     }
@@ -39,10 +39,10 @@ public class NodeResource {
             SessionUserNotFoundException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //get the nodes that are accessible to the user
-        List<PmAccessEntry> accessibleNodes = permissionsService.getAccessibleNodes(user);
+        List<PmAccessEntry> accessibleNodes = analyticsService.getAccessibleNodes(user);
         HashSet<Node> nodes = new HashSet<>();
         for(PmAccessEntry entry : accessibleNodes) {
             nodes.add(entry.getTarget());
@@ -62,13 +62,13 @@ public class NodeResource {
             MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //get connector node
-        Node connector = permissionsService.getConnector();
+        Node connector = analyticsService.getConnector();
 
         //check user can create in connector
-        permissionsService.checkPermissions(user, process, connector.getId(), CREATE_NODE);
+        analyticsService.checkPermissions(user, process, connector.getId(), CREATE_NODE);
 
 
         return new ApiResponse(nodeService.createNode(request.getId(), request.getName(), request.getType(), request.getProperties())).toResponse();
@@ -81,10 +81,10 @@ public class NodeResource {
                             @QueryParam("process") long process) throws NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //check user can access the node
-        permissionsService.checkPermissions(user, process, id, ANY_OPERATIONS);
+        analyticsService.checkPermissions(user, process, id, ANY_OPERATIONS);
 
         return new ApiResponse(nodeService.getNode(id)).toResponse();
     }
@@ -100,10 +100,10 @@ public class NodeResource {
             InvalidProhibitionSubjectTypeException, InvalidPropertyException, PropertyNotFoundException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //check user can update the node
-        permissionsService.checkPermissions(user, process, id, UPDATE_NODE);
+        analyticsService.checkPermissions(user, process, id, UPDATE_NODE);
 
         return new ApiResponse(nodeService.updateNode(id, request.getName(), request.getProperties())).toResponse();
     }
@@ -118,10 +118,10 @@ public class NodeResource {
             MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //check user can delete the node
-        permissionsService.checkPermissions(user, process, id, DELETE_NODE);
+        analyticsService.checkPermissions(user, process, id, DELETE_NODE);
 
         nodeService.deleteNode(id);
         return new ApiResponse(ApiResponse.DELETE_NODE_SUCCESS).toResponse();
@@ -136,10 +136,10 @@ public class NodeResource {
             throws DatabaseException, NodeNotFoundException, PropertyNotFoundException, ConfigurationException, NoSubjectParameterException, MissingPermissionException, InvalidProhibitionSubjectTypeException, SessionUserNotFoundException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         //check user can delete the node
-        permissionsService.checkPermissions(user, process, id, UPDATE_NODE);
+        analyticsService.checkPermissions(user, process, id, UPDATE_NODE);
 
         nodeService.deleteNodeProperty(id, key);
         return new ApiResponse(ApiResponse.DELETE_NODE_PROPERTY_SUCCESS).toResponse();
@@ -154,9 +154,9 @@ public class NodeResource {
             throws NodeNotFoundException, SessionUserNotFoundException, NoUserParameterException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
-        List<PmAccessEntry> accessibleChildren = permissionsService.getAccessibleChildren(id, user.getId());
+        List<PmAccessEntry> accessibleChildren = analyticsService.getAccessibleChildren(id, user.getId());
 
         HashSet<Node> nodes = new HashSet<>();
         for(PmAccessEntry entry : accessibleChildren) {
@@ -179,12 +179,12 @@ public class NodeResource {
             InvalidProhibitionSubjectTypeException, MissingPermissionException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         HashSet<Node> children = nodeService.getChildrenOfType(id, type);
 
         for(Node node : children) {
-            PmAccessEntry perms = permissionsService.getUserPermissionsOn(node.getId(), user.getId());
+            PmAccessEntry perms = analyticsService.getUserPermissionsOn(node.getId(), user.getId());
 
             //check the user can delete the node
             if(!perms.getOperations().contains(DELETE_NODE)) {
@@ -205,11 +205,11 @@ public class NodeResource {
             throws InvalidNodeTypeException, NodeNotFoundException, SessionUserNotFoundException, NoSubjectParameterException, InvalidProhibitionSubjectTypeException, MissingPermissionException, ConfigurationException, SessionDoesNotExistException {
         //PERMISSION CHECK
         //get user from username
-        Node user = permissionsService.getSessionUser(session);
+        Node user = analyticsService.getSessionUser(session);
 
         HashSet<Node> parents = nodeService.getParentsOfType(id, type);
         for (Node node : parents) {
-            PmAccessEntry perms = permissionsService.getUserPermissionsOn(node.getId(), user.getId());
+            PmAccessEntry perms = analyticsService.getUserPermissionsOn(node.getId(), user.getId());
             if(perms.getOperations().isEmpty()) {
                 throw new MissingPermissionException("Can not access parent of " + id);
             }
