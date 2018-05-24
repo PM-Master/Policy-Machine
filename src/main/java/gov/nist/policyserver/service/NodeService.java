@@ -7,6 +7,7 @@ import gov.nist.policyserver.model.graph.nodes.Property;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class NodeService extends Service{
         }
 
         //check property match
-        if(properties != null) {
+        if(properties != null && !properties.isEmpty()) {
             nodes.removeIf(node -> {
                 for (Property prop : properties) {
                     if(node.hasProperty(prop)) {
@@ -97,6 +98,53 @@ public class NodeService extends Service{
         }
 
         return nodes;
+    }
+
+    public Node getNode(String namespace, String name, String type, List<Property> properties)
+            throws InvalidNodeTypeException, UnexpectedNumberOfNodesException {
+        NodeType nodeType = (type != null) ? NodeType.toNodeType(type) : null;
+
+        HashSet<Node> nodes = graph.getNodes();
+
+        //check namespace match
+        if(namespace != null){
+            nodes.removeIf(node -> {
+                try {
+                    return !node.hasProperty(NAMESPACE_PROPERTY) || !node.getProperty(NAMESPACE_PROPERTY).getValue().equalsIgnoreCase(namespace);
+                }
+                catch (PropertyNotFoundException e) {
+                    return true;
+                }
+            });
+        }
+
+        //check name match
+        if(name != null){
+            nodes.removeIf(node -> !node.getName().equals(name));
+        }
+
+        //check type match
+        if(nodeType != null){
+            nodes.removeIf(node -> !node.getType().equals(nodeType));
+        }
+
+        //check property match
+        if(properties != null && !properties.isEmpty()) {
+            nodes.removeIf(node -> {
+                for (Property prop : properties) {
+                    if(node.hasProperty(prop)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        if(nodes.size() != 1) {
+            throw new UnexpectedNumberOfNodesException();
+        }
+
+        return nodes.iterator().next();
     }
 
     public HashSet<Node> getNodes(HashSet<Node> nodes, String namespace, String name, String type, String key, String value)
@@ -132,6 +180,22 @@ public class NodeService extends Service{
         }
 
         return nodes;
+    }
+
+    public Node getNode(String name, String type, String properties) throws InvalidPropertyException, InvalidNodeTypeException, UnexpectedNumberOfNodesException {
+        //get target node
+        //get properties
+        List<Property> propList = new ArrayList<>();
+        if(properties != null) {
+            String[] propertiesArr = properties.split(",\\s*");
+            for (String prop : propertiesArr) {
+                String[] split = prop.split("=");
+                if (split.length == 2) {
+                    propList.add(new Property(split[0], split[1]));
+                }
+            }
+        }
+        return getNode(null, name, type, propList);
     }
 
     public Node createNode(long id, String name, String type, Property[] properties)
@@ -276,14 +340,11 @@ public class NodeService extends Service{
         //update node in the database
         getDao().updateNode(nodeId, name);
 
-        //update node in nodes
+        //update node in graph
         graph.updateNode(nodeId, name);
 
         //delete node properties
-        List<Property> exProps = node.getProperties();
-        for(Property prop : exProps) {
-            deleteNodeProperty(node.getId(), prop.getKey());
-        }
+        deleteNodeProperties(nodeId);
 
         //add the new properties
         addNodeProperties(node, properties);
@@ -341,6 +402,16 @@ public class NodeService extends Service{
 
         //delete node from the nodes
         graph.deleteNodeProperty(nodeId, key);
+    }
+
+    private void deleteNodeProperties(long nodeId) throws NodeNotFoundException, ConfigurationException, DatabaseException {
+        List<Property> props = getNodeProperties(nodeId);
+
+        for(Property property : props) {
+            getDao().deleteNodeProperty(nodeId, property.getKey());
+        }
+
+        graph.deleteNodeProperties(nodeId);
     }
 
     public void updateNodeProperty(long nodeId, String key, String value) throws NodeNotFoundException, PropertyNotFoundException, ConfigurationException, DatabaseException, InvalidKeySpecException, NoSuchAlgorithmException {

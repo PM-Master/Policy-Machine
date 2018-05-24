@@ -5,17 +5,15 @@ import gov.nist.policyserver.model.access.PmAccessEntry;
 import gov.nist.policyserver.model.graph.nodes.Node;
 import gov.nist.policyserver.model.prohibitions.ProhibitionSubjectType;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import static gov.nist.policyserver.common.Constants.ALL_OPERATIONS;
 import static gov.nist.policyserver.common.Constants.ANY_OPERATIONS;
-import static gov.nist.policyserver.dao.DAO.getDao;
 
-public class PermissionsService extends Service{
-
-    public PermissionsService() throws ConfigurationException {
+public class AnalyticsService extends Service{
+    public AnalyticsService
+            () throws ConfigurationException {
         super();
     }
 
