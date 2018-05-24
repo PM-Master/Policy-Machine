@@ -158,6 +158,11 @@ public class PmGraph implements Serializable{
         node.deleteProperty(key);
     }
 
+    public synchronized void deleteNodeProperties(long nodeId){
+        Node node = getNode(nodeId);
+        node.deleteProperties();
+    }
+
     public synchronized void updateNodeProperty(long nodeId, String key, String value) throws PropertyNotFoundException {
         Node node = getNode(nodeId);
         node.updateProperty(key, value);
