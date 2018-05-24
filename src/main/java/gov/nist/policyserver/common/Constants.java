@@ -54,13 +54,14 @@ public class Constants {
     public static final int ERR_PROHIBITION_SUBJECT_DOES_NOT_EXIST  = 6019;
     public static final int ERR_NULL_TYPE                           = 6020;
     public static final int ERR_NODE_NAME_EXISTS_IN_NAMESPACE       = 6021;
-    public static final int ERR_PROHIBITION_DOES_NOT_EXIST          = 6022;
-    public static final int ERR_SESSION_DOES_NOT_EXIST              = 6023;
-    public static final int ERR_ACCESS_DENIED                       = 6024;
-    public static final int ERR_NODE_ID_EXISTS                      = 6025;
-    public static final int ERR_ASSOCIATION_EXISTS                  = 6025;
-    public static final int ERR_MISSING_PERMISSIONS                 = 6025;
-    public static final int ERR_SESSION_USER_NOT_FOUND              = 6026;
+    public static final int ERR_PROHIBITION_DOES_NOT_EXIST = 6022;
+    public static final int ERR_SESSION_DOES_NOT_EXIST     = 6023;
+    public static final int ERR_ACCESS_DENIED              = 6024;
+    public static final int ERR_NODE_ID_EXISTS             = 6025;
+    public static final int ERR_ASSOCIATION_EXISTS         = 6025;
+    public static final int ERR_MISSING_PERMISSIONS        = 6025;
+    public static final int ERR_SESSION_USER_NOT_FOUND     = 6026;
+    public static final int ERR_UNEXPECTED_NUMBER_OF_NODES = 6027;
 
     public static final int ERR_NEO                                 = 7000;
 
@@ -108,4 +109,5 @@ public class Constants {
     public static final String ROW_CONTAINER_NAME          = "Rows";
     public static final boolean INHERIT_DEFAULT                = true;
     public static final String SUPER_USER_NAME             = "super";
+    public static final int NEW_NODE_ID = 0;
 }
