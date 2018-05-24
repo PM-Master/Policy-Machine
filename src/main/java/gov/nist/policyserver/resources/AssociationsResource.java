@@ -42,6 +42,7 @@ public class AssociationsResource {
         //permissionsService.checkPermissions(user, process, request.getUaId(), ASSIGN);
 
         associationsService.createAssociation(request.getUaId(), request.getTargetId(), request.getOps(), request.isInherit());
+
         return new ApiResponse(ApiResponse.CREATE_ASSOCIATION_SUCCESS).toResponse();
     }
 
