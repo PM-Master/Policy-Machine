@@ -8,7 +8,7 @@
     <style>
 
     </style>
-
+    <%--TEST--%>
     <script type="text/javascript">
         function showForm(name) {
             document.getElementById(name + 'Form').style.display = 'block';
