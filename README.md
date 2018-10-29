@@ -11,10 +11,12 @@ To run the Policy Machine in a Docker container using Docker Compose, using the 
     - For mac: https://docs.docker.com/toolbox/toolbox_install_mac/
     - For windows: https://docs.docker.com/toolbox/toolbox_install_windows/
 2. Run the Docker Quickstart Terminal
-3. Run 'mvn clean package install' from the project root.  This will create the pm.war file in the 'target' folder.
-4. In the docker terminal, navigate to the project root and run 'docker-compose up'.  This will deploy the pm.war file on a tomcat server, and start a neo4j instance.
-5. Connect to the Neo4j database at 192.168.99.100:7474. Create a user that will be used to connect the PM to the database.
-6. Access the Policy Machine configuration page at 192.168.99.100:8080/pm/config.jsp. Here you will be able to connect the PM to the Neo4j database.
+3. Run `mvn clean package install` from the project root.  This will create the pm.war file in the 'target' folder.
+4. In the docker terminal, navigate to the project root and run `docker-compose up`.  
+This will deploy the pm.war file on a tomcat server, and start a neo4j instance.
+5. Connect to the Neo4j database at localhost:7474. Create a user that will be used to connect the PM to the database.
+6. Access the Policy Machine configuration page at localhost:8080/pm/config.jsp. 
+Here you will be able to connect the PM to the Neo4j database.
 7. Load the super.pm configuration in /configs.
 
 ---

@@ -2,7 +2,7 @@ version: '3'
 
 services:
   neo4j:
-    image: neo4j:3.3.3
+    image: neo4j
     volumes:
       - $HOME/neo4j/data:/data
       - $HOME/neo4j/logs:/logs
@@ -12,9 +12,10 @@ services:
 
   pm:
     image: tomcat:8-jre8
-    volumes:
-      - ./target/pm.war:/usr/local/tomcat/webapps/pm.war
+   volumes:
+      - ./target/:/usr/local/tomcat/webapps/
     ports:
       - 8080:8080
     depends_on:
       - neo4j
+
